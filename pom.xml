@@ -10,7 +10,7 @@
 
     <groupId>com.aegisql</groupId>
     <artifactId>java-path</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <name>java-path</name>
@@ -87,6 +87,13 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>
@@ -151,5 +158,4 @@
         </dependency>
 
     </dependencies>
-
 </project>

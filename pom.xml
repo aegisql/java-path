@@ -101,16 +101,20 @@
                             <goal>javacc</goal>
                         </goals>
                         <configuration>
+                            <sourceDirectory>${project.basedir}/src/main/javacc/</sourceDirectory>
+                            <outputDirectory>${project.basedir}/src/main/javacc/</outputDirectory>
                             <lookAhead>2</lookAhead>
                             <isStatic>false</isStatic>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>jjtree-javacc</id>
+                        <id>jjtree</id>
                         <goals>
-                            <goal>jjtree-javacc</goal>
+                            <goal>jjtree</goal>
                         </goals>
                         <configuration>
+                            <sourceDirectory>${project.basedir}/src/main/javacc</sourceDirectory>
+                            <outputDirectory>${project.basedir}/src/main/javacc/</outputDirectory>
                             <!-- options for JJTree and JavaCC go here -->
                         </configuration>
                     </execution>

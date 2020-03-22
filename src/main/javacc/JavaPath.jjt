@@ -1,0 +1,134 @@
+options
+{
+  JDK_VERSION = "1.8";
+  IGNORE_CASE=false;
+  STATIC=false;
+  VISITOR=true;
+  MULTI=true;
+  DEBUG_PARSER=true;
+  DEBUG_LOOKAHEAD=true ;
+  FORCE_LA_CHECK=true;
+  DEBUG_TOKEN_MANAGER=true;
+  UNICODE_INPUT=true;
+}
+
+PARSER_BEGIN(CCJavaPathParser)
+package com.aegisql.java_path.parser;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+public class CCJavaPathParser
+{
+}
+
+PARSER_END(CCJavaPathParser)
+/*SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}*/
+
+TOKEN :
+{
+  <K_LBRACE: "{">
+| <K_RBRACE: "}">
+| <K_LPARENTHESIS : "(">
+| <K_RPARENTHESIS : ")">
+| <K_DOT: ".">
+| <K_COMMA: ",">
+| <K_ESC: "\\">
+| <K_SPACE: ([" ","\t"])+>
+| < K_LABEL: ( ["a"-"z","A"-"Z","_","0"-"9","@","$","#"] )+ >
+}
+
+// string literals
+TOKEN: {
+        <QUOTED_STRING: "\"" ( (~["\"","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\""] ) ) )* "\"">
+    |   <SINGLE_QUOTED_STRING: "\'" ( (~["\'","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\'"] ) ) )* "\'">
+}
+
+/** Root production. */
+
+SimpleNode fullLabel() :
+{}
+{
+    (
+        LOOKAHEAD(2) <K_LPARENTHESIS> [fullType()] typedLabel() <K_RPARENTHESIS> [<K_DOT> fullLabel() ]
+        |
+        typedLabel() [<K_DOT> fullLabel() ]
+    )
+    <EOF>
+    { return jjtThis; }
+
+}
+
+void typedLabel() :
+{}
+{
+    (
+        label() <K_LBRACE> parameters() <K_RBRACE>
+        |
+        label()
+    )
+}
+
+void label() :
+{
+}
+{
+    <K_LABEL>
+}
+
+void fullType() :
+{}
+{
+    type() <K_SPACE>
+}
+
+String type() :
+{
+    Token t = null;
+    String body = "";
+}
+{
+    t = <K_LABEL>[<K_DOT> type() ]
+    {
+        body = t.image;
+    }
+    {
+        jjtThis.jjtSetValue(body);
+        return body;
+    }
+}
+
+void parameters() :
+{}
+{
+    (
+        LOOKAHEAD(2) <K_LPARENTHESIS> [fullType()] parameter() <K_RPARENTHESIS> [<K_COMMA> parameters() ]
+        |
+        fullType() parameter()[<K_COMMA> parameters() ]
+        |
+        parameter()[<K_COMMA> parameters() ]
+    )
+}
+
+void parameter() :
+{
+    Token t = null;
+    String body = "";
+ }
+{
+    (t = <K_LABEL> | t = <QUOTED_STRING> | t = <SINGLE_QUOTED_STRING>)
+    {
+        body = t.image;
+    }
+    {
+        jjtThis.jjtSetValue(body);
+    }
+}

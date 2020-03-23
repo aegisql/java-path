@@ -30,24 +30,9 @@ public class JavaPathParser {
         }
 
         @Override
-        public Object visit(ASTtypedPathElement node, Object data) {
-            return node.childrenAccept(this,data);
-        }
-
-        @Override
         public Object visit(ASTpathElement node, Object data) {
             LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
             pathList.getLast().setName(toString(node.jjtGetValue()));
-            return node.childrenAccept(this,data);
-        }
-
-        @Override
-        public Object visit(ASTfullType node, Object data) {
-            return node.childrenAccept(this,data);
-        }
-
-        @Override
-        public Object visit(ASTtype node, Object data) {
             return node.childrenAccept(this,data);
         }
 
@@ -58,10 +43,6 @@ public class JavaPathParser {
             return node.childrenAccept(this,data);
         }
 
-        @Override
-        public Object visit(ASTparameter node, Object data) {
-            return node.childrenAccept(this,data);
-        }
     }
 
 

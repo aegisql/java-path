@@ -21,7 +21,6 @@ public class ParserTest {
     static class Visitor implements CCJavaPathParserVisitor {
         @Override
         public Object visit(SimpleNode node, Object data) {
-            LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
             return node.childrenAccept(this,data);
         }
 
@@ -38,27 +37,9 @@ public class ParserTest {
         }
 
         @Override
-        public Object visit(ASTtypedPathElement node, Object data) {
-            LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            return node.childrenAccept(this,data);
-        }
-
-        @Override
         public Object visit(ASTpathElement node, Object data) {
             LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
             pathList.getLast().setName(node.jjtGetValue().toString());
-            return node.childrenAccept(this,data);
-        }
-
-        @Override
-        public Object visit(ASTfullType node, Object data) {
-            LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            return node.childrenAccept(this,data);
-        }
-
-        @Override
-        public Object visit(ASTtype node, Object data) {
-            LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
             return node.childrenAccept(this,data);
         }
 
@@ -69,11 +50,6 @@ public class ParserTest {
             return node.childrenAccept(this,data);
         }
 
-        @Override
-        public Object visit(ASTparameter node, Object data) {
-            LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            return node.childrenAccept(this,data);
-        }
     }
 
     @Test(expected = JavaPathRuntimeException.class)

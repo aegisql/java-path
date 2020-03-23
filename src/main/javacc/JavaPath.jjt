@@ -62,7 +62,7 @@ SimpleNode fullPath() :
 
 }
 
-void typedPathElement() :
+void typedPathElement() #void:
 {}
 {
     (
@@ -83,7 +83,7 @@ void pathElement() :
     }
 }
 
-String fullType() :
+String fullType() #void:
 {
     LinkedList<String> t = null;
 }
@@ -94,7 +94,7 @@ String fullType() :
     }
 }
 
-LinkedList type() :
+LinkedList type() #void:
 {
     Token t = null;
     LinkedList<String> typeElements = new LinkedList<String>();
@@ -130,7 +130,7 @@ void parameters() :
     }
 }
 
-String parameter() :
+String parameter() #void:
 {
     Token t = null;
  }

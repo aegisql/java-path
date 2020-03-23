@@ -1,6 +1,7 @@
 package com.aegisql.java_path;
 
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 public class TypedPathElement {
 
@@ -34,11 +35,17 @@ public class TypedPathElement {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("TypedPathElement{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", type='").append(type).append('\'');
-        sb.append(", parameters=").append(parameters);
-        sb.append('}');
+        final StringBuilder sb = new StringBuilder("");
+        if(type != null){
+            sb.append("(").append(type).append(" ");
+        }
+        sb.append(name);
+        if(parameters.size()>0) {
+            sb.append(parameters.stream().map(p->p.toString()).collect(Collectors.joining(",","{","}")));
+        }
+        if(type != null) {
+            sb.append(")");
+        }
         return sb.toString();
     }
 }

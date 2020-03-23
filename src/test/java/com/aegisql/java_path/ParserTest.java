@@ -6,10 +6,12 @@ import org.junit.Test;
 
 import java.io.StringReader;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ParserTest {
 
-    LinkedList<TypedPathElement> pathList;
+    List<TypedPathElement> pathList;
 
     @Before
     public void init() {
@@ -20,7 +22,6 @@ public class ParserTest {
         @Override
         public Object visit(SimpleNode node, Object data) {
             LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            System.out.println(node+" "+node.jjtGetValue());
             return node.childrenAccept(this,data);
         }
 
@@ -33,14 +34,12 @@ public class ParserTest {
             if(value != null) {
                 typedPathElement.setType(value.toString());
             }
-            System.out.println(node+" "+node.jjtGetValue());
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTtypedPathElement node, Object data) {
             LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            System.out.println(node+" "+node.jjtGetValue());
             return node.childrenAccept(this,data);
         }
 
@@ -48,22 +47,18 @@ public class ParserTest {
         public Object visit(ASTpathElement node, Object data) {
             LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
             pathList.getLast().setName(node.jjtGetValue().toString());
-            System.out.println(node+" "+node.jjtGetValue());
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTfullType node, Object data) {
             LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            System.err.println("Parent of fullType "+node.jjtGetParent().getClass());
-            System.out.println(node+" "+node.jjtGetValue());
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTtype node, Object data) {
             LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            System.out.println(node+" "+node.jjtGetValue());
             return node.childrenAccept(this,data);
         }
 
@@ -71,16 +66,19 @@ public class ParserTest {
         public Object visit(ASTparameters node, Object data) {
             LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
             pathList.getLast().addParameter((TypedValue) node.jjtGetValue());
-            System.out.println(node+" "+node.jjtGetValue());
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTparameter node, Object data) {
             LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            System.out.println(node+" "+node.jjtGetValue());
             return node.childrenAccept(this,data);
         }
+    }
+
+    @Test(expected = JavaPathRuntimeException.class)
+    public void parseVoidTestShouldFail() throws ParseException {
+        testPattern("");
     }
 
     @Test
@@ -98,6 +96,11 @@ public class ParserTest {
         testPattern("(x.y a)");
     }
 
+    @Test(expected = JavaPathRuntimeException.class)
+    public void parseSingleLabelNoParenthWithTypeTestShouldFail() throws ParseException {
+        testPattern("x.y a");
+    }
+
     @Test
     public void parseSingleLabelWithParamTest() throws ParseException {
         testPattern("a{b}");
@@ -106,7 +109,7 @@ public class ParserTest {
     @Test
     public void parseSingleLabelWithSingleQuotedParamTest() throws ParseException {
         //quoted can have dots and esc chars in the value
-        testPattern("a{String 'b \\\\{\\\\} x.y'}");
+        testPattern("a{java.lang.String 'b \\\\{\\\\} x.y'}");
     }
 
     @Test
@@ -137,7 +140,7 @@ public class ParserTest {
 
     @Test
     public void parseMultiLabelInParenthTest() throws ParseException {
-        testPattern("a.(b).(c)");
+        testPattern("(a).(b).(c)");
     }
 
     @Test
@@ -146,10 +149,8 @@ public class ParserTest {
     }
 
     private void testPattern(String s) throws ParseException {
-        CCJavaPathParser parser = new CCJavaPathParser(r(s));
-        SimpleNode sn = parser.fullPath();
-        sn.jjtAccept(new Visitor(),pathList);
-        System.out.println(s+" -> "+pathList);
+        pathList = JavaPathParser.parse(s);
+        System.out.println(s+" -> "+pathList.stream().map(p->p.toString()).collect(Collectors.joining(".")));
     }
 
     StringReader r(String s) {

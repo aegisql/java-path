@@ -22,10 +22,11 @@ public class TypedValue {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("TypedValue{");
-        sb.append("value='").append(value).append('\'');
-        sb.append(", type='").append(type).append('\'');
-        sb.append('}');
+        final StringBuilder sb = new StringBuilder("");
+        if(type != null) {
+            sb.append(type).append(" ");
+        }
+        sb.append(value);
         return sb.toString();
     }
 }

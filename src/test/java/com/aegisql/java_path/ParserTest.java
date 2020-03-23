@@ -108,14 +108,14 @@ public class ParserTest {
 
     @Test
     public void parseSingleLabelWithSingleQuotedParamTest() throws ParseException {
-        //quoted can have dots and esc chars in the value
-        testPattern("a{java.lang.String 'b \\\\{\\\\} x.y'}");
+        //quoted can have dots, braces, spaces and esc chars in the value
+        testPattern("a{java.lang.String 'b () {} \\' x.y'}");
     }
 
     @Test
     public void parseSingleLabelWithDoubleQuotedParamTest() throws ParseException {
         //quoted can have dots and esc chars in the value
-        testPattern("a{String \"b \\\\{\\\\} x.y\"}");
+        testPattern("a{String \"b \\\\ {} x.y\"}");
     }
 
     @Test
@@ -145,7 +145,7 @@ public class ParserTest {
 
     @Test
     public void initializePathParser() throws ParseException {
-        testPattern("(com.test label1{i 100}).(best label2{java.lang.String A}).(label3{X}).label4.@");
+        testPattern("(com.test label1{i 100}).(best label2{#,java.lang.String A}).(label3{$,X}).label4.@");
     }
 
     private void testPattern(String s) throws ParseException {

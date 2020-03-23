@@ -37,7 +37,7 @@ public class JavaPathParser {
         @Override
         public Object visit(ASTpathElement node, Object data) {
             LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            pathList.getLast().setName(node.jjtGetValue().toString());
+            pathList.getLast().setName(toString(node.jjtGetValue()));
             return node.childrenAccept(this,data);
         }
 

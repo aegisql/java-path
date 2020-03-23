@@ -119,8 +119,6 @@ void parameters() :
 }
 {
     (
-        LOOKAHEAD(2) <K_LPARENTHESIS> [type = fullType()] value = parameter() <K_RPARENTHESIS> [<K_COMMA> parameters() ]
-        |
         type = fullType() value = parameter()[<K_COMMA> parameters() ]
         |
         value = parameter()[<K_COMMA> parameters() ]

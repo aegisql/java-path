@@ -62,11 +62,9 @@ SimpleNode fullPath() :
 void typedPathElement() #void:
 {}
 {
-    (
-        pathElement() <K_LBRACE> parameters() <K_RBRACE>
-        |
-        pathElement()
-    )
+    pathElement() <K_LBRACE> parameters() <K_RBRACE>
+    |
+    pathElement()
 }
 
 void pathElement() :

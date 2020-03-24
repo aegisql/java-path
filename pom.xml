@@ -101,6 +101,7 @@
                             <goal>javacc</goal>
                         </goals>
                         <configuration>
+                            <jdkVersion>1.8</jdkVersion>
                             <sourceDirectory>${project.basedir}/src/main/javacc/</sourceDirectory>
                             <outputDirectory>${project.basedir}/src/main/javacc/</outputDirectory>
                             <lookAhead>2</lookAhead>
@@ -113,9 +114,11 @@
                             <goal>jjtree</goal>
                         </goals>
                         <configuration>
+                            <jdkVersion>1.8</jdkVersion>
                             <sourceDirectory>${project.basedir}/src/main/javacc</sourceDirectory>
                             <outputDirectory>${project.basedir}/src/main/javacc/</outputDirectory>
                             <!-- options for JJTree and JavaCC go here -->
+                            <isStatic>false</isStatic>
                         </configuration>
                     </execution>
                 </executions>

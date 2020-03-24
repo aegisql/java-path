@@ -83,6 +83,16 @@ public class ParserTest {
     }
 
     @Test
+    public void parseSingleLabelWithUnicodeParamTest() throws ParseException {
+        testPattern("a{'ПРОВЕРКА'}");
+    }
+
+    @Test(expected = TokenMgrError.class)
+    public void parseSingleLabelWithUnicodeParamFailingTest() throws ParseException {
+        testPattern("a{ПРОВЕРКА}");
+    }
+
+    @Test
     public void parseSingleLabelWithSingleQuotedParamTest() throws ParseException {
         //quoted can have dots, braces, spaces and esc chars in the value
         testPattern("a{java.lang.String 'b () {} \\' x.y'}");

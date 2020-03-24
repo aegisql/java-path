@@ -47,10 +47,10 @@ SimpleNode fullPath() :
 }
 {
     (
-        LOOKAHEAD(2) <K_LPARENTHESIS> [type = fullType()] typedPathElement() <K_RPARENTHESIS> [<K_DOT> fullPath() ]
+        <K_LPARENTHESIS> [type = fullType()] typedPathElement() <K_RPARENTHESIS>
         |
-        typedPathElement() [<K_DOT> fullPath() ]
-    )
+        typedPathElement()
+    ) [<K_DOT> fullPath() ]
     <EOF>
     {
         jjtThis.jjtSetValue(type);
@@ -96,7 +96,7 @@ LinkedList type() #void:
     LinkedList<String> subElements = null;
 }
 {
-    t = <K_PATH_ELEMENT>[<K_DOT> subElements = type() {
+    t = <K_PATH_ELEMENT> [<K_DOT> subElements = type() {
         typeElements.addAll(subElements);
     } ]
     {
@@ -112,10 +112,11 @@ void parameters() :
 }
 {
     (
-        type = fullType() value = parameter()[<K_COMMA> parameters() ]
+        type = fullType() value = parameter()
         |
-        value = parameter()[<K_COMMA> parameters() ]
-    ){
+        value = parameter()
+    ) [<K_COMMA> parameters() ]
+    {
         TypedValue tv = new TypedValue();
         tv.setType(type);
         tv.setValue(value);

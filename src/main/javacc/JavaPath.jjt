@@ -19,9 +19,7 @@ import com.aegisql.java_path.TypedValue;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
-public class CCJavaPathParser
-{
-}
+public class CCJavaPathParser {}
 
 PARSER_END(CCJavaPathParser)
 
@@ -33,12 +31,11 @@ TOKEN :
 | <K_RPARENTHESIS : ")">
 | <K_DOT: ".">
 | <K_COMMA: ",">
-| <K_ESC: "\\">
-| <K_SPACE: ([" ","\t"])+>
-| < K_PATH_ELEMENT: ( ["a"-"z","A"-"Z","_","0"-"9","@","$","#"] )+ >
-| < K_IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+| <K_SPACE: ([" ","\t","\n","\r"])+>
 | < #LETTER: ["_","a"-"z","A"-"Z"] >
 | < #DIGIT: ["0"-"9"] >
+| < #SPECIAL: ["@","$","#"] >
+| < K_PATH_ELEMENT: ( <LETTER> | <DIGIT> | <SPECIAL> )+ >
 | <K_QUOTED_STRING: "\"" ( (~["\"","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\""] ) ) )* "\"">
 | <K_SINGLE_QUOTED_STRING: "\'" ( (~["\'","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\'"] ) ) )* "\'">
 }
@@ -85,12 +82,12 @@ void pathElement() :
 
 String fullType() #void:
 {
-    LinkedList<String> t = null;
+    LinkedList<String> list = null;
 }
 {
-    t = type() <K_SPACE>
+    list = type() <K_SPACE>
     {
-        return t.stream().collect(Collectors.joining("."));
+        return list.stream().collect(Collectors.joining("."));
     }
 }
 
@@ -106,8 +103,6 @@ LinkedList type() #void:
     } ]
     {
         typeElements.addFirst(t.image);
-    }
-    {
         return typeElements;
     }
 }
@@ -133,7 +128,7 @@ void parameters() :
 String parameter() #void:
 {
     Token t = null;
- }
+}
 {
     (t = <K_PATH_ELEMENT> | t = <K_QUOTED_STRING> | t = <K_SINGLE_QUOTED_STRING>)
     {

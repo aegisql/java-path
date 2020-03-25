@@ -34,6 +34,7 @@ TOKEN :
 | < #LETTER: ["_","a"-"z","A"-"Z"] >
 | < #DIGIT: ["0"-"9"] >
 | < #SPECIAL: ["@","$","#"] >
+| < K_TYPE_ELEMENT: ((<LETTER>|<DIGIT>)+ ( <K_DOT> (<LETTER> | <DIGIT>)+ )* <K_SPACE>) >
 | < K_PATH_ELEMENT: ( <LETTER> | <DIGIT> | <SPECIAL> )+ >
 | <K_QUOTED_STRING: "\"" ( (~["\"","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\""] ) ) )* "\"">
 | <K_SINGLE_QUOTED_STRING: "\'" ( (~["\'","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\'"] ) ) )* "\'">
@@ -77,28 +78,12 @@ void pathElement() :
 
 String fullType() #void:
 {
-    LinkedList<String> list = null;
-}
-{
-    list = type() <K_SPACE>
-    {
-        return list.stream().collect(Collectors.joining("."));
-    }
-}
-
-LinkedList type() #void:
-{
     Token t = null;
-    LinkedList<String> typeElements = new LinkedList<String>();
-    LinkedList<String> subElements = null;
 }
 {
-    t = <K_PATH_ELEMENT> [<K_DOT> subElements = type() {
-        typeElements.addAll(subElements);
-    } ]
+    t = <K_TYPE_ELEMENT>
     {
-        typeElements.addFirst(t.image);
-        return typeElements;
+        return t.image.trim();
     }
 }
 
@@ -109,7 +94,7 @@ void parameters() :
 }
 {
     (
-        type = fullType() value = parameter()
+        LOOKAHEAD(fullType() parameter() )type = fullType() value = parameter()
         |
         value = parameter()
     ) [<K_COMMA> parameters() ]

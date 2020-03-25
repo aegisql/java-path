@@ -103,7 +103,7 @@
                         </goals>
                         <configuration>
                             <jdkVersion>1.8</jdkVersion>
-                            <lookAhead>2</lookAhead>
+                            <lookAhead>1</lookAhead>
                             <sourceDirectory>${project.basedir}/src/main/javacc/</sourceDirectory>
                             <outputDirectory>${project.basedir}/src/main/javacc/</outputDirectory>
                         </configuration>
@@ -116,7 +116,7 @@
                         </goals>
                         <configuration>
                             <jdkVersion>1.8</jdkVersion>
-                            <lookAhead>2</lookAhead>
+                            <lookAhead>1</lookAhead>
                             <nodePackage>com.aegisql.java_path.parser</nodePackage>
                             <sourceDirectory>${project.basedir}/src/main/javacc/</sourceDirectory>
                             <outputDirectory>${project.basedir}/src/main/javacc/</outputDirectory>

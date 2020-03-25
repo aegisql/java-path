@@ -1,5 +1,7 @@
 package com.aegisql.java_path;
 
+import java.util.Objects;
+
 public class TypedValue {
     private String value;
     private String type;
@@ -39,6 +41,32 @@ public class TypedValue {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public boolean parametrized() {
+        return type != null && ! "".equals(type);
+    }
+
+    public boolean isHashSign() {
+        return "#".equals(value);
+    }
+
+    public boolean isDollarSign() {
+        return "$".equals(value);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TypedValue that = (TypedValue) o;
+        return value.equals(that.value) &&
+                Objects.equals(type, that.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value, type);
     }
 
     @Override

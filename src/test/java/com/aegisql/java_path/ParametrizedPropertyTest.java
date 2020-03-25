@@ -2,13 +2,22 @@ package com.aegisql.java_path;
 
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class ParametrizedPropertyTest {
 
+    ClassRegistry classRegistry = new ClassRegistry();
+
+    private ParametrizedProperty p(String str) {
+        List<TypedPathElement> parse = JavaPathParser.parse("x{"+str+"}");
+        assertTrue(parse.size() == 1);
+        return new ParametrizedProperty(classRegistry,parse.get(0).getParameters().get(0),false);
+    }
     @Test
     public void basicTest() {
-        ParametrizedProperty lp1 = new ParametrizedProperty("a b");
+        ParametrizedProperty lp1 = p("'a b'");
         assertEquals("a b",lp1.getPropertyStr());
         assertEquals("a b",lp1.getProperty());
         assertEquals(String.class,lp1.getPropertyType());
@@ -18,7 +27,7 @@ public class ParametrizedPropertyTest {
 
     @Test
     public void basicTestWithQuote() {
-        ParametrizedProperty lp1 = new ParametrizedProperty("'a b'");
+        ParametrizedProperty lp1 = p("'a b'");
         assertEquals("a b",lp1.getPropertyStr());
         assertEquals("a b",lp1.getProperty());
         assertEquals(String.class,lp1.getPropertyType());
@@ -28,7 +37,7 @@ public class ParametrizedPropertyTest {
 
     @Test
     public void basicTestWithStrType() {
-        ParametrizedProperty lp1 = new ParametrizedProperty("str a b");
+        ParametrizedProperty lp1 = p("str 'a b'");
         assertEquals("a b",lp1.getPropertyStr());
         assertEquals("a b",lp1.getProperty());
         assertEquals(String.class,lp1.getPropertyType());
@@ -38,7 +47,7 @@ public class ParametrizedPropertyTest {
 
     @Test
     public void basicTestWithStrTypeAndQuotes() {
-        ParametrizedProperty lp1 = new ParametrizedProperty("str 'a b'");
+        ParametrizedProperty lp1 = p("str 'a b'");
         assertEquals("a b",lp1.getPropertyStr());
         assertEquals("a b",lp1.getProperty());
         assertEquals(String.class,lp1.getPropertyType());
@@ -48,7 +57,7 @@ public class ParametrizedPropertyTest {
 
     @Test
     public void basicTestWithIntType() {
-        ParametrizedProperty lp1 = new ParametrizedProperty("i 0");
+        ParametrizedProperty lp1 = p("i 0");
         assertEquals("0",lp1.getPropertyStr());
         assertEquals(0,lp1.getProperty());
         assertEquals(int.class,lp1.getPropertyType());
@@ -58,7 +67,7 @@ public class ParametrizedPropertyTest {
 
     @Test
     public void quotesWorkTest() {
-        ParametrizedProperty lp1 = new ParametrizedProperty("'int 0'");
+        ParametrizedProperty lp1 = p("'int 0'");
         assertEquals("int 0",lp1.getPropertyStr());
         assertEquals("int 0",lp1.getProperty());
         assertEquals(String.class,lp1.getPropertyType());
@@ -70,7 +79,7 @@ public class ParametrizedPropertyTest {
 
     @Test
     public void basicTestWithEnumType() {
-        ParametrizedProperty lp1 = new ParametrizedProperty(X.class.getName()+" A");
+        ParametrizedProperty lp1 = p(X.class.getName()+" A");
         assertEquals("A",lp1.getPropertyStr());
         assertEquals(X.A,lp1.getProperty());
         assertEquals(X.class,lp1.getPropertyType());
@@ -80,7 +89,7 @@ public class ParametrizedPropertyTest {
 
     @Test
     public void builderTest() {
-        ParametrizedProperty lp1 = new ParametrizedProperty("#");
+        ParametrizedProperty lp1 = p("#");
         assertEquals("#",lp1.getPropertyStr());
         assertEquals(null,lp1.getProperty());
         assertEquals(null,lp1.getPropertyType());
@@ -90,7 +99,7 @@ public class ParametrizedPropertyTest {
 
     @Test
     public void valueTest() {
-        ParametrizedProperty lp1 = new ParametrizedProperty("$");
+        ParametrizedProperty lp1 = p("$");
         assertEquals("$",lp1.getPropertyStr());
         assertEquals(null,lp1.getProperty());
         assertEquals(null,lp1.getPropertyType());
@@ -100,7 +109,7 @@ public class ParametrizedPropertyTest {
 
     @Test
     public void valueWithTypeTest() {
-        ParametrizedProperty lp1 = new ParametrizedProperty("$int");
+        ParametrizedProperty lp1 = p("int $");
         assertEquals("$",lp1.getPropertyStr());
         assertEquals(null,lp1.getProperty());
         assertEquals(int.class,lp1.getPropertyType());
@@ -110,7 +119,7 @@ public class ParametrizedPropertyTest {
 
     @Test
     public void valueWithFullTypeTest() {
-        ParametrizedProperty lp1 = new ParametrizedProperty("$java.lang.Integer");
+        ParametrizedProperty lp1 = p("java.lang.Integer $");
         assertEquals("$",lp1.getPropertyStr());
         assertEquals(null,lp1.getProperty());
         assertEquals(Integer.class,lp1.getPropertyType());

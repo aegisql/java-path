@@ -31,7 +31,7 @@ TOKEN :
 | <K_DOT: ".">
 | <K_COMMA: ",">
 | <K_SPACE: ([" ","\t","\n","\r"])+>
-| < #LETTER: ["_","a"-"z","A"-"Z"] >
+| < #LETTER: ["_","a"-"z","A"-"Z","$"] >
 | < #DIGIT: ["0"-"9"] >
 | < K_TYPE_ELEMENT: ((<LETTER>|<DIGIT>)+ ( <K_DOT> (<LETTER> | <DIGIT>)+ )* <K_SPACE>) >
 | < K_PATH_ELEMENT: ( ~["'","\""," ","\t",".",",","{","}","(",")","\\"] )+ >

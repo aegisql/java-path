@@ -1,6 +1,8 @@
 package com.aegisql.java_path;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ParametrizedPath {
@@ -8,18 +10,23 @@ public class ParametrizedPath {
     private final static Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[]{};
     private final static Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
 
+    private final ClassRegistry classRegistry;
+    private final TypedPathElement pathElement;
     private final String wholeLabel;
     private final String label;
     private boolean hasValueType = false;
     private final List<ParametrizedProperty> labelProperties;
     private final ParametrizedProperty parametrizedProperty;
 
-    public ParametrizedPath(Class<?> bClass, String label) {
-        this(bClass,null,label);
+ /*    public ParametrizedPath(Class<?> bClass, String label) {
+        this(new ClassRegistry(), bClass,null,label);
     }
 
-    public ParametrizedPath(Class<?> bClass, Class<?> vClass, String label) {
+   public ParametrizedPath(ClassRegistry classRegistry, Class<?> bClass, Class<?> vClass, String label) {
         Objects.requireNonNull(label,"Label must not be null");
+        this.classRegistry = classRegistry == null? new ClassRegistry():classRegistry;
+        this.pathElement = new TypedPathElement();
+        this.pathElement.setName(label);
         this.wholeLabel = label.trim();
         if(isParametrized()) {
             String[] parts = label.split("\\{|\\}",3);
@@ -34,6 +41,24 @@ public class ParametrizedPath {
             this.labelProperties = Collections.EMPTY_LIST;
             this.parametrizedProperty = new ParametrizedProperty(label,true);
             this.label = parametrizedProperty.getPropertyStr();
+        }
+    }*/
+
+    public ParametrizedPath(ClassRegistry classRegistry, Class<?> aClass, TypedPathElement javaPath) {
+        this.classRegistry = classRegistry == null? new ClassRegistry():classRegistry;
+        this.pathElement = javaPath;
+        this.wholeLabel = javaPath.toString();
+        this.label = javaPath.getName();
+        this.parametrizedProperty = new ParametrizedProperty(classRegistry,pathElement.getOwnTypedValue(),true);
+
+        if(this.pathElement.parametrized()) {
+            this.labelProperties = pathElement.getParameters()
+                    .stream()
+                    .map(tv-> new ParametrizedProperty(classRegistry,tv,false))
+                    .peek(lp->{if(lp.isValue() && lp.getPropertyType() != null) hasValueType = true;})
+                    .collect(Collectors.toList());
+        } else {
+            this.labelProperties = Collections.EMPTY_LIST;
         }
     }
 

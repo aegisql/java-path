@@ -35,23 +35,21 @@ public class ParametrizedProperty {
 
     ParametrizedProperty(ClassRegistry classRegistry, TypedValue p, boolean forField) {
         this.classRegistry = classRegistry;
+        this.value = p.isDollarSign();
         Objects.requireNonNull(p,"Requires property");
             if(p.parametrized()) {
                 this.typeAlias = p.getType();
                 if(classRegistry.classMap.containsKey(p.getType())) {
                     propertyType = classRegistry.classMap.get(p.getType());
                     builder = false;
-                    value = false;
                 } else {
                     Class<?> aClass = toClass(p.getType());
                     if(aClass == null) {
                         propertyType = forField ? null : String.class;
                         builder = false;
-                        value = false;
                     } else {
                         propertyType = classRegistry.classMap.computeIfAbsent(p.getType(), typeName->aClass);
                         builder = false;
-                        value = false;
                     }
                 }
             } else {
@@ -59,9 +57,7 @@ public class ParametrizedProperty {
                 if(p.isHashSign()) {
                     propertyType = null;
                     builder = true;
-                    value = false;
                 } else if(p.isDollarSign()) {
-                    value = true;
                     builder = false;
                     if(classRegistry.classMap.containsKey(p.getType())) {
                         propertyType = classRegistry.classMap.get(p.getType());
@@ -73,7 +69,6 @@ public class ParametrizedProperty {
                 } else {
                     propertyType = forField ? null : String.class;
                     builder = false;
-                    value = false;
                 }
             }
         this.propertyStr = p.getValue();

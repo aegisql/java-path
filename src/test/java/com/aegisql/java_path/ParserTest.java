@@ -87,7 +87,7 @@ public class ParserTest {
         testPattern("a{'ПРОВЕРКА'}");
     }
 
-    @Test(expected = TokenMgrError.class)
+    @Test(expected = TokenMgrException.class)
     public void parseSingleLabelWithUnicodeParamFailingTest() throws ParseException {
         testPattern("a{ПРОВЕРКА}");
     }

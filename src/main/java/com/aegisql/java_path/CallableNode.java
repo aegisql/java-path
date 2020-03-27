@@ -54,7 +54,7 @@ public class CallableNode {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("MethodTreeNode{");
+        final StringBuilder sb = new StringBuilder("CallableNode{");
         sb.append("class=").append(myClass);
         sb.append(", parameters=").append(parameterMap);
         sb.append(", method=").append(method);

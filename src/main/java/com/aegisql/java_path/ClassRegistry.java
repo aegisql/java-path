@@ -2,60 +2,18 @@ package com.aegisql.java_path;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.aegisql.java_path.StringConverter.identity;
+import static com.aegisql.java_path.StringConverter.valueOf;
+
 public class ClassRegistry {
 
-    private final static Map<String, Function<String,?>> CONVERSION_MAP = new HashMap<>();
+    private final static Map<String, StringConverter<?>> CONVERSION_MAP = new HashMap<>();
     private final static Map<String,Class<?>> CLASS_MAP = new HashMap<>();
 
-    final static Function<String,?> voidConstructorSupplier = type->{
-        if(CLASS_MAP.containsKey(type)) {
-            try {
-                Constructor<?> constructor = CLASS_MAP.get(type).getConstructor(null);
-                constructor.setAccessible(true);
-                return constructor.newInstance(null);
-            } catch (Exception e) {
-                throw new JavaPathRuntimeException(e);
-            }
-        }
-        try {
-            Class<?> aClass = Class.forName(type);
-            CLASS_MAP.put(type,aClass);
-            return aClass.getConstructor(null).newInstance(null);
-        } catch (Exception e) {
-            throw new JavaPathRuntimeException(e);
-        }
-    };
-
-    final static Function<String,Function<?,?>> defaultSupplier = alias->{
-        return type->{
-            if(CLASS_MAP.containsKey(type)) {
-                try {
-                    Constructor<?> constructor = CLASS_MAP.get(type).getConstructor(null);
-                    constructor.setAccessible(true);
-                    return constructor.newInstance(null);
-                } catch (Exception e) {
-                    throw new JavaPathRuntimeException(e);
-                }
-            }
-            if(CLASS_MAP.containsKey(alias)) {
-                try {
-                    Constructor<?> constructor = CLASS_MAP.get(alias).getConstructor(null);
-                    constructor.setAccessible(true);
-                    return constructor.newInstance(null);
-                } catch (Exception e) {
-                    throw new JavaPathRuntimeException(e);
-                }
-            }
-            try {
-                return Class.forName(alias).getConstructor(null).newInstance(null);
-            } catch (Exception e) {
-                throw new JavaPathRuntimeException(e);
-            }
-        };
-    };
     private static Object fromConstructor(Class<?> aClass, String val) {
         try {
             Constructor<?> constructor = aClass.getConstructor(String.class);
@@ -75,6 +33,7 @@ public class ClassRegistry {
     }
 
     static {
+        CLASS_MAP.put("void",void.class);
         CLASS_MAP.put("s",String.class);
         CLASS_MAP.put("str",String.class);
         CLASS_MAP.put("string",String.class);
@@ -109,6 +68,9 @@ public class ClassRegistry {
         CLASS_MAP.put("Ch",Character.class);
         CLASS_MAP.put("Char",Character.class);
 
+        CLASS_MAP.put("short",short.class);
+        CLASS_MAP.put("Short",Short.class);
+
         CLASS_MAP.put("d",double.class);
         CLASS_MAP.put("double",double.class);
         CLASS_MAP.put("D",Double.class);
@@ -126,58 +88,159 @@ public class ClassRegistry {
         CLASS_MAP.put("map", HashMap.class);
         CLASS_MAP.put("set", HashSet.class);
 
-        CONVERSION_MAP.put(String.class.getName(),str->fromConstructor(String.class,str));
-        CONVERSION_MAP.put(Character.class.getName(),str->fromValueOf(Character.class,str));
-        CONVERSION_MAP.put(Integer.class.getName(),str->fromValueOf(Integer.class,str));
-        CONVERSION_MAP.put(Long.class.getName(),str->fromValueOf(Long.class,str));
-        CONVERSION_MAP.put(Byte.class.getName(),str->fromValueOf(Byte.class,str));
-        CONVERSION_MAP.put(Double.class.getName(),str->fromValueOf(Double.class,str));
-        CONVERSION_MAP.put(Float.class.getName(),str->fromValueOf(Float.class,str));
-        CONVERSION_MAP.put(Boolean.class.getName(),str->fromValueOf(Boolean.class,str));
+        CLASS_MAP.put("ArrayList", ArrayList.class);
+        CLASS_MAP.put("LinkedList", LinkedList.class);
+        CLASS_MAP.put("HashMap", HashMap.class);
+        CLASS_MAP.put("TreeMap", TreeMap.class);
+        CLASS_MAP.put("HashSet", HashSet.class);
+        CLASS_MAP.put("TreeSet", TreeSet.class);
+        CLASS_MAP.put(PathUtils.Holder.class.getName(),PathUtils.Holder.class);
 
-        CONVERSION_MAP.put(char.class.getName(),str->fromValueOf(Character.class,str));
-        CONVERSION_MAP.put(int.class.getName(),str->fromValueOf(Integer.class,str));
-        CONVERSION_MAP.put(long.class.getName(),str->fromValueOf(Long.class,str));
-        CONVERSION_MAP.put(byte.class.getName(),str->fromValueOf(Byte.class,str));
-        CONVERSION_MAP.put(double.class.getName(),str->fromValueOf(Double.class,str));
-        CONVERSION_MAP.put(float.class.getName(),str->fromValueOf(Float.class,str));
-        CONVERSION_MAP.put(boolean.class.getName(),str->fromValueOf(Boolean.class,str));
+        CONVERSION_MAP.put(String.class.getName(), identity());
+        CONVERSION_MAP.put(Character.class.getName(), valueOf(Character.class));
+        CONVERSION_MAP.put(Integer.class.getName(),valueOf(Integer.class));
+        CONVERSION_MAP.put(Long.class.getName(), valueOf(Long.class));
+        CONVERSION_MAP.put(Short.class.getName(), valueOf(Short.class));
+        CONVERSION_MAP.put(Byte.class.getName(), valueOf(Byte.class));
+        CONVERSION_MAP.put(Double.class.getName(), valueOf(Double.class));
+        CONVERSION_MAP.put(Float.class.getName(), valueOf(Float.class));
+        CONVERSION_MAP.put(Boolean.class.getName(), valueOf(Boolean.class));
 
-        CONVERSION_MAP.put("key->new",defaultSupplier);
-        CONVERSION_MAP.put("new",voidConstructorSupplier);
+        CONVERSION_MAP.put(char.class.getName(), valueOf(Character.class));
+        CONVERSION_MAP.put(int.class.getName(), valueOf(Integer.class));
+        CONVERSION_MAP.put(long.class.getName(), valueOf(Long.class));
+        CONVERSION_MAP.put(short.class.getName(), valueOf(Short.class));
+        CONVERSION_MAP.put(byte.class.getName(), valueOf(Byte.class));
+        CONVERSION_MAP.put(double.class.getName(), valueOf(Double.class));
+        CONVERSION_MAP.put(float.class.getName(), valueOf(Float.class));
+        CONVERSION_MAP.put(boolean.class.getName(), valueOf(Boolean.class));
+
     }
 
-    final Map<String, Function<String,?>> conversionMap = new HashMap<>();
+    private static Object newInstance(String typeName) {
+        try {
+            return newInstance(Class.forName(typeName));
+        } catch (ClassNotFoundException e) {
+            throw new JavaPathRuntimeException("Failed new instance for type name "+typeName,e);
+        }
+    }
+
+
+    private static Object newInstance(Class<?> type) {
+        try {
+            Constructor<?> constructor = type.getConstructor(null);
+            constructor.setAccessible(true);
+            return constructor.newInstance(null);
+        } catch (Exception e) {
+            throw new JavaPathRuntimeException(e);
+        }
+    }
+
+    final Map<String, StringConverter<?>> conversionMap = new HashMap<>();
     final Map<String,Class<?>> classMap = new HashMap<>();
+    final StringConverter<Function<?,?>> defaultSupplier = alias->{
+        return type-> {
+            if (type instanceof Class) {
+                Class<?> aClass = (Class<?>) type;
+                int modifiers = aClass.getModifiers();
+                if( ! Modifier.isInterface(modifiers) && ! Modifier.isAbstract( aClass.getModifiers() )) {
+                    return newInstance(aClass);
+                }
+            }
+            if (classMap.containsKey(type.toString())) {
+                return newInstance(classMap.get(type.toString()));
+            }
+            if (classMap.containsKey(alias)) {
+                return newInstance(classMap.get(alias));
+            }
+            return newInstance(alias);
+        };
+    };
 
     public ClassRegistry() {
         this.classMap.putAll(CLASS_MAP);
         this.conversionMap.putAll(CONVERSION_MAP);
+        conversionMap.put("key->new",defaultSupplier);
     }
+
+    public void registerClass(Class<?> aClass) {
+
+    }
+
+    public void registerClass(Class<?> aClass, String alias) {
+
+    }
+
+    public <T> void registerClass(Class<?> aClass, Function<String,T> converter) {
+
+    }
+
+    public <T> void registerClass(Class<?> aClass, String alias, StringConverter<T> converter) {
+        Objects.requireNonNull(aClass,"Class<?> aClass required");
+        if(alias != null && classMap.containsKey(alias) && ! aClass.equals(classMap.get(alias))) {
+            throw new JavaPathRuntimeException("Class name alias "+alias+" for class "+aClass.getName()+" is already used for "+classMap.get(alias).getName());
+        }
+        if(alias != null && converter != null && conversionMap.containsKey(alias) && ! converter.equals(conversionMap.get(alias))) {
+            throw new JavaPathRuntimeException("Conversion name alias "+alias+" for class "+aClass.getName()+" is already used for "+classMap.get(alias).getName());
+        }
+        String longName = aClass.getName();
+        classMap.put(longName,aClass);
+        classMap.put(longName,aClass);
+        if(alias != null) {
+            classMap.put(alias,aClass);
+            if (converter != null) {
+                conversionMap.put(longName, converter);
+            }
+        }
+    }
+
 
     public void registerClassShortName(Class<?> aClass, String shortName) {
         Objects.requireNonNull(shortName,"registerClassShortName requires non empty name");
         Objects.requireNonNull(aClass,"registerClassShortName requires non empty class");
-        if(classMap.containsKey(shortName) && ! aClass.equals(classMap.get(shortName))) {
-            throw new JavaPathRuntimeException("Short name "+shortName+" for class "+aClass.getSimpleName()+" already occupied by "+classMap.get(shortName).getSimpleName());
-        }
         classMap.put(shortName,aClass);
+    }
+
+    public static void registerGlobalClassShortName(Class<?> aClass, String shortName) {
+        Objects.requireNonNull(shortName,"registerClassShortName requires non empty name");
+        Objects.requireNonNull(aClass,"registerClassShortName requires non empty class");
+        if(CLASS_MAP.containsKey(shortName) && ! aClass.equals(CLASS_MAP.get(shortName))) {
+            throw new JavaPathRuntimeException("Short name "+shortName+" for class "+aClass.getSimpleName()+" already occupied by "+CLASS_MAP.get(shortName).getSimpleName());
+        }
+        CLASS_MAP.put(shortName,aClass);
     }
 
     public void registerClassSimpleName(Class<?> aClass) {
         registerClassShortName(aClass,aClass.getSimpleName());
     }
 
-    public <T> void registerStringConverter(Class<T> aClass, Function<String,T> converter) {
+    public static void registerGlobalClassSimpleName(Class<?> aClass) {
+        registerGlobalClassShortName(aClass,aClass.getSimpleName());
+    }
+
+    public <T> void registerStringConverter(Class<T> aClass, StringConverter<T> converter) {
         Objects.requireNonNull(aClass,"registerStringConverter requires non empty class");
         Objects.requireNonNull(converter,"registerStringConverter requires converter for class "+aClass.getSimpleName());
         conversionMap.put(aClass.getName(),converter);
     }
 
-    public <T> void registerStringConverter(String alias, Function<String,T> converter) {
+    public <T> void registerStringConverter(String alias, StringConverter<T> converter) {
         Objects.requireNonNull(alias,"registerStringConverter requires non empty class alias");
         Objects.requireNonNull(converter,"registerStringConverter requires converter for class "+alias);
         conversionMap.put(alias,converter);
+    }
+
+    public static <T> void registerGlobalStringConverter(Class<T> aClass, StringConverter<T> converter) {
+        registerGlobalStringConverter(aClass.getName(),converter);
+    }
+
+    public static <T> void registerGlobalStringConverter(String alias, StringConverter<T> converter) {
+        Objects.requireNonNull(alias,"registerStringConverter requires non empty class alias");
+        Objects.requireNonNull(converter,"registerStringConverter requires converter for class "+alias);
+        if(CONVERSION_MAP.containsKey(alias)) {
+            throw new JavaPathRuntimeException("Alias name "+alias+" for converter is already in use");
+        }
+        CONVERSION_MAP.put(alias,converter);
     }
 
 }

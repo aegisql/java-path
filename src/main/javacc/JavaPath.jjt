@@ -31,9 +31,10 @@ TOKEN :
 | <K_DOT: ".">
 | <K_COMMA: ",">
 | <K_SPACE: ([" ","\t","\n","\r"])+>
-| < #LETTER: ["_","a"-"z","A"-"Z","$"] >
+| < #LETTER: ["a"-"z","A"-"Z"] >
 | < #DIGIT: ["0"-"9"] >
-| < K_TYPE_ELEMENT: ((<LETTER>|<DIGIT>)+ ( <K_DOT> (<LETTER> | <DIGIT>)+ )* <K_SPACE>) >
+| < #SPECIAL: ["_","$","-",">"] >
+| < K_TYPE_ELEMENT: ((<LETTER>|<DIGIT>|<SPECIAL> )+ ( <K_DOT> (<LETTER> | <DIGIT>|<SPECIAL> )+ )* <K_SPACE>) >
 | < K_PATH_ELEMENT: ( ~["'","\""," ","\t",".",",","{","}","(",")","\\"] )+ >
 | <K_QUOTED_STRING: "\"" ( (~["\"","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\""] ) ) )* "\"">
 | <K_SINGLE_QUOTED_STRING: "\'" ( (~["\'","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\'"] ) ) )* "\'">

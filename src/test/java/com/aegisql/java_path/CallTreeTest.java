@@ -98,7 +98,7 @@ public class CallTreeTest {
 
     @Test
     public void testClassLookup() {
-        CallTree mt = new CallTree(this);
+        CallTree mt = CallTree.forClass(this.getClass());
         System.out.println(mt);
         Method a = mt.findMethod("a");
         System.out.println(a);
@@ -169,7 +169,7 @@ public class CallTreeTest {
 
     @Test
     public void findCandidatesForVoid() {
-        CallTree mt = new CallTree(this);
+        CallTree mt = CallTree.forClass(this.getClass());
         Set<Method> as = mt.findMethodCandidates("a");
         assertNotNull(as);
         assertEquals(1,as.size());
@@ -205,18 +205,18 @@ public class CallTreeTest {
 
     @Test(expected = JavaPathRuntimeException.class)
     public void classLookupShouldFailOnX(){
-        CallTree mt = new CallTree(X.class);
+        CallTree mt = CallTree.forClass(X.class);
     }
 
     @Test(expected = JavaPathRuntimeException.class)
     public void classLookupShouldFailOnAssignableType(){
-        CallTree mt = new CallTree(X.class);
+        CallTree mt = CallTree.forClass(X.class);
         Method oI = mt.findMethod("o",new Class[]{Integer.class});
     }
 
     @Test(expected = JavaPathRuntimeException.class)
     public void classLookupShouldFailOnAssignableType2(){
-        CallTree mt = new CallTree(X.class);
+        CallTree mt = CallTree.forClass(X.class);
         Method oI = mt.findMethod("o",new Class[]{String.class,Integer.class});
     }
 

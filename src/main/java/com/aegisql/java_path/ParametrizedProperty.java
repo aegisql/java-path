@@ -1,9 +1,6 @@
 package com.aegisql.java_path;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.Objects;
-import java.util.function.Function;
 
 public class ParametrizedProperty {
 
@@ -14,18 +11,15 @@ public class ParametrizedProperty {
     private final boolean value;
     private final String typeAlias;
 
-    private final Function<String,?> defaultConverter = cls -> {
-        try {
-            Constructor<?> constructor = getPropertyType().getConstructor(String.class);
-            constructor.setAccessible(true);
-            return constructor.newInstance(cls);
-        } catch (Exception e) {
+    private final StringConverter<?> defaultConverter = cls -> {
+        StringConverter<?> converter = StringConverter.constructor(getPropertyType());
+        if(converter != null) {
+            return converter.apply(cls);
         }
-        try {
-            Method valueOf = getPropertyType().getMethod("valueOf", String.class);
-            valueOf.setAccessible(true);
-            return valueOf.invoke(null, cls);
-        } catch (Exception e) {}
+        converter = StringConverter.valueOf(getPropertyType());
+        if(converter != null) {
+            return converter.apply(cls);
+        }
         throw new JavaPathRuntimeException("Failed to find instantiation method for " + cls);
     };
 
@@ -104,7 +98,7 @@ public class ParametrizedProperty {
         } else if(value) {
             return null;
         } else {
-            Function<String, ?> supplier;
+            StringConverter<?> supplier;
             if(classRegistry.conversionMap.containsKey(this.typeAlias)){
                 supplier = classRegistry.conversionMap.get(this.typeAlias);
             } else {
@@ -120,7 +114,7 @@ public class ParametrizedProperty {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("LabelProperty{");
+        final StringBuilder sb = new StringBuilder("ParametrizedProperty{");
         sb.append("propertyStr='").append(propertyStr).append('\'');
         sb.append(", propertyType=").append(propertyType);
         sb.append(", builder=").append(builder);

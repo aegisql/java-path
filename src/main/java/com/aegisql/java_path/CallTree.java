@@ -3,9 +3,12 @@ package com.aegisql.java_path;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class CallTree {
+
+    private final static Map<Class,CallTree> cache = new ConcurrentHashMap<>();
 
     private final Map<String,Map<Class<?>, CallableNode>> namesMap = new HashMap<>();
 
@@ -14,15 +17,15 @@ public class CallTree {
     public CallTree() {
     }
 
-    public CallTree(Object instance) {
-        this(Objects.requireNonNull(instance,"Failed to build MethodTree. Instance is null").getClass());
+    public static CallTree forClass(Class<?> c) {
+        return cache.computeIfAbsent(c,CallTree::new);
     }
 
-    public CallTree(Class<?> c) {
+    private CallTree(Class<?> c) {
         Arrays.stream(c.getDeclaredFields()).forEach(this::addField);
         Arrays.stream(c.getDeclaredMethods()).forEach(this::addMethod);
         Class sClass = c.getSuperclass();
-        if(sClass != null) {
+        if(sClass != null && sClass != Object.class) {
             CallTree inner = new CallTree(sClass);
             inner.knownLabels.forEach(l->{
                 if(knownLabels.contains(l)) {
@@ -56,10 +59,10 @@ public class CallTree {
                 knownLabels.add(l);
             });
         }
-
+        /*
         Map<Class<?>, CallableNode> parameterMap = namesMap.computeIfAbsent(name, n -> new HashMap<>());
         CallableNode callableNode = parameterMap.computeIfAbsent(f.getType(), p -> new CallableNode(p,0));
-        callableNode.addNode(f,0);
+        callableNode.addNode(f,0);*/
     }
 
     public void addMethod(Method method) {

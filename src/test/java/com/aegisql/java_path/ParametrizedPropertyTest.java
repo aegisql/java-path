@@ -15,8 +15,20 @@ public class ParametrizedPropertyTest {
         assertTrue(parse.size() == 1);
         return new ParametrizedProperty(classRegistry,parse.get(0).getParameters().get(0),false);
     }
+
     @Test
     public void basicTest() {
+        ParametrizedProperty lp1 = p("a");
+        assertEquals("a",lp1.getPropertyStr());
+        assertEquals("a",lp1.getProperty());
+        assertEquals(String.class,lp1.getPropertyType());
+        assertFalse(lp1.isBuilder());
+        assertFalse(lp1.isValue());
+    }
+
+
+    @Test
+    public void basicQuotedTest() {
         ParametrizedProperty lp1 = p("'a b'");
         assertEquals("a b",lp1.getPropertyStr());
         assertEquals("a b",lp1.getProperty());

@@ -62,10 +62,6 @@ public class ParametrizedPath {
         }
     }
 
-    private boolean isParametrized() {
-        return wholeLabel.endsWith("}") && wholeLabel.contains("{");
-    }
-
     public String getLabel() {
         return label;
     }

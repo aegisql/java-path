@@ -37,6 +37,11 @@ public class PathUtils {
         this(aClass,new ClassRegistry());
     }
 
+    public Object initObjectFromPath(String path, Object value) {
+        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        return initObjectFromPath(parse,value);
+    }
+
     public Object initObjectFromPath(List<TypedPathElement> path, Object value) {
         Objects.requireNonNull(path,"Requires path");
         if(path.size() == 0) {
@@ -55,6 +60,38 @@ public class PathUtils {
         pu.applyValueToPath(newPath, root, value);
         return root._holder_;
     }
+
+    public <T> T initObjectFromPath(String path, Class<T> rootClass, Object value) {
+        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        return initObjectFromPath(parse,rootClass,value);
+    }
+
+    public <T> T initObjectFromPath(List<TypedPathElement> path, Class<T> rootClass, Object value) {
+        Objects.requireNonNull(path,"Requires path");
+        if(path.size() == 0) {
+            throw new JavaPathRuntimeException("Requires at least one path element");
+        }
+        TypedPathElement rootPathElement = new TypedPathElement();
+        rootPathElement.setName("");
+        rootPathElement.setType(Holder.class.getName());
+        TypedPathElement pathElement = path.get(0);
+        pathElement.setName("#");
+        pathElement.setType(rootClass.getName());
+        List<TypedPathElement> newPath = new ArrayList<>();
+        newPath.add(rootPathElement);
+        newPath.addAll(path);
+        Holder root = new Holder();
+        PathUtils pu = new PathUtils(Holder.class, classRegistry);
+        pu.applyValueToPath(newPath, root, value);
+        return (T) root._holder_;
+    }
+
+
+    public void applyValueToPath(String path, Object root, Object value) {
+        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        applyValueToPath(parse,root,value);
+    }
+
     public void applyValueToPath(List<TypedPathElement> path, Object root, Object value) {
         Objects.requireNonNull(path,"Requires path");
         int size = path.size();

@@ -20,19 +20,25 @@ public class PathUtilsTest {
     @Test
     public void setATest() {
         PathUtils pu = new PathUtils(PathUtilsTest.class);
-        List<TypedPathElement> path = parse("a");
-        pu.applyValueToPath(path,this,"test");
+        pu.applyValueToPath("a",this,"test");
         assertEquals("test",a);
     }
 
     @Test
     public void getRootWithATest() {
         PathUtils pu = new PathUtils(PathUtilsTest.class);
-        List<TypedPathElement> path = parse("(com.aegisql.java_path.PathUtilsTest #).a");
-        Object test = pu.initObjectFromPath(path, "test");
+        Object test = pu.initObjectFromPath("(com.aegisql.java_path.PathUtilsTest #).a", "test");
         assertNotNull(test);
         PathUtilsTest put = (PathUtilsTest) test;
         assertEquals("test",put.a);
+    }
+
+    @Test
+    public void getRootWithClassTest() {
+        PathUtils pu = new PathUtils(PathUtilsTest.class);
+        PathUtilsTest test = pu.initObjectFromPath("#.a",PathUtilsTest.class, "test");
+        assertNotNull(test);
+        assertEquals("test",test.a);
     }
 
     private List<TypedPathElement> parse(String s) {

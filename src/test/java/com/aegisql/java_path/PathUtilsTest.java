@@ -12,6 +12,12 @@ public class PathUtilsTest {
 
     private String a;
 
+    @Label("upper")
+    String setUpperA( String s) {
+        a = s;
+        return a.toUpperCase();
+    }
+
     @Before
     public void init() {
         a = null;
@@ -22,6 +28,14 @@ public class PathUtilsTest {
         PathUtils pu = new PathUtils(PathUtilsTest.class);
         pu.applyValueToPath("a",this,"test");
         assertEquals("test",a);
+    }
+
+    @Test
+    public void setUpperATest() {
+        PathUtils pu = new PathUtils(PathUtilsTest.class);
+        Object o = pu.applyValueToPath("upper",this,"test");
+        assertEquals("test",a);
+        assertEquals("TEST",o);
     }
 
     @Test
@@ -39,6 +53,15 @@ public class PathUtilsTest {
         PathUtilsTest test = pu.initObjectFromPath("#.a",PathUtilsTest.class, "test");
         assertNotNull(test);
         assertEquals("test",test.a);
+    }
+
+    @Test
+    public void stringBuilderAppendTest() {
+        StringBuilder sb = new StringBuilder();
+        PathUtils pu = new PathUtils(StringBuilder.class);
+        pu.applyValueToPath("append{a}.append{b}.append{c}.append{int $}",sb,100);
+
+        assertEquals("abc100",sb.toString());
     }
 
     private List<TypedPathElement> parse(String s) {

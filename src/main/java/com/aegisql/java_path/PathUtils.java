@@ -87,34 +87,34 @@ public class PathUtils {
     }
 
 
-    public void applyValueToPath(String path, Object root, Object value) {
+    public Object applyValueToPath(String path, Object root, Object value) {
         List<TypedPathElement> parse = JavaPathParser.parse(path);
-        applyValueToPath(parse,root,value);
+        return applyValueToPath(parse,root,value);
     }
 
-    public void applyValueToPath(List<TypedPathElement> path, Object root, Object value) {
+    public Object applyValueToPath(List<TypedPathElement> path, Object root, Object value) {
         Objects.requireNonNull(path,"Requires path");
         int size = path.size();
         if(size == 0) {
-            return;
+            return null;
         }
         Objects.requireNonNull(root,"Requires root object");
         TypedPathElement rootPathElement = path.get(0);
 
         if(rootPathElement.getName().startsWith("@")) {
-            applyValueToPath(path.subList(1,path.size()),root,value);
+            return applyValueToPath(path.subList(1,path.size()),root,value);
         } else {
             Class<?> rClass = root.getClass();
             Class<?> vClass = value == null ? null : value.getClass();
             if(size == 1) {
-                offerSetter(rootPathElement,vClass).accept(root,value);
+                return offerSetter(rootPathElement,vClass).apply(root,value);
             } else {
                 BiFunction<Object, Object, Object> getter = offerGetter(rootPathElement, vClass);
                 Object nextRoot =  getter.apply(root, value);
                 Objects.requireNonNull(nextRoot,"Object for path element '"+rootPathElement+"' is not initialized!");
                 PathUtils nextUtils = new PathUtils(nextRoot.getClass(),classRegistry);
                 nextUtils.setEnableAccessorsCaching(enableAccessorsCaching);
-                nextUtils.applyValueToPath(path.subList(1,path.size()),nextRoot,value);
+                return nextUtils.applyValueToPath(path.subList(1,path.size()),nextRoot,value);
             }
         }
     }
@@ -149,7 +149,7 @@ public class PathUtils {
         }
     }
 
-    public BiConsumer<Object,Object> offerSetter(TypedPathElement javaPath, Class<?> vClass) {
+    public BiFunction<Object,Object,Object> offerSetter(TypedPathElement javaPath, Class<?> vClass) {
         ParametrizedPath pl = new ParametrizedPath(classRegistry, aClass,javaPath);
         BiConsumer<Object,Object> setter;
         Method method = null;
@@ -252,11 +252,14 @@ public class PathUtils {
         }
     }
 
-    private BiConsumer<Object, Object> fieldSetter(ParametrizedPath pl) {
+    private BiFunction<Object, Object,Object> fieldSetter(ParametrizedPath pl) {
         String label = pl.getLabel();
         Field field = fieldsByName.get(pl.getLabel());
         if(field != null) {
-            return (b, v)->set(field, b, v);
+            return (b, v)->{
+                set(field, b, v);
+                return v;
+            };
         }
         return (b,v)->{throw new JavaPathRuntimeException("No setter found for "+label);};
     }

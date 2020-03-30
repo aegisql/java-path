@@ -11,6 +11,14 @@ public class JavaPathParser {
 
     private static class Visitor implements CCJavaPathParserVisitor {
 
+        private LinkedList<TypedPathElement> rootPath;
+        private LinkedList<LinkedList<TypedPathElement>> stack = new LinkedList<>();
+
+        public Visitor(LinkedList<TypedPathElement> rootPath) {
+            this.rootPath = rootPath;
+            stack.push(rootPath);
+        }
+
         private String toString(Object o) {
             return o == null ? null : o.toString();
         }
@@ -21,25 +29,46 @@ public class JavaPathParser {
         }
 
         @Override
+        public Object visit(ASTcomma node, Object data) {
+            if(stack.size() > 1) {
+                stack.pop();
+            }
+            return node.childrenAccept(this,data);
+        }
+
+        @Override
+        public Object visit(ASTrBrace node, Object data) {
+            if(stack.size() > 1) {
+                stack.pop();
+            }
+            return node.childrenAccept(this,data);
+        }
+
+        @Override
         public Object visit(ASTfullPath node, Object data) {
-            LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
             TypedPathElement typedPathElement = new TypedPathElement();
-            pathList.add(typedPathElement);
+            stack.getFirst().add(typedPathElement);
             typedPathElement.setType(toString(node.jjtGetValue()));
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTpathElement node, Object data) {
-            LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            pathList.getLast().setName(toString(node.jjtGetValue()));
+            if(stack.size() > 1) {
+                TypedPathElement typedPathElement = new TypedPathElement();
+                stack.getFirst().add(typedPathElement);
+            }
+            stack.getFirst().getLast().setName(toString(node.jjtGetValue()));
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTparameters node, Object data) {
-            LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            pathList.getLast().addParameter((TypedValue) node.jjtGetValue());
+            TypedValue typedValue = (TypedValue) node.jjtGetValue();
+            stack.getFirst().getLast().addParameter(typedValue);
+            if(typedValue.getValue().startsWith("#")) {
+                stack.push(typedValue.getTypedPathElements());
+            }
             return node.childrenAccept(this,data);
         }
 
@@ -52,7 +81,7 @@ public class JavaPathParser {
         SimpleNode sn = null;
         try {
             sn = parser.fullPath();
-            sn.jjtAccept(new Visitor(),elements);
+            sn.jjtAccept(new Visitor(elements),elements);
         } catch (ParseException e) {
             throw new JavaPathRuntimeException("Failed parsing JavaPath '"+path+"'",e);
         }

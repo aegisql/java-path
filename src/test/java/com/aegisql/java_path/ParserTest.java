@@ -1,6 +1,6 @@
 package com.aegisql.java_path;
 
-import com.aegisql.java_path.parser.*;
+import com.aegisql.java_path.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,40 +16,6 @@ public class ParserTest {
     @Before
     public void init() {
         pathList = new LinkedList<>();
-    }
-
-    static class Visitor implements CCJavaPathParserVisitor {
-        @Override
-        public Object visit(SimpleNode node, Object data) {
-            return node.childrenAccept(this,data);
-        }
-
-        @Override
-        public Object visit(ASTfullPath node, Object data) {
-            LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            TypedPathElement typedPathElement = new TypedPathElement();
-            pathList.add(typedPathElement);
-            Object value = node.jjtGetValue();
-            if(value != null) {
-                typedPathElement.setType(value.toString());
-            }
-            return node.childrenAccept(this,data);
-        }
-
-        @Override
-        public Object visit(ASTpathElement node, Object data) {
-            LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            pathList.getLast().setName(node.jjtGetValue().toString());
-            return node.childrenAccept(this,data);
-        }
-
-        @Override
-        public Object visit(ASTparameters node, Object data) {
-            LinkedList<TypedPathElement> pathList = (LinkedList<TypedPathElement>) data;
-            pathList.getLast().addParameter((TypedValue) node.jjtGetValue());
-            return node.childrenAccept(this,data);
-        }
-
     }
 
     @Test(expected = JavaPathRuntimeException.class)
@@ -134,7 +100,17 @@ public class ParserTest {
         testPattern("(com.test label1{i 100}).(best label2{#,java.lang.String A}).(label3{$,X}).label4.@");
     }
 
-    private void testPattern(String s) throws ParseException {
+    @Test
+    public void atPathParser() throws ParseException {
+        testPattern("a.@b{TEST}.c{#3}");
+    }
+
+    @Test
+    public void backRefBasicTest() {
+        testPattern("a.b.c{#2,STRING,#1.y.z{#2.w{W_STRING}}}.d.e{E_STRING}");
+    }
+
+    private void testPattern(String s) {
         pathList = JavaPathParser.parse(s);
         System.out.println(s+" -> "+pathList.stream().map(p->p.toString()).collect(Collectors.joining(".")));
     }

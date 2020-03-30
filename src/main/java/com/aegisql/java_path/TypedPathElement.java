@@ -71,7 +71,7 @@ public class TypedPathElement {
         }
         sb.append(name);
         if(parameters.size()>0) {
-            sb.append(parameters.stream().map(p->p.toString()).collect(Collectors.joining(",","{","}")));
+            sb.append(parameters.stream().map(p->""+p).collect(Collectors.joining(",","{","}")));
         }
         if(type != null) {
             sb.append(")");

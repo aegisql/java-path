@@ -1,10 +1,14 @@
 package com.aegisql.java_path;
 
+import java.util.LinkedList;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class TypedValue {
     private String value;
     private String type;
+    private int backRef = -1;
+    private LinkedList<TypedPathElement> typedPathElements = new LinkedList<>();
 
     public String getValue() {
         return value;
@@ -55,6 +59,18 @@ public class TypedValue {
         return "$".equals(value);
     }
 
+    public int getBackRef() {
+        return backRef;
+    }
+
+    public void setBackRef(int backRef) {
+        this.backRef = backRef;
+    }
+
+    public LinkedList<TypedPathElement> getTypedPathElements() {
+        return typedPathElements;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -75,7 +91,14 @@ public class TypedValue {
         if(type != null) {
             sb.append(type).append(" ");
         }
-        sb.append(value);
+        if(backRef < 0) {
+            sb.append(value);
+        } else {
+            sb.append("#").append(backRef);
+        }
+        if(typedPathElements.size() > 0) {
+            sb.append(typedPathElements.stream().map(TypedPathElement::toString).collect(Collectors.joining(",", ".", "")));
+        }
         return sb.toString();
     }
 }

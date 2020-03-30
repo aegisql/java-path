@@ -15,6 +15,7 @@ PARSER_BEGIN(CCJavaPathParser)
 package com.aegisql.java_path.parser;
 
 import com.aegisql.java_path.TypedValue;
+import com.aegisql.java_path.TypedPathElement;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
@@ -34,10 +35,29 @@ TOKEN :
 | < #LETTER: ["a"-"z","A"-"Z"] >
 | < #DIGIT: ["0"-"9"] >
 | < #SPECIAL: ["_","$","-",">"] >
+| <K_BACK_REF_ELEMENT : "#"(<DIGIT> )*>
 | < K_TYPE_ELEMENT: ((<LETTER>|<DIGIT>|<SPECIAL> )+ ( <K_DOT> (<LETTER> | <DIGIT>|<SPECIAL> )+ )* <K_SPACE>) >
 | < K_PATH_ELEMENT: ( ~["'","\""," ","\t",".",",","{","}","(",")","\\"] )+ >
 | <K_QUOTED_STRING: "\"" ( (~["\"","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\""] ) ) )* "\"">
 | <K_SINGLE_QUOTED_STRING: "\'" ( (~["\'","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\'"] ) ) )* "\'">
+}
+
+void comma() :
+{}
+{
+    <K_COMMA>
+}
+
+void lBrace() #void:
+{}
+{
+    <K_LBRACE>
+}
+
+void rBrace() :
+{}
+{
+    <K_RBRACE>
 }
 
 /** Root production. */
@@ -59,10 +79,17 @@ SimpleNode fullPath() :
 
 }
 
+void path() #void:
+{
+}
+{
+    typedPathElement() [<K_DOT> typedPathElement() ]
+}
+
 void typedPathElement() #void:
 {}
 {
-    pathElement() [<K_LBRACE> parameters() <K_RBRACE>]
+    pathElement() [lBrace() parameters() rBrace() ]
 }
 
 void pathElement() :
@@ -87,7 +114,26 @@ String fullType() #void:
     }
 }
 
-void parameters() :
+TypedValue backRef() #void:
+{
+    Token t = null;
+}
+{
+    t = <K_BACK_REF_ELEMENT> [<K_DOT> path() ]
+    {
+        TypedValue tv = new TypedValue();
+        String numStr = t.image;
+        if("#".equals(numStr)) {
+            tv.setBackRef(-1);
+        } else {
+            tv.setBackRef(Integer.valueOf(numStr.substring(1)));
+        }
+        tv.setValue(numStr);
+        return tv;
+    }
+}
+
+TypedValue forwardRef() #void:
 {
     String type = null;
     String value = null;
@@ -97,11 +143,29 @@ void parameters() :
         LOOKAHEAD(fullType() parameter() )type = fullType() value = parameter()
         |
         value = parameter()
-    ) [<K_COMMA> parameters() ]
+    )
     {
         TypedValue tv = new TypedValue();
         tv.setType(type);
         tv.setValue(value);
+        tv.setBackRef(-1);
+        return tv;
+    }
+}
+
+void parameters() :
+{
+    String type = null;
+    String value = null;
+    TypedValue tv = null;
+}
+{
+    (
+        tv = backRef()
+        |
+        tv = forwardRef()
+    ) [comma() parameters() ]
+    {
         jjtThis.jjtSetValue(tv);
     }
 }

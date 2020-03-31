@@ -41,7 +41,7 @@ public class PathUtilsTest {
     @Test
     public void getRootWithATest() {
         PathUtils pu = new PathUtils(PathUtilsTest.class);
-        Object test = pu.initObjectFromPath("(com.aegisql.java_path.PathUtilsTest #).a", "test");
+        Object test = pu.initObjectFromPath("(com.aegisql.java_path.PathUtilsTest #0).a", "test");
         assertNotNull(test);
         PathUtilsTest put = (PathUtilsTest) test;
         assertEquals("test",put.a);
@@ -53,6 +53,13 @@ public class PathUtilsTest {
         PathUtilsTest test = pu.initObjectFromPath("#.a",PathUtilsTest.class, "test");
         assertNotNull(test);
         assertEquals("test",test.a);
+    }
+
+    @Test(expected = JavaPathRuntimeException.class)
+    public void getRootWithClassShouldFailTest() {
+        PathUtils pu = new PathUtils(PathUtilsTest.class);
+        //cannot refer to #1
+        PathUtilsTest test = pu.initObjectFromPath("#1.a",PathUtilsTest.class, "test");
     }
 
     @Test

@@ -13,6 +13,7 @@ public class JavaPathParser {
 
         private LinkedList<TypedPathElement> rootPath;
         private LinkedList<LinkedList<TypedPathElement>> stack = new LinkedList<>();
+        private int maxBackRef = 0;
 
         public Visitor(LinkedList<TypedPathElement> rootPath) {
             this.rootPath = rootPath;
@@ -45,6 +46,15 @@ public class JavaPathParser {
         }
 
         @Override
+        public Object visit(ASTparse node, Object data) {
+            TypedPathElement typedPathElement = (TypedPathElement) node.jjtGetValue();
+            if(typedPathElement != null) {
+                stack.getFirst().add(typedPathElement);
+            }
+            return node.childrenAccept(this,data);
+        }
+
+        @Override
         public Object visit(ASTfullPath node, Object data) {
             TypedPathElement typedPathElement = new TypedPathElement();
             stack.getFirst().add(typedPathElement);
@@ -59,6 +69,7 @@ public class JavaPathParser {
                 stack.getFirst().add(typedPathElement);
             }
             stack.getFirst().getLast().setName(toString(node.jjtGetValue()));
+            maxBackRef++;
             return node.childrenAccept(this,data);
         }
 
@@ -66,7 +77,14 @@ public class JavaPathParser {
         public Object visit(ASTparameters node, Object data) {
             TypedValue typedValue = (TypedValue) node.jjtGetValue();
             stack.getFirst().getLast().addParameter(typedValue);
-            if(typedValue.getValue().startsWith("#")) {
+            String ref = typedValue.getValue();
+            if(ref.startsWith("#")) {
+                if(ref.length() > 1) {
+                    int refPos = Integer.valueOf(ref.substring(1));
+                    if(refPos >= maxBackRef) {
+                        throw new JavaPathRuntimeException("Back reference "+ref+" is not visible at position "+maxBackRef);
+                    }
+                }
                 stack.push(typedValue.getTypedPathElements());
             }
             return node.childrenAccept(this,data);
@@ -80,7 +98,7 @@ public class JavaPathParser {
         CCJavaPathParser parser = new CCJavaPathParser(r(path));
         SimpleNode sn = null;
         try {
-            sn = parser.fullPath();
+            sn = parser.parse();
             sn.jjtAccept(new Visitor(elements),elements);
         } catch (ParseException e) {
             throw new JavaPathRuntimeException("Failed parsing JavaPath '"+path+"'",e);

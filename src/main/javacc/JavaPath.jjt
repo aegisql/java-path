@@ -16,8 +16,7 @@ package com.aegisql.java_path.parser;
 
 import com.aegisql.java_path.TypedValue;
 import com.aegisql.java_path.TypedPathElement;
-import java.util.LinkedList;
-import java.util.stream.Collectors;
+import com.aegisql.java_path.JavaPathRuntimeException;
 
 public class CCJavaPathParser {}
 
@@ -61,20 +60,60 @@ void rBrace() :
 }
 
 /** Root production. */
-SimpleNode fullPath() :
+
+SimpleNode parse() :
+{
+    String type = null;
+    Token ref = null;
+    TypedPathElement typedPathElement = null;
+}
+{
+    (
+        LOOKAHEAD(3) <K_LPARENTHESIS> type = fullType() ref = <K_BACK_REF_ELEMENT> <K_RPARENTHESIS><K_DOT> fullPath()
+            {
+            String root = ref.image;
+            if(! ("#".equals(root) || "#0".equals(root)) ) {
+                throw new JavaPathRuntimeException("wrong root back reference "+root);
+            }
+            typedPathElement = new TypedPathElement();
+            typedPathElement.setName(root);
+            typedPathElement.setType(type);
+            }
+        |
+        ref = <K_BACK_REF_ELEMENT> <K_DOT> fullPath()
+            {
+            String root = ref.image;
+            if(! ("#".equals(root) || "#0".equals(root)) ) {
+                throw new JavaPathRuntimeException("wrong root back reference "+root);
+            }
+            typedPathElement = new TypedPathElement();
+            typedPathElement.setName(root);
+            }
+        |
+        fullPath()
+    ) [<K_DOT> fullPath() ]
+    <EOF>
+    {
+        jjtThis.jjtSetValue(typedPathElement);
+        return jjtThis;
+    }
+
+}
+
+
+void fullPath() :
 {
     String type = null;
 }
 {
     (
-        <K_LPARENTHESIS> [type = fullType()] typedPathElement() <K_RPARENTHESIS>
+        <K_LPARENTHESIS> [type = fullType()] parametrizedPathElement() <K_RPARENTHESIS>
         |
-        typedPathElement()
+        parametrizedPathElement()
     ) [<K_DOT> fullPath() ]
     <EOF>
     {
         jjtThis.jjtSetValue(type);
-        return jjtThis;
     }
 
 }
@@ -83,10 +122,10 @@ void path() #void:
 {
 }
 {
-    typedPathElement() [<K_DOT> typedPathElement() ]
+    parametrizedPathElement() [<K_DOT> parametrizedPathElement() ]
 }
 
-void typedPathElement() #void:
+void parametrizedPathElement() #void:
 {}
 {
     pathElement() [lBrace() parameters() rBrace() ]

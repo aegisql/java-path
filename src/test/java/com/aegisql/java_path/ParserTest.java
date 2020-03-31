@@ -101,7 +101,12 @@ public class ParserTest {
     }
 
     @Test
-    public void atPathParser() throws ParseException {
+    public void atPathParserTest() throws ParseException {
+        testPattern("a.@b{TEST}.c{#2}");
+    }
+
+    @Test(expected = JavaPathRuntimeException.class)
+    public void atPathParserFailingTest() throws ParseException {
         testPattern("a.@b{TEST}.c{#3}");
     }
 

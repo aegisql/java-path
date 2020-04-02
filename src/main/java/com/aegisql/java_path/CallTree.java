@@ -1,7 +1,9 @@
 package com.aegisql.java_path;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -24,6 +26,9 @@ public class CallTree {
     private CallTree(Class<?> c) {
         Arrays.stream(c.getDeclaredFields()).forEach(this::addField);
         Arrays.stream(c.getDeclaredMethods()).forEach(this::addMethod);
+        if( ! Modifier.isAbstract(c.getModifiers())) {
+            Arrays.stream(c.getDeclaredConstructors()).forEach(this::addConstructor);
+        }
         Class sClass = c.getSuperclass();
         if(sClass != null && sClass != Object.class) {
             CallTree inner = new CallTree(sClass);
@@ -36,6 +41,22 @@ public class CallTree {
             });
             namesMap.putAll(inner.namesMap);
         }
+    }
+
+    private void addConstructor(Constructor constructor) {
+        Map<Class<?>, CallableNode> parameterMap = namesMap.computeIfAbsent("new", n -> new HashMap<>());
+        LinkedList<Class> args = new LinkedList<>();
+        args.addAll(Arrays.asList(constructor.getParameterTypes()));
+        CallableNode callableNode;
+        if(constructor.getParameterCount() == 0) {
+            callableNode = parameterMap.computeIfAbsent(null, p -> new CallableNode(p,0));
+            callableNode.addNode(new LinkedList<>(),constructor);
+        } else {
+            Class<?> pClass = args.pollFirst();
+            callableNode = parameterMap.computeIfAbsent(pClass, p -> new CallableNode(p,0));
+            callableNode.addNode(args,constructor);
+        }
+
     }
 
     private void addField(Field f) {
@@ -132,6 +153,36 @@ public class CallTree {
         return null;
     }
 
+    public Constructor findConstructor(Class<?> ... args) {
+        LinkedList<Class<?>> argList = new LinkedList<>();
+        if(args != null) {
+            argList.addAll(Arrays.asList(args));
+        }
+        if(namesMap.containsKey("new")) {
+            Map<Class<?>, CallableNode> parameterMap = namesMap.get("new");
+            if(argList.size() == 0 && parameterMap.containsKey(null)) {
+                return parameterMap.get(null).getConstructor();
+            } else {
+                Class<?> first = argList.pollFirst();
+                if(parameterMap.containsKey(first)) {
+                    CallableNode callableNode = parameterMap.get(first);
+                    return callableNode.findConstructor(argList);
+                } else {
+                    for(Class<?> cls: parameterMap.keySet()) {
+                        if(cls.isAssignableFrom(first)) {
+                            CallableNode callableNode = parameterMap.get(cls);
+                            Constructor constructor = callableNode.findConstructor(argList);
+                            parameterMap.put(first, callableNode);
+                            return constructor;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
     public Set<Method> findMethodCandidates(String name, Class<?> ... args) {
         List<Method> candidates = new LinkedList<>();
         LinkedList<Class<?>> argList = new LinkedList<>();
@@ -166,6 +217,42 @@ public class CallTree {
         }
         return new HashSet<>(candidates);
     }
+
+    public Set<Constructor> findConstructorCandidates(Class<?> ... args) {
+        List<Constructor> candidates = new LinkedList<>();
+        LinkedList<Class<?>> argList = new LinkedList<>();
+        if(args != null) {
+            argList.addAll(Arrays.asList(args));
+        }
+        if(namesMap.containsKey("new")) {
+            Map<Class<?>, CallableNode> parameterMap = namesMap.get("new");
+            if(argList.size() == 0 && parameterMap.containsKey(null)) {
+                candidates.add(parameterMap.get(null).getConstructor());
+            } else {
+                Class<?> first = argList.pollFirst();
+                if(first==null) {
+                    List<Constructor> collect = parameterMap.values().stream().map(CallableNode::getConstructor).collect(Collectors.toList());
+                    candidates.addAll(collect);
+                } else {
+                    CallableNode callableNode = parameterMap.get(first);
+                    if(callableNode != null) {
+                        callableNode.findConstructorCandidates(argList, candidates);
+                    } else {
+                        for(Class<?> cls: parameterMap.keySet()) {
+                            if(cls.isAssignableFrom(first)) {
+                                callableNode = parameterMap.get(cls);
+                                parameterMap.put(first, callableNode);
+                                callableNode.findConstructorCandidates(argList, candidates);
+                                return new HashSet<>(candidates);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return new HashSet<>(candidates);
+    }
+
 
     @Override
     public String toString() {

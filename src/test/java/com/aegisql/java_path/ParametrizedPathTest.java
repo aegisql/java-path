@@ -27,30 +27,30 @@ public class ParametrizedPathTest {
     public void basicGetterTest() {
         ParametrizedPath pl1 = p(String.class,"test");
         assertEquals(s1,pl1.getLabel());
-        assertEquals(0,pl1.getClassesForGetter("builder".getClass(),"value".getClass()).length);
-        assertEquals(0,pl1.getPropertiesForGetter("builder","value").length);
+        assertEquals(0,pl1.getClassesForGetter(new ReferenceList("builder"),"value".getClass()).length);
+        assertEquals(0,pl1.getPropertiesForGetter(new ReferenceList("builder"),"value").length);
 
         ParametrizedPath pl2 = p(String.class,s2);
         assertEquals("test",pl1.getLabel());
-        assertEquals("a",pl2.getPropertiesForGetter("builder","value")[0]);
-        assertEquals(1,pl2.getClassesForGetter("builder".getClass(),"value".getClass()).length);
-        assertEquals(String.class,pl2.getClassesForGetter("builder".getClass(),Integer.valueOf(1).getClass())[0]);
+        assertEquals("a",pl2.getPropertiesForGetter(new ReferenceList("builder"),"value")[0]);
+        assertEquals(1,pl2.getClassesForGetter(new ReferenceList("builder"),"value".getClass()).length);
+        assertEquals(String.class,pl2.getClassesForGetter(new ReferenceList("builder"),Integer.valueOf(1).getClass())[0]);
     }
 
     @Test
     public void basicSetterTest() {
         ParametrizedPath pl1 = p(String.class,"test");
         assertEquals(s1,pl1.getLabel());
-        assertEquals(1,pl1.getClassesForSetter("builder".getClass(),"value".getClass()).length);
-        assertEquals(1,pl1.getPropertiesForSetter("builder","value").length);
+        assertEquals(1,pl1.getClassesForSetter(new ReferenceList("builder"),"value".getClass()).length);
+        assertEquals(1,pl1.getPropertiesForSetter(new ReferenceList("builder"),"value").length);
 
         ParametrizedPath pl2 = p(String.class,s2);
         assertEquals("test",pl1.getLabel());
-        assertEquals("a",pl2.getPropertiesForSetter("builder","value")[0]);
-        assertEquals("value",pl2.getPropertiesForSetter("builder","value")[1]);
-        assertEquals(2,pl2.getClassesForSetter("builder".getClass(),"value".getClass()).length);
-        assertEquals(String.class,pl2.getClassesForSetter("builder".getClass(),Integer.valueOf(1).getClass())[0]);
-        assertEquals(Integer.class,pl2.getClassesForSetter("builder".getClass(),Integer.valueOf(1).getClass())[1]);
+        assertEquals("a",pl2.getPropertiesForSetter(new ReferenceList("builder"),"value")[0]);
+        assertEquals("value",pl2.getPropertiesForSetter(new ReferenceList("builder"),"value")[1]);
+        assertEquals(2,pl2.getClassesForSetter(new ReferenceList("builder"),"value".getClass()).length);
+        assertEquals(String.class,pl2.getClassesForSetter(new ReferenceList("builder"),Integer.valueOf(1).getClass())[0]);
+        assertEquals(Integer.class,pl2.getClassesForSetter(new ReferenceList("builder"),Integer.valueOf(1).getClass())[1]);
     }
 
 

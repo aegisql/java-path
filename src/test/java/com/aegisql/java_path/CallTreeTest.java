@@ -64,8 +64,6 @@ public class CallTreeTest {
         assertEquals(bS,mt.findMethod("bee",new Class[]{String.class}));
         assertEquals(bS,mt.findMethod("bi",new Class[]{String.class}));
 
-
-
         Method oS = mt.findMethod("o",new Class[]{String.class});
         System.out.println(oS);
         assertNotNull(oS);
@@ -94,6 +92,14 @@ public class CallTreeTest {
         assertEquals(1,next.getParameterCount());
 
         System.out.println(mt);
+    }
+
+    @Test
+    public void findMethodCandidates() {
+        CallTree mt = CallTree.forClass(StringBuilder.class);
+        Set<Method> candidates = mt.findMethodCandidates("append");
+        assertNotNull(candidates);
+        assertEquals(12,candidates.size());
     }
 
     @Test
@@ -219,6 +225,8 @@ public class CallTreeTest {
         CallTree mt = CallTree.forClass(X.class);
         Method oI = mt.findMethod("o",new Class[]{String.class,Integer.class});
     }
+
+
 
     Method getMethod(String name, Class<?>... args) {
         try {

@@ -60,7 +60,6 @@ void rBrace() :
 }
 
 /** Root production. */
-
 SimpleNode parse() :
 {
     String type = null;
@@ -163,7 +162,7 @@ TypedValue backRef() #void:
         TypedValue tv = new TypedValue();
         String numStr = t.image;
         if("#".equals(numStr)) {
-            tv.setBackRef(-1);
+            tv.setBackRef(0);
         } else {
             tv.setBackRef(Integer.valueOf(numStr.substring(1)));
         }

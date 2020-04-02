@@ -9,6 +9,7 @@ public class ParametrizedProperty {
     private final Class<?> propertyType;
     private final boolean builder;
     private final boolean value;
+    private final int backReference;
     private final String typeAlias;
 
     private final StringConverter<?> defaultConverter = cls -> {
@@ -30,6 +31,7 @@ public class ParametrizedProperty {
     ParametrizedProperty(ClassRegistry classRegistry, TypedValue p, boolean forField) {
         this.classRegistry = classRegistry;
         this.value = p.isDollarSign();
+        this.backReference = p.getBackRef();
         Objects.requireNonNull(p,"Requires property");
             if(p.parametrized()) {
                 this.typeAlias = p.getType();
@@ -90,6 +92,14 @@ public class ParametrizedProperty {
 
     public boolean isValue() {
         return value;
+    }
+
+    public boolean isBackReference() {
+        return backReference >= 0;
+    }
+
+    public int getBackReference() {
+        return backReference;
     }
 
     public Object getProperty() {

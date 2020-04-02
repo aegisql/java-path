@@ -161,6 +161,7 @@ public class ClassRegistry {
         this.classMap.putAll(CLASS_MAP);
         this.conversionMap.putAll(CONVERSION_MAP);
         conversionMap.put("key->new",defaultSupplier);
+        conversionMap.put("new",typeName->defaultSupplier.apply(typeName));
     }
 
     public void registerClass(Class<?> aClass) {

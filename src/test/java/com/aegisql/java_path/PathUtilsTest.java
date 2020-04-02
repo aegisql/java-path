@@ -3,10 +3,7 @@ package com.aegisql.java_path;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class PathUtilsTest {
 
@@ -55,6 +52,14 @@ public class PathUtilsTest {
         assertEquals("test",test.a);
     }
 
+    @Test
+    public void getRootWithClassAndAtTest() {
+        PathUtils pu = new PathUtils(PathUtilsTest.class);
+        PathUtilsTest test = pu.initObjectFromPath("#.@this_is_a.a",PathUtilsTest.class, "test");
+        assertNotNull(test);
+        assertEquals("test",test.a);
+    }
+
     @Test(expected = JavaPathRuntimeException.class)
     public void getRootWithClassShouldFailTest() {
         PathUtils pu = new PathUtils(PathUtilsTest.class);
@@ -71,8 +76,67 @@ public class PathUtilsTest {
         assertEquals("abc100",sb.toString());
     }
 
-    private List<TypedPathElement> parse(String s) {
-        return JavaPathParser.parse(s);
+    @Test
+    public void backRefTest() {
+        StringBuilder sb = new StringBuilder();
+        PathUtils pu = new PathUtils(StringBuilder.class);
+        pu.applyValueToPath("append{a}.append{b}.(string @new{TESTING}).append{#3}.append{int $}",sb,100);
+        assertEquals("abTESTING100",sb.toString());
     }
+
+    @Test
+    public void backRefFactoryTest() {
+        StringBuilder sb = new StringBuilder();
+        PathUtils pu = new PathUtils(StringBuilder.class);
+        pu.applyValueToPath("append{a}.append{b}.(Integer @valueOf{100}).append{#3}.append{int $}",sb,100);
+        assertEquals("ab100100",sb.toString());
+    }
+
+    public static class AS {
+        private String val;
+
+        public String getVal() {
+            return val;
+        }
+
+        public static void setVal(AS b, String val) {
+            b.val = val;
+        }
+    }
+
+    @Test
+    public void testAS() {
+        AS a = new AS();
+        PathUtils pu = new PathUtils(AS.class);
+        Object as = pu.applyValueToPath("setVal{#}", a,"test");
+        assertEquals("test",a.val);
+    }
+
+    public static class PC {
+        PC parent;
+        PC child;
+        String a;
+        public PC(PC parent) {
+            this.parent = parent;
+        }
+    }
+
+    @Test
+    public void parentChildTest() {
+        PathUtils pu = new PathUtils(PC.class);
+        PC root = new PC(null);
+        pu.applyValueToPath("a",root,"PARENT");
+        pu.applyValueToPath("child{#}.a",root,"CHILD");
+        pu.applyValueToPath("child{#}.child{#1}.a",root,"GRAND-CHILD");
+        assertNull(root.parent);
+        assertNotNull(root.child);
+        assertNotNull(root.child.parent);
+        assertNotNull(root.child.child);
+        assertNotNull(root.child.child.parent);
+        assertEquals("PARENT",root.a);
+        assertEquals("CHILD",root.child.a);
+        assertEquals("GRAND-CHILD",root.child.child.a);
+    }
+
 
 }

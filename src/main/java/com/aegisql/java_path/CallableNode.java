@@ -1,5 +1,6 @@
 package com.aegisql.java_path;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -12,8 +13,11 @@ public class CallableNode {
 
     private final Class<?> myClass;
     private Map<Class<?>, CallableNode> parameterMap = new HashMap<>();
+
     private Method method;
     private Field field;
+    private Constructor constructor;
+
     private final int pos;
 
     public CallableNode(Class<?> myClass, int pos) {
@@ -28,6 +32,19 @@ public class CallableNode {
             CallableNode callableNode = parameterMap.computeIfAbsent(classes.pollFirst(), k -> new CallableNode(k,pos+1));
             callableNode.addNode(classes,method);
         }
+    }
+
+    public void addNode(LinkedList<Class> classes, Constructor constructor) {
+        if(classes.size() == 0) {
+            this.constructor = constructor;
+        } else {
+            CallableNode callableNode = parameterMap.computeIfAbsent(classes.pollFirst(), k -> new CallableNode(k,pos+1));
+            callableNode.addNode(classes,constructor);
+        }
+    }
+
+    public void addNode(Field f) {
+        this.field = f;
     }
 
     public Method findMethod(LinkedList<Class<?>> argList) {
@@ -47,24 +64,55 @@ public class CallableNode {
                     }
                 }
                 throw new JavaPathRuntimeException("findMethod failed to find assignable class "+next+" in "+parameterMap.keySet());
-
             }
         }
     }
 
+    public Constructor findConstructor(LinkedList<Class<?>> argList) {
+        if(argList.size()==0) {
+            return constructor;
+        } else {
+            Class<?> next = argList.pollFirst();
+            if(parameterMap.containsKey(next)) {
+                return parameterMap.get(next).findConstructor(argList);
+            } else {
+                for(Class<?> cls: parameterMap.keySet()) {
+                    if(cls.isAssignableFrom(next)) {
+                        CallableNode callableNode = parameterMap.get(cls);
+                        Constructor constructor = callableNode.findConstructor(argList);
+                        parameterMap.put(next, callableNode);
+                        return constructor;
+                    }
+                }
+                throw new JavaPathRuntimeException("findConstructor failed to find assignable class "+next+" in "+parameterMap.keySet());
+            }
+        }
+    }
+
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("CallableNode{");
-        sb.append("class=").append(myClass);
+        sb.append("pos=").append(pos);
+        sb.append(", class=").append(myClass);
         sb.append(", parameters=").append(parameterMap);
         sb.append(", method=").append(method);
-        sb.append(", pos=").append(pos);
+        sb.append(", field=").append(field);
+        sb.append(", constructor=").append(constructor);
         sb.append('}');
         return sb.toString();
     }
 
     public Method getMethod() {
         return method;
+    }
+
+    public Field getField() {
+        return field;
+    }
+
+    public Constructor getConstructor() {
+        return constructor;
     }
 
     public void findMethodCandidates(LinkedList<Class<?>> argList, List<Method> candidates) {
@@ -92,10 +140,33 @@ public class CallableNode {
                 }
             }
         }
-
     }
 
-    public void addNode(Field f, int i) {
-        this.field = f;
+    public void findConstructorCandidates(LinkedList<Class<?>> argList, List<Constructor> candidates) {
+        if(argList.size()==0) {
+            candidates.add(constructor);
+        } else {
+            Class<?> next = argList.pollFirst();
+            if(next == null) {
+                List<Constructor> collect = parameterMap.values().stream().map(CallableNode::getConstructor).collect(Collectors.toList());
+                candidates.addAll(collect);
+            } else {
+                CallableNode callableNode = parameterMap.get(next);
+                if(callableNode != null) {
+                    callableNode.findConstructorCandidates(argList, candidates);
+                } else {
+                    for(Class<?> cls: parameterMap.keySet()) {
+                        if(cls.isAssignableFrom(next)) {
+                            callableNode = parameterMap.get(cls);
+                            parameterMap.put(next, callableNode);
+                            callableNode.findConstructorCandidates(argList, candidates);
+                            return;
+                        }
+                    }
+                    throw new JavaPathRuntimeException("findConstructorCandidates failed to find assignable class "+next+" in "+parameterMap.keySet());
+                }
+            }
+        }
     }
+
 }

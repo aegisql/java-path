@@ -44,4 +44,12 @@ public class ReferenceList {
         return getReference(i).getClass();
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ReferenceList{");
+        sb.append("references=").append(references);
+        sb.append(", root=").append(root);
+        sb.append('}');
+        return sb.toString();
+    }
 }

@@ -140,7 +140,7 @@ public class CallTree {
                     return callableNode.findMethod(argList);
                 } else {
                     for(Class<?> cls: parameterMap.keySet()) {
-                        if(cls.isAssignableFrom(first)) {
+                        if(isAssignableFrom(cls,first)) {
                             CallableNode callableNode = parameterMap.get(cls);
                             Method method = callableNode.findMethod(argList);
                             parameterMap.put(first, callableNode);
@@ -169,7 +169,7 @@ public class CallTree {
                     return callableNode.findConstructor(argList);
                 } else {
                     for(Class<?> cls: parameterMap.keySet()) {
-                        if(cls.isAssignableFrom(first)) {
+                        if(isAssignableFrom(cls,first)) {
                             CallableNode callableNode = parameterMap.get(cls);
                             Constructor constructor = callableNode.findConstructor(argList);
                             parameterMap.put(first, callableNode);
@@ -204,7 +204,7 @@ public class CallTree {
                         callableNode.findMethodCandidates(argList, candidates);
                     } else {
                         for(Class<?> cls: parameterMap.keySet()) {
-                            if(cls.isAssignableFrom(first)) {
+                            if(isAssignableFrom(cls,first)) {
                                 callableNode = parameterMap.get(cls);
                                 parameterMap.put(first, callableNode);
                                 callableNode.findMethodCandidates(argList, candidates);
@@ -239,7 +239,7 @@ public class CallTree {
                         callableNode.findConstructorCandidates(argList, candidates);
                     } else {
                         for(Class<?> cls: parameterMap.keySet()) {
-                            if(cls.isAssignableFrom(first)) {
+                            if(isAssignableFrom(cls,first)) {
                                 callableNode = parameterMap.get(cls);
                                 parameterMap.put(first, callableNode);
                                 callableNode.findConstructorCandidates(argList, candidates);
@@ -261,4 +261,25 @@ public class CallTree {
         sb.append('}');
         return sb.toString();
     }
+
+    private boolean isAssignableFrom(Class<?> a, Class<?> b) {
+        if(a.isPrimitive()) {
+            if(b.isPrimitive()) {
+                return a==b;
+            }
+            return  false
+                    | (a.equals(int.class) && b.equals(Integer.class))
+                    | (a.equals(long.class) && b.equals(Long.class))
+                    | (a.equals(short.class) && b.equals(Short.class))
+                    | (a.equals(byte.class) && b.equals(Byte.class))
+                    | (a.equals(char.class) && b.equals(Character.class))
+                    | (a.equals(boolean.class) && b.equals(Boolean.class))
+                    | (a.equals(double.class) && b.equals(Double.class))
+                    | (a.equals(float.class) && b.equals(Float.class))
+                    ;
+        } else {
+            return a.isAssignableFrom(b);
+        }
+    }
+
 }

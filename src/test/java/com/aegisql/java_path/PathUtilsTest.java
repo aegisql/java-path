@@ -3,7 +3,9 @@ package com.aegisql.java_path;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class PathUtilsTest {
 
@@ -136,7 +138,26 @@ public class PathUtilsTest {
         assertEquals("PARENT",root.a);
         assertEquals("CHILD",root.child.a);
         assertEquals("GRAND-CHILD",root.child.child.a);
+        assertEquals("CHILD",root.child.child.parent.a);
+        assertEquals("PARENT",root.child.child.parent.parent.a);
     }
 
+    public static class A {
+        int sum = 0;
+        public void add(int x) {
+            sum += x;
+        }
+    }
+
+    @Test
+    public void testPrimitiveTypeCasting() {
+
+        A a = new A();
+        PathUtils pathUtils = new PathUtils(A.class);
+        pathUtils.applyValueToPath("add", a, 100);
+
+
+        assertEquals(100,a.sum);
+    }
 
 }

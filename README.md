@@ -9,3 +9,10 @@ conveyor-core
   <version>0.0.1</version>
 </dependency>
 ```
+
+To generate the parser code
+```shell script
+rm -R src/main/javacc/com/* 
+mvn clean generate-sources 
+mv target/generated-sources/jjtree/com/aegisql/java_path/parser/* src/main/javacc/com/aegisql/java_path/parser/
+```

@@ -82,7 +82,7 @@ public class PathUtilsTest {
     public void backRefTest() {
         StringBuilder sb = new StringBuilder();
         PathUtils pu = new PathUtils(StringBuilder.class);
-        pu.applyValueToPath("append{a}.append{b}.(string @new{TESTING}).append{#3}.append{int $}",sb,100);
+        pu.applyValueToPath("append{a}.append{b}.(string @new{TESTING}).append{#1}.append{int $}",sb,100);
         assertEquals("abTESTING100",sb.toString());
     }
 
@@ -90,8 +90,22 @@ public class PathUtilsTest {
     public void backRefFactoryTest() {
         StringBuilder sb = new StringBuilder();
         PathUtils pu = new PathUtils(StringBuilder.class);
-        pu.applyValueToPath("append{a}.append{b}.(Integer @valueOf{100}).append{#3}.append{int $}",sb,100);
+        pu.applyValueToPath("append{a}.append{b}.(Integer @valueOf{100}).append{#1}.append{int $}",sb,100);
         assertEquals("ab100100",sb.toString());
+    }
+
+    @Test
+    public void initWithMultipleParametersTest() {
+        PathUtils pu = new PathUtils(StringBuilder.class);
+        StringBuilder sb = pu.initObjectFromPath("#.append{$0}.append{$1}.append{$2}.append{$3}", StringBuilder.class, "ab","cd","dc","ba");
+        assertEquals("abcddcba",sb.toString());
+    }
+
+    @Test
+    public void initWithMultipleParametersNoClassTest() {
+        PathUtils pu = new PathUtils(StringBuilder.class);
+        StringBuilder sb = (StringBuilder) pu.initObjectFromPath("("+StringBuilder.class.getName()+" #).append{$0}.append{$1}.append{$2}.append{$3}", "ab","cd","dc","ba");
+        assertEquals("abcddcba",sb.toString());
     }
 
     public static class AS {

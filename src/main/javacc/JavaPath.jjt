@@ -33,8 +33,9 @@ TOKEN :
 | <K_SPACE: ([" ","\t","\n","\r"])+>
 | < #LETTER: ["a"-"z","A"-"Z"] >
 | < #DIGIT: ["0"-"9"] >
-| < #SPECIAL: ["_","$","-",">"] >
+| < #SPECIAL: ["_","<","-",">","$"] >
 | <K_BACK_REF_ELEMENT : "#"(<DIGIT> )*>
+| <K_REF_ELEMENT : "$"(<DIGIT> )*>
 | < K_TYPE_ELEMENT: ((<LETTER>|<DIGIT>|<SPECIAL> )+ ( <K_DOT> (<LETTER> | <DIGIT>|<SPECIAL> )+ )* <K_SPACE>) >
 | < K_PATH_ELEMENT: ( ~["'","\""," ","\t",".",",","{","}","(",")","\\"] )+ >
 | <K_QUOTED_STRING: "\"" ( (~["\"","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\""] ) ) )* "\"">
@@ -159,16 +160,16 @@ TypedValue backRef() #void:
 {
     t = <K_BACK_REF_ELEMENT> [<K_DOT> path() ]
     {
-        TypedValue tv = new TypedValue();
-        String numStr = t.image;
-        if("#".equals(numStr)) {
-            tv.setBackRef(0);
-        } else {
-            tv.setBackRef(Integer.valueOf(numStr.substring(1)));
-        }
-        tv.setValue(numStr);
-        return tv;
+    TypedValue tv = new TypedValue();
+    String numStr = t.image;
+    if("#".equals(numStr)) {
+        tv.setBackRefIdx(0);
+    } else {
+        tv.setBackRefIdx(Integer.valueOf(numStr.substring(1)));
     }
+    tv.setValue(numStr);
+    return tv;
+}
 }
 
 TypedValue forwardRef() #void:
@@ -186,7 +187,14 @@ TypedValue forwardRef() #void:
         TypedValue tv = new TypedValue();
         tv.setType(type);
         tv.setValue(value);
-        tv.setBackRef(-1);
+        tv.setBackRefIdx(-1);
+        if(value.startsWith("$")) {
+            if("$".equals(value)) {
+                tv.setValueIdx(0);
+            } else {
+                tv.setValueIdx(Integer.valueOf(value.substring(1)));
+            }
+        }
         return tv;
     }
 }
@@ -213,7 +221,7 @@ String parameter() #void:
     Token t = null;
 }
 {
-    (t = <K_PATH_ELEMENT> | t = <K_QUOTED_STRING> | t = <K_SINGLE_QUOTED_STRING>)
+    (t = <K_REF_ELEMENT> | t = <K_PATH_ELEMENT> | t = <K_QUOTED_STRING> | t = <K_SINGLE_QUOTED_STRING>)
     {
         return t.image;
     }

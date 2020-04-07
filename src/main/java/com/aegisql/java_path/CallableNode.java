@@ -1,5 +1,8 @@
 package com.aegisql.java_path;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -11,14 +14,15 @@ import java.util.stream.Collectors;
 
 public class CallableNode {
 
+    private final static Logger LOG = LoggerFactory.getLogger(CallableNode.class);
+
     private final Class<?> myClass;
     private Map<Class<?>, CallableNode> parameterMap = new HashMap<>();
+    private final int pos;
 
     private Method method;
     private Field field;
     private Constructor constructor;
-
-    private final int pos;
 
     public CallableNode(Class<?> myClass, int pos) {
         this.myClass = myClass;
@@ -89,16 +93,15 @@ public class CallableNode {
         }
     }
 
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("CallableNode{");
         sb.append("pos=").append(pos);
         sb.append(", class=").append(myClass);
         sb.append(", parameters=").append(parameterMap);
-        sb.append(", method=").append(method);
-        sb.append(", field=").append(field);
-        sb.append(", constructor=").append(constructor);
+        if(method != null) sb.append(", method=").append(method);
+        if(field != null) sb.append(", field=").append(field);
+        if(constructor != null) sb.append(", constructor=").append(constructor);
         sb.append('}');
         return sb.toString();
     }

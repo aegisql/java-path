@@ -9,7 +9,8 @@ public class ParametrizedProperty {
     private final Class<?> propertyType;
     private final boolean builder;
     private final boolean value;
-    private final int backReference;
+    private final int backReferenceIdx;
+    private final int valueIdx;
     private final String typeAlias;
 
     private final StringConverter<?> defaultConverter = cls -> {
@@ -24,41 +25,42 @@ public class ParametrizedProperty {
         throw new JavaPathRuntimeException("Failed to find instantiation method for " + cls);
     };
 
-    public ParametrizedProperty(ClassRegistry classRegistry, TypedValue p) {
-        this(classRegistry, p,false);
+    public ParametrizedProperty(ClassRegistry classRegistry, TypedValue typedValue) {
+        this(classRegistry, typedValue,false);
     }
 
-    ParametrizedProperty(ClassRegistry classRegistry, TypedValue p, boolean forField) {
+    ParametrizedProperty(ClassRegistry classRegistry, TypedValue typedValue, boolean forField) {
         this.classRegistry = classRegistry;
-        this.value = p.isDollarSign();
-        this.backReference = p.getBackRef();
-        Objects.requireNonNull(p,"Requires property");
-            if(p.parametrized()) {
-                this.typeAlias = p.getType();
-                if(classRegistry.classMap.containsKey(p.getType())) {
-                    propertyType = classRegistry.classMap.get(p.getType());
+        this.value = typedValue.isDollarSign();
+        this.backReferenceIdx = typedValue.getBackRefIdx();
+        this.valueIdx = typedValue.getValueIdx();
+        Objects.requireNonNull(typedValue,"Requires property");
+            if(typedValue.parametrized()) {
+                this.typeAlias = typedValue.getType();
+                if(classRegistry.classMap.containsKey(typedValue.getType())) {
+                    propertyType = classRegistry.classMap.get(typedValue.getType());
                     builder = false;
                 } else {
-                    Class<?> aClass = toClass(p.getType());
+                    Class<?> aClass = toClass(typedValue.getType());
                     if(aClass == null) {
                         propertyType = forField ? null : String.class;
                         builder = false;
                     } else {
-                        propertyType = classRegistry.classMap.computeIfAbsent(p.getType(), typeName->aClass);
+                        propertyType = classRegistry.classMap.computeIfAbsent(typedValue.getType(), typeName->aClass);
                         builder = false;
                     }
                 }
             } else {
                 this.typeAlias = null;
-                if(p.isHashSign()) {
+                if(typedValue.isHashSign()) {
                     propertyType = null;
                     builder = true;
-                } else if(p.isDollarSign()) {
+                } else if(typedValue.isDollarSign()) {
                     builder = false;
-                    if(classRegistry.classMap.containsKey(p.getType())) {
-                        propertyType = classRegistry.classMap.get(p.getType());
-                    } else if(p.getType() != null ){
-                        propertyType = toClass(p.getType());
+                    if(classRegistry.classMap.containsKey(typedValue.getType())) {
+                        propertyType = classRegistry.classMap.get(typedValue.getType());
+                    } else if(typedValue.getType() != null ){
+                        propertyType = toClass(typedValue.getType());
                     } else {
                         propertyType = null;
                     }
@@ -67,7 +69,7 @@ public class ParametrizedProperty {
                     builder = false;
                 }
             }
-        this.propertyStr = p.getValue();
+        this.propertyStr = typedValue.getValue();
     }
 
     private Class<?> toClass(String name) {
@@ -94,12 +96,20 @@ public class ParametrizedProperty {
         return value;
     }
 
-    public boolean isBackReference() {
-        return backReference >= 0;
+    public boolean isBackReferenceIdx() {
+        return backReferenceIdx >= 0;
     }
 
-    public int getBackReference() {
-        return backReference;
+    public boolean isValueIdx() {
+        return valueIdx >= 0;
+    }
+
+    public int getBackReferenceIdx() {
+        return backReferenceIdx;
+    }
+
+    public int getValueIdx() {
+        return valueIdx;
     }
 
     public Object getProperty() {
@@ -127,8 +137,11 @@ public class ParametrizedProperty {
         final StringBuilder sb = new StringBuilder("ParametrizedProperty{");
         sb.append("propertyStr='").append(propertyStr).append('\'');
         sb.append(", propertyType=").append(propertyType);
+        sb.append(", typeAlias='").append(typeAlias).append('\'');
         sb.append(", builder=").append(builder);
         sb.append(", value=").append(value);
+        sb.append(", backReferenceIdx=").append(backReferenceIdx);
+        sb.append(", valueIdx=").append(valueIdx);
         sb.append('}');
         return sb.toString();
     }

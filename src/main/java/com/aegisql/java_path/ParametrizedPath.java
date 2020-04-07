@@ -18,32 +18,6 @@ public class ParametrizedPath {
     private final List<ParametrizedProperty> labelProperties;
     private final ParametrizedProperty parametrizedProperty;
 
- /*    public ParametrizedPath(Class<?> bClass, String label) {
-        this(new ClassRegistry(), bClass,null,label);
-    }
-
-   public ParametrizedPath(ClassRegistry classRegistry, Class<?> bClass, Class<?> vClass, String label) {
-        Objects.requireNonNull(label,"Label must not be null");
-        this.classRegistry = classRegistry == null? new ClassRegistry():classRegistry;
-        this.pathElement = new TypedPathElement();
-        this.pathElement.setName(label);
-        this.wholeLabel = label.trim();
-        if(isParametrized()) {
-            String[] parts = label.split("\\{|\\}",3);
-            this.parametrizedProperty = new ParametrizedProperty(parts[0],true);
-            this.label = parametrizedProperty.getPropertyStr();
-            String[] properties = parts[1].split(",");
-            this.labelProperties = Arrays.stream(properties)
-                    .map(ParametrizedProperty::new)
-                    .peek(lp->{if(lp.isValue() && lp.getPropertyType() != null) hasValueType = true;})
-                    .collect(Collectors.toList());
-        } else {
-            this.labelProperties = Collections.EMPTY_LIST;
-            this.parametrizedProperty = new ParametrizedProperty(label,true);
-            this.label = parametrizedProperty.getPropertyStr();
-        }
-    }*/
-
     public ParametrizedPath(ClassRegistry classRegistry, Class<?> aClass, TypedPathElement javaPath) {
         this.classRegistry = classRegistry == null? new ClassRegistry():classRegistry;
         this.pathElement = javaPath;
@@ -66,15 +40,15 @@ public class ParametrizedPath {
         return label;
     }
 
-    public Object[] getPropertiesForGetter(ReferenceList backRefObjects, Object value) {
+    public Object[] getPropertiesForGetter(ReferenceList backRefObjects) {
         List<Object> objects = new ArrayList<>();
         for(ParametrizedProperty lp:labelProperties) {
             if(lp.isBuilder()) {
-                objects.add(backRefObjects.getReference(lp.getBackReference()));
+                objects.add(backRefObjects.getReference(lp.getBackReferenceIdx()));
             } else if(lp.isValue()) {
-                objects.add( value );
-            } else if(lp.isBackReference()) {
-                objects.add(backRefObjects.getReference(lp.getBackReference()));
+                objects.add( backRefObjects.getValue(lp.getValueIdx()) );
+            } else if(lp.isBackReferenceIdx()) {
+                objects.add(backRefObjects.getReference(lp.getBackReferenceIdx()));
             } else {
                 objects.add(lp.getProperty());
             }
@@ -82,36 +56,36 @@ public class ParametrizedPath {
         return objects.toArray(EMPTY_OBJECT_ARRAY);
     }
 
-    public Object[] getPropertiesForSetter(ReferenceList backRefObjects, Object value) {
+    public Object[] getPropertiesForSetter(ReferenceList backRefObjects) {
         boolean valueNotSet = true;
         List<Object> objects = new ArrayList<>();
         for(ParametrizedProperty lp:labelProperties) {
             if(lp.isBuilder()) {
                 objects.add(backRefObjects.getRoot());
             } else if(lp.isValue()) {
-                objects.add( value );
+                objects.add( backRefObjects.getValue(lp.getValueIdx()) );
                 valueNotSet = false;
-            } else if(lp.isBackReference()) {
-                objects.add( backRefObjects.getReference(lp.getBackReference()) );
+            } else if(lp.isBackReferenceIdx()) {
+                objects.add( backRefObjects.getReference(lp.getBackReferenceIdx()) );
             } else {
                 objects.add(lp.getProperty());
             }
         }
         if(valueNotSet) {
-            objects.add( value );
+            objects.add( backRefObjects.getValue(0) );
         }
         return objects.toArray(EMPTY_OBJECT_ARRAY);
     }
 
-    public Class<?>[] getClassesForGetter(ReferenceList backReferences, Class<?> vClass) {
+    public Class<?>[] getClassesForGetter(ReferenceList backReferences) {
         List<Class<?>> classes = new ArrayList<>();
         for(ParametrizedProperty lp:labelProperties) {
             if(lp.isBuilder()) {
-                classes.add(backReferences.getReferenceClass(lp.getBackReference()));
+                classes.add(backReferences.getReferenceClass(lp.getBackReferenceIdx()));
             } else if(lp.isValue()) {
-                classes.add( lp.getPropertyType() == null ? vClass : lp.getPropertyType() );
-            } else if(lp.isBackReference()) {
-                classes.add(backReferences.getReferenceClass(lp.getBackReference()));
+                classes.add( lp.getPropertyType() == null ? backReferences.getValueClass(lp.getValueIdx()) : lp.getPropertyType() );
+            } else if(lp.isBackReferenceIdx()) {
+                classes.add(backReferences.getReferenceClass(lp.getBackReferenceIdx()));
             } else {
                 classes.add(lp.getPropertyType());
             }
@@ -119,23 +93,23 @@ public class ParametrizedPath {
         return classes.toArray(EMPTY_CLASS_ARRAY);
     }
 
-    public Class<?>[] getClassesForSetter(ReferenceList backReferences, Class<?> vClass) {
+    public Class<?>[] getClassesForSetter(ReferenceList backReferences) {
         boolean valueNotSet = true;
         List<Class<?>> classes = new ArrayList<>();
         for(ParametrizedProperty lp:labelProperties) {
             if(lp.isBuilder()) {
                 classes.add(backReferences.getRootClass());
             } else if(lp.isValue()) {
-                classes.add( lp.getPropertyType() == null ? vClass : lp.getPropertyType() );
+                classes.add( lp.getPropertyType() == null ? backReferences.getValueClass(lp.getValueIdx()) : lp.getPropertyType() );
                 valueNotSet = false;
-            } else if(lp.isBackReference()) {
-                classes.add(backReferences.getReferenceClass(lp.getBackReference()));
+            } else if(lp.isBackReferenceIdx()) {
+                classes.add(backReferences.getReferenceClass(lp.getBackReferenceIdx()));
             } else {
                 classes.add(lp.getPropertyType());
             }
         }
         if(valueNotSet) {
-            classes.add(vClass);
+            classes.add(backReferences.getValueClass(0));
         }
         return classes.toArray(EMPTY_CLASS_ARRAY);
     }

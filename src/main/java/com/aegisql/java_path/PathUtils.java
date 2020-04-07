@@ -7,11 +7,11 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class PathUtils {
 
     static class Holder {
-        public Holder(){}
         @Label("#")
         Object _holder_;
     }
@@ -19,7 +19,6 @@ public class PathUtils {
     private final Class<?> aClass;
     private final CallTree callTree;
     private final ClassRegistry classRegistry;
-    private final Map<String, Field> fieldsByName = new HashMap<>();
     private final Map<TypedPathElement,BiFunction<Object,Object,Object> > getters  = new HashMap<>();
     private final Map<TypedPathElement,BiConsumer<Object,Object> > setters  = new HashMap<>();
     private boolean enableAccessorsCaching = false;
@@ -30,7 +29,6 @@ public class PathUtils {
         this.aClass = aClass;
         this.callTree = CallTree.forClass(aClass);
         this.classRegistry = registry;
-        seedFields(aClass);
     }
 
     public PathUtils(Class<?> aClass) {
@@ -42,24 +40,9 @@ public class PathUtils {
         return initObjectFromPath(parse,value);
     }
 
-    public Object initObjectFromPath(List<TypedPathElement> path, Object value) {
-        Objects.requireNonNull(path,"Requires path");
-        if(path.size() == 0) {
-            throw new JavaPathRuntimeException("Requires at least one path element");
-        }
-        TypedPathElement rootPathElement = new TypedPathElement();
-        rootPathElement.setName("");
-        rootPathElement.setType(Holder.class.getName());
-        TypedPathElement pathElement = path.get(0);
-        pathElement.setName("#");
-        List<TypedPathElement> newPath = new ArrayList<>();
-        newPath.add(rootPathElement);
-        newPath.addAll(path);
-        Holder root = new Holder();
-        PathUtils pu = new PathUtils(Holder.class, classRegistry);
-        ReferenceList backRefCollection = new ReferenceList(root);
-        pu.applyValueToPath(newPath, backRefCollection, value);
-        return root._holder_;
+    public Object initObjectFromPath(String path, Object value, Object value2, Object... more) {
+        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        return initObjectFromPath(parse,value, value2, more);
     }
 
     public <T> T initObjectFromPath(String path, Class<T> rootClass, Object value) {
@@ -67,48 +50,110 @@ public class PathUtils {
         return initObjectFromPath(parse,rootClass,value);
     }
 
+    public <T> T initObjectFromPath(String path, Class<T> rootClass, Object value, Object value2, Object... more) {
+        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        return initObjectFromPath(parse,rootClass,value,value2,more);
+    }
+
+    public Object initObjectFromPath(List<TypedPathElement> path, Object value) {
+        List<TypedPathElement> newPath = pack(path);
+        return applyInHolder(newPath,value);
+    }
+
+    public Object initObjectFromPath(List<TypedPathElement> path, Object value, Object value2, Object... more) {
+        List<TypedPathElement> newPath = pack(path);
+        return applyInHolder(newPath,value,value2,more);
+    }
+
     public <T> T initObjectFromPath(List<TypedPathElement> path, Class<T> rootClass, Object value) {
+        List<TypedPathElement> newPath = pack(path);
+        newPath.get(1).setType(rootClass.getName());
+        return applyInHolder(newPath,value);
+    }
+
+    public <T> T initObjectFromPath(List<TypedPathElement> path, Class<T> rootClass, Object value, Object value2, Object... more) {
+        List<TypedPathElement> newPath = pack(path);
+        newPath.get(1).setType(rootClass.getName());
+        return applyInHolder(newPath,value,value2,more);
+    }
+
+    private <T> T applyInHolder(List<TypedPathElement> path,Object value) {
+        Holder root = new Holder();
+        PathUtils pu = new PathUtils(Holder.class, classRegistry);
+        ReferenceList backRefCollection = new ReferenceList(root,value);
+        pu.applyValueToPath(path, backRefCollection);
+        return (T) root._holder_;
+    }
+
+    private <T> T applyInHolder(List<TypedPathElement> path,Object value,Object value2,Object... more) {
+        Holder root = new Holder();
+        PathUtils pu = new PathUtils(Holder.class, classRegistry);
+        ReferenceList backRefCollection = new ReferenceList(root,value);
+        backRefCollection.addValue(value2);
+        if(more != null) {
+            Arrays.stream(more).forEach(backRefCollection::addValue);
+        }
+        pu.applyValueToPath(path, backRefCollection);
+        return (T) root._holder_;
+    }
+
+    private List<TypedPathElement> pack(List<TypedPathElement> path) {
         Objects.requireNonNull(path,"Requires path");
         if(path.size() == 0) {
             throw new JavaPathRuntimeException("Requires at least one path element");
         }
+        List<TypedPathElement> newPath = new ArrayList<>();
         TypedPathElement rootPathElement = new TypedPathElement();
         rootPathElement.setName("");
         rootPathElement.setType(Holder.class.getName());
         TypedPathElement pathElement = path.get(0);
         pathElement.setName("#");
-        pathElement.setType(rootClass.getName());
-        List<TypedPathElement> newPath = new ArrayList<>();
         newPath.add(rootPathElement);
         newPath.addAll(path);
-        Holder root = new Holder();
-        PathUtils pu = new PathUtils(Holder.class, classRegistry);
-        ReferenceList backRefCollection = new ReferenceList(root);
-        pu.applyValueToPath(newPath, backRefCollection, value);
-        return (T) root._holder_;
+        return newPath;
     }
 
+    public Object applyValuesToPath(String path, Object root, Collection<Object> values) {
+        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        ReferenceList backRefCollection = new ReferenceList(root);
+        if(values == null && values.size() == 0) {
+            backRefCollection.addValue(null);
+        } else {
+            values.forEach(backRefCollection::addValue);
+        }
+        return applyValueToPath(parse,backRefCollection);
+    }
+
+    public Object applyValuesToPath(String path, Object root, Object... values) {
+        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        ReferenceList backRefCollection = new ReferenceList(root);
+        if(values == null && values.length == 0) {
+            backRefCollection.addValue(null);
+        } else {
+            Arrays.stream(values).forEach(backRefCollection::addValue);
+        }
+        return applyValueToPath(parse,backRefCollection);
+    }
 
     public Object applyValueToPath(String path, Object root, Object value) {
         List<TypedPathElement> parse = JavaPathParser.parse(path);
-        ReferenceList backRefCollection = new ReferenceList(root);
-        return applyValueToPath(parse,backRefCollection,value);
+        ReferenceList backRefCollection = new ReferenceList(root,value);
+        return applyValueToPath(parse,backRefCollection);
     }
 
-    private <T> T applyValueToPath(List<TypedPathElement> path, ReferenceList backRefCollection, Object value) {
+    private <T> T applyValueToPath(List<TypedPathElement> path, ReferenceList valuesRefsCollection) {
         Objects.requireNonNull(path,"Requires path");
         int size = path.size();
         if(size == 0) {
             return null;
         }
-        Object root = backRefCollection.getRoot();
+        Object root = valuesRefsCollection.getRoot();
         Objects.requireNonNull(root,"Requires root object");
         TypedPathElement rootPathElement = path.get(0);
-        Class<?> vClass = value == null ? null : value.getClass();
-
+        //Class<?> vClass = value == null ? null : value.getClass();
         if(rootPathElement.getName().startsWith("@")) {
             if(rootPathElement.getType() == null) {
-                return applyValueToPath(path.subList(1,path.size()),backRefCollection,value);
+                return applyValueToPath(path.subList(1,path.size()),valuesRefsCollection);
             }
             Class refClass = classRegistry.classMap.get(rootPathElement.getType());
             if(refClass == null) {
@@ -121,55 +166,51 @@ public class PathUtils {
             PathUtils nextUtils = new PathUtils(refClass,classRegistry);
             nextUtils.setEnableAccessorsCaching(enableAccessorsCaching);
             if(rootPathElement.getName().equalsIgnoreCase("@new")) {
-                BiFunction<ReferenceList, Object, Object> constructor = nextUtils.offerConstructor(backRefCollection, rootPathElement, vClass);
+                Function<ReferenceList, Object> constructor = nextUtils.offerConstructor(valuesRefsCollection, rootPathElement);
                 if (constructor != null) {
-                    Object nextRef = constructor.apply(backRefCollection, value);
-                    backRefCollection.addReference(nextRef);
-                    return applyValueToPath(path.subList(1, path.size()), backRefCollection, value);
+                    Object nextRef = constructor.apply(valuesRefsCollection);
+                    valuesRefsCollection.addReference(nextRef);
+                    return applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
                 }
                 throw new JavaPathRuntimeException("Expected constructor of class "+refClass+" for "+rootPathElement );
             } else {
                 rootPathElement.setName(rootPathElement.getName().substring(1));
-                BiFunction<ReferenceList, Object, Object> getter = nextUtils.offerGetter(backRefCollection, rootPathElement, vClass);
+                Function<ReferenceList, Object> getter = nextUtils.offerGetter(valuesRefsCollection, rootPathElement);
                 if (getter != null) {
-                    Object nextRef = getter.apply(backRefCollection, value);
-                    backRefCollection.addReference(nextRef);
-                    return applyValueToPath(path.subList(1, path.size()), backRefCollection, value);
+                    Object nextRef = getter.apply(valuesRefsCollection);
+                    valuesRefsCollection.addReference(nextRef);
+                    return applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
                 }
                 throw new JavaPathRuntimeException("Expected getter for class "+refClass+" for "+rootPathElement );
             }
         } else {
             if(size == 1) {
-                return (T) offerSetter(backRefCollection, rootPathElement,vClass).apply(backRefCollection,value);
+                return (T) offerSetter(valuesRefsCollection, rootPathElement).apply(valuesRefsCollection);
             } else {
-                BiFunction<ReferenceList, Object, Object> getter = offerGetter(backRefCollection, rootPathElement, vClass);
-                Object nextRoot =  getter.apply(backRefCollection, value);
+                Function<ReferenceList, Object> getter = offerGetter(valuesRefsCollection, rootPathElement);
+                Object nextRoot =  getter.apply(valuesRefsCollection);
                 Objects.requireNonNull(nextRoot,"Object for path element '"+rootPathElement+"' is not initialized!");
                 PathUtils nextUtils = new PathUtils(nextRoot.getClass(),classRegistry);
                 nextUtils.setEnableAccessorsCaching(enableAccessorsCaching);
-                backRefCollection.addRoot(nextRoot);
-                return nextUtils.applyValueToPath(path.subList(1,path.size()),backRefCollection,value);
+                valuesRefsCollection.addRoot(nextRoot);
+                return nextUtils.applyValueToPath(path.subList(1,path.size()),valuesRefsCollection);
             }
         }
     }
 
-    public BiFunction<ReferenceList,Object,Object> offerConstructor(ReferenceList backReferences, TypedPathElement javaPath, Class vClass) {
+    public Function<ReferenceList,Object> offerConstructor(ReferenceList backReferences, TypedPathElement javaPath) {
         ParametrizedPath pl = new ParametrizedPath(classRegistry, aClass,javaPath);
         Constructor constructor = null;
-        if(vClass != null || pl.hasValueType()) {
-            constructor = callTree.findConstructor(pl.getClassesForGetter(backReferences,vClass));
-        } else {
-            Set<Constructor> constructors = callTree.findConstructorCandidates(pl.getClassesForGetter(backReferences,vClass));
+          Set<Constructor> constructors = callTree.findConstructorCandidates(pl.getClassesForGetter(backReferences));
             if(constructors.size() > 1) {
                 throw new JavaPathRuntimeException("More than one constructor candidates found for "+pl+"; "+constructors);
             } else if(constructors.size() == 1) {
                 constructor = constructors.iterator().next();
             }
-        }
         if(constructor != null) {
             Constructor finalConstructor = constructor;
-            return (b, v)->{
-                Object[] propertiesForGetter = pl.getPropertiesForGetter(b, v);
+            return b->{
+                Object[] propertiesForGetter = pl.getPropertiesForGetter(b);
                 return invoke(finalConstructor, propertiesForGetter);
             };
         } else {
@@ -177,94 +218,55 @@ public class PathUtils {
         }
     }
 
-    public BiFunction<ReferenceList, Object,Object> offerGetter(ReferenceList backReferences, TypedPathElement javaPath, Class vClass) {
+    public Function<ReferenceList, Object> offerGetter(ReferenceList backReferences, TypedPathElement javaPath) {
         ParametrizedPath pl = new ParametrizedPath(classRegistry, aClass,javaPath);
         Method method = null;
-        if(vClass != null || pl.hasValueType()) {
-            method = callTree.findMethod(pl.getLabel(),pl.getClassesForGetter(backReferences,vClass));
-        } else {
-            Set<Method> methods = callTree.findMethodCandidates(pl.getLabel(),pl.getClassesForGetter(backReferences,vClass));
+            Set<Method> methods = callTree.findMethodCandidates(pl.getLabel(),pl.getClassesForGetter(backReferences));
             if(methods.size() > 1) {
                 throw new JavaPathRuntimeException("More than one getter method candidates found for "+pl+"; "+methods);
             } else if(methods.size() == 1) {
                 method = methods.iterator().next();
             }
-        }
         if(method != null) {
             Method finalMethod = method;
-            return (b, v)->{
-                Object[] propertiesForGetter = pl.getPropertiesForGetter(b, v);
+            return b->{
+                Object[] propertiesForGetter = pl.getPropertiesForGetter(b);
                 return invoke(finalMethod,b.getRoot(),propertiesForGetter);
             };
         } else {
             String label = pl.getLabel();
-            Field field = fieldsByName.get(label);
+            Field field = CallTree.forClass(aClass).findField(pl.getLabel());
             if(field == null) {
-                return (b,v)->b.getRoot();
+                return b->b.getRoot();
             } else {
-                return (b,v)->get(backReferences, pl,field,b.getRoot());
+                return b->get(backReferences, pl,field,b.getRoot());
             }
         }
     }
 
-    public <T> BiFunction<ReferenceList,Object,T> offerSetter(ReferenceList backReferences, TypedPathElement javaPath, Class<?> vClass) {
+    public <T> Function<ReferenceList,T> offerSetter(ReferenceList backReferences, TypedPathElement javaPath) {
         ParametrizedPath pl = new ParametrizedPath(classRegistry, aClass,javaPath);
         BiConsumer<Object,Object> setter;
         Method method = null;
-        if(vClass != null || pl.hasValueType()) {
-            method = callTree.findMethod(pl.getLabel(),pl.getClassesForSetter(backReferences,vClass));
-        } else {
-            Set<Method> methods = callTree.findMethodCandidates(pl.getLabel(),pl.getClassesForSetter(backReferences,vClass));
+            Set<Method> methods = callTree.findMethodCandidates(pl.getLabel(),pl.getClassesForSetter(backReferences));
             if(methods.size() > 1) {
                 throw new JavaPathRuntimeException("More than one setter method candidates found for "+pl+"; "+methods);
             } else if(methods.size() == 1) {
                 method = methods.iterator().next();
             }
-        }
         if(method != null) {
             Method finalMethod = method;
             if(method.getParameterCount() == 0) {
-                return (b, v)-> (T) invoke(finalMethod,b.getRoot(),null);
+                return b-> (T) invoke(finalMethod,b.getRoot(),null);
             } else {
-                return (b, v) -> (T) invoke(finalMethod, b.getRoot(), pl.getPropertiesForSetter(b, v));
+                return b-> (T) invoke(finalMethod, b.getRoot(), pl.getPropertiesForSetter(b));
             }
         } else {
-            return fieldSetter(pl);
+            return b-> (T) fieldSetter(pl).apply(b,b.getValue(0));
         }
     }
 
 ///////////////////////////////////////////
-
-    private void seedFields(Class bClass) {
-        Label label;
-        NoLabel noLabel;
-        String name;
-        for (Field f : bClass.getDeclaredFields()) {
-            label = f.getAnnotation(Label.class);
-            noLabel = f.getAnnotation(NoLabel.class);
-            name = f.getName();
-            setField(name,f);
-            if(label != null) {
-                if(noLabel != null) {
-                    throw new JavaPathRuntimeException("Field " + f + " annotated with both @Label and @NoLabel. Please remove one.");
-                } else {
-                    for (String lbl : label.value()) {
-                        setField(lbl,f);
-                    }
-                }
-            }
-        }
-        Class sClass = bClass.getSuperclass();
-        if(sClass != null) {
-            seedFields(sClass);
-        }
-    }
-
-    private void setField(String name, Field f){
-        if ( ! fieldsByName.containsKey(name) ) {
-            fieldsByName.put(name, f);
-        }
-    }
 
     private Object invoke(final Method method, Object builder, Object... params) {
         try {
@@ -298,9 +300,9 @@ public class PathUtils {
                 } else {
                     fieldType = field.getType();
                 }
-                Class<?>[] classesForGetter = pl.getClassesForGetter(backReferences, null);
+                Class<?>[] classesForGetter = pl.getClassesForGetter(backReferences);
                 Constructor<?> constructor = fieldType.getConstructor(classesForGetter);
-                Object[] propertiesForGetter = pl.getPropertiesForGetter(backReferences, null);
+                Object[] propertiesForGetter = pl.getPropertiesForGetter(backReferences);
                 constructor.setAccessible(true);
                 Object newInstance = constructor.newInstance(propertiesForGetter);
                 field.setAccessible(true);
@@ -324,7 +326,7 @@ public class PathUtils {
 
     private <T> BiFunction<ReferenceList, Object,T> fieldSetter(ParametrizedPath pl) {
         String label = pl.getLabel();
-        Field field = fieldsByName.get(pl.getLabel());
+        Field field = CallTree.forClass(aClass).findField(pl.getLabel());
         if(field != null) {
             return (b, v)->{
                 set(field, b.getRoot(), v);

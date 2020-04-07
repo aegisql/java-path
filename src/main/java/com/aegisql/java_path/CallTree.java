@@ -13,6 +13,7 @@ public class CallTree {
     private final static Map<Class,CallTree> cache = new ConcurrentHashMap<>();
 
     private final Map<String,Map<Class<?>, CallableNode>> namesMap = new HashMap<>();
+    private final Map<String,CallableNode> fieldsMap = new HashMap<>();
 
     private final Set<String> knownLabels = new HashSet<>();
 
@@ -40,6 +41,7 @@ public class CallTree {
                 }
             });
             namesMap.putAll(inner.namesMap);
+            fieldsMap.putAll(inner.fieldsMap);
         }
     }
 
@@ -72,18 +74,20 @@ public class CallTree {
                 throw new JavaPathRuntimeException("Field " + f + " has both @Label and @NoLabel annotations. Please remove one.");
             }
         }
+
+        CallableNode callableNode = fieldsMap.computeIfAbsent(name, p -> new CallableNode(f.getType(),0));
+        callableNode.addNode(f);
+
         if(label != null) {
             Arrays.stream(label.value()).forEach(l->{
                 if(knownLabels.contains(l)) {
                     throw new JavaPathRuntimeException("Duplicated label " + l + " found for field "+f);
                 }
                 knownLabels.add(l);
+                CallableNode labeledNode = fieldsMap.computeIfAbsent(l, p -> new CallableNode(f.getType(),0));
+                labeledNode.addNode(f);
             });
         }
-        /*
-        Map<Class<?>, CallableNode> parameterMap = namesMap.computeIfAbsent(name, n -> new HashMap<>());
-        CallableNode callableNode = parameterMap.computeIfAbsent(f.getType(), p -> new CallableNode(p,0));
-        callableNode.addNode(f,0);*/
     }
 
     public void addMethod(Method method) {
@@ -182,6 +186,17 @@ public class CallTree {
         return null;
     }
 
+    public Field findField(String name) {
+        CallableNode callableNode = fieldsMap.get(name);
+        if(callableNode == null) {
+            return null;
+        }
+        Field field = callableNode.getField();
+        if(field != null) {
+            return field;
+        }
+        return null;
+    }
 
     public Set<Method> findMethodCandidates(String name, Class<?> ... args) {
         List<Method> candidates = new LinkedList<>();

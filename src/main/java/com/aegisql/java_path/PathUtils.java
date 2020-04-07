@@ -1,5 +1,8 @@
 package com.aegisql.java_path;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -8,8 +11,11 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class PathUtils {
+
+    private final static Logger LOG = LoggerFactory.getLogger(PathUtils.class);
 
     static class Holder {
         @Label("#")
@@ -45,6 +51,11 @@ public class PathUtils {
         return initObjectFromPath(parse,value, value2, more);
     }
 
+    public Object initObjectFromPath(String path, Collection<Object> values) {
+        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        return initObjectFromPath(parse,values);
+    }
+
     public <T> T initObjectFromPath(String path, Class<T> rootClass, Object value) {
         List<TypedPathElement> parse = JavaPathParser.parse(path);
         return initObjectFromPath(parse,rootClass,value);
@@ -55,6 +66,12 @@ public class PathUtils {
         return initObjectFromPath(parse,rootClass,value,value2,more);
     }
 
+    public <T> T initObjectFromPath(String path, Class<T> rootClass, Collection<Object> values) {
+        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        return initObjectFromPath(parse,rootClass,values);
+    }
+
+    ////
     public Object initObjectFromPath(List<TypedPathElement> path, Object value) {
         List<TypedPathElement> newPath = pack(path);
         return applyInHolder(newPath,value);
@@ -63,6 +80,11 @@ public class PathUtils {
     public Object initObjectFromPath(List<TypedPathElement> path, Object value, Object value2, Object... more) {
         List<TypedPathElement> newPath = pack(path);
         return applyInHolder(newPath,value,value2,more);
+    }
+
+    public Object initObjectFromPath(List<TypedPathElement> path, Collection<Object> values) {
+        List<TypedPathElement> newPath = pack(path);
+        return applyInHolder(newPath,values);
     }
 
     public <T> T initObjectFromPath(List<TypedPathElement> path, Class<T> rootClass, Object value) {
@@ -77,15 +99,22 @@ public class PathUtils {
         return applyInHolder(newPath,value,value2,more);
     }
 
-    private <T> T applyInHolder(List<TypedPathElement> path,Object value) {
+    public <T> T initObjectFromPath(List<TypedPathElement> path, Class<T> rootClass, Collection<Object> values) {
+        List<TypedPathElement> newPath = pack(path);
+        newPath.get(1).setType(rootClass.getName());
+        return applyInHolder(newPath,values);
+    }
+
+    private <T> T applyInHolder(List<TypedPathElement> path, Object value) {
         Holder root = new Holder();
         PathUtils pu = new PathUtils(Holder.class, classRegistry);
         ReferenceList backRefCollection = new ReferenceList(root,value);
         pu.applyValueToPath(path, backRefCollection);
+        LOG.debug("Init from value {} path {}",backRefCollection,path.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
         return (T) root._holder_;
     }
 
-    private <T> T applyInHolder(List<TypedPathElement> path,Object value,Object value2,Object... more) {
+    private <T> T applyInHolder(List<TypedPathElement> path, Object value, Object value2, Object... more) {
         Holder root = new Holder();
         PathUtils pu = new PathUtils(Holder.class, classRegistry);
         ReferenceList backRefCollection = new ReferenceList(root,value);
@@ -93,6 +122,19 @@ public class PathUtils {
         if(more != null) {
             Arrays.stream(more).forEach(backRefCollection::addValue);
         }
+        LOG.debug("Init from multi-values {} path {}",backRefCollection,path.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
+        pu.applyValueToPath(path, backRefCollection);
+        return (T) root._holder_;
+    }
+
+    private <T> T applyInHolder(List<TypedPathElement> path, Collection<Object> values) {
+        Holder root = new Holder();
+        PathUtils pu = new PathUtils(Holder.class, classRegistry);
+        ReferenceList backRefCollection = new ReferenceList(root);
+        if(values != null) {
+            values.stream().forEach(backRefCollection::addValue);
+        }
+        LOG.debug("Init from multi-values {} path {}",backRefCollection,path.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
         pu.applyValueToPath(path, backRefCollection);
         return (T) root._holder_;
     }
@@ -121,6 +163,7 @@ public class PathUtils {
         } else {
             values.forEach(backRefCollection::addValue);
         }
+        LOG.debug("Applying multi-values {} to path {}",backRefCollection,parse.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
         return applyValueToPath(parse,backRefCollection);
     }
 
@@ -132,12 +175,14 @@ public class PathUtils {
         } else {
             Arrays.stream(values).forEach(backRefCollection::addValue);
         }
+        LOG.debug("Applying multi-values {} to path {}",backRefCollection,parse.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
         return applyValueToPath(parse,backRefCollection);
     }
 
     public Object applyValueToPath(String path, Object root, Object value) {
         List<TypedPathElement> parse = JavaPathParser.parse(path);
         ReferenceList backRefCollection = new ReferenceList(root,value);
+        LOG.debug("Applying value {} to path {}",backRefCollection,parse.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
         return applyValueToPath(parse,backRefCollection);
     }
 

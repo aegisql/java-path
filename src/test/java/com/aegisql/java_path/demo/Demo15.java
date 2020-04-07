@@ -36,7 +36,6 @@ public class Demo15 {
         assertEquals("Ann",map.get(MOTHER).get(Field.FIRST_NAME));
         assertEquals("Smith",map.get(MOTHER).get(LAST_NAME));
         assertNull(map.get(MOTHER).get(AGE));
-        System.err.println(map);
     }
 
 

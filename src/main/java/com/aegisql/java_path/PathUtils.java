@@ -22,13 +22,20 @@ public class PathUtils {
         Object _holder_;
     }
 
+    private Map<String,List<TypedPathElement>> cache = new HashMap<>();
     private final Class<?> aClass;
     private final CallTree callTree;
     private final ClassRegistry classRegistry;
-    private final Map<TypedPathElement,BiFunction<Object,Object,Object> > getters  = new HashMap<>();
-    private final Map<TypedPathElement,BiConsumer<Object,Object> > setters  = new HashMap<>();
-    private boolean enableAccessorsCaching = false;
+    private boolean enableCaching = false;
 
+
+    private PathUtils(Class<?> aClass,ClassRegistry registry, Map<String,List<TypedPathElement>> cache) {
+        Objects.requireNonNull(aClass,"Builder class is null");
+        this.aClass = aClass;
+        this.callTree = CallTree.forClass(aClass);
+        this.classRegistry = registry;
+        this.cache = cache;
+    }
 
     public PathUtils(Class<?> aClass,ClassRegistry registry) {
         Objects.requireNonNull(aClass,"Builder class is null");
@@ -41,33 +48,41 @@ public class PathUtils {
         this(aClass,new ClassRegistry());
     }
 
+    private List<TypedPathElement> parse(String path) {
+        if(enableCaching) {
+            return cache.computeIfAbsent(path,p->JavaPathParser.parse(p));
+        } else {
+            return JavaPathParser.parse(path);
+        }
+    }
+
     public Object initObjectFromPath(String path, Object value) {
-        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        List<TypedPathElement> parse = parse(path);
         return initObjectFromPath(parse,value);
     }
 
     public Object initObjectFromPath(String path, Object value, Object value2, Object... more) {
-        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        List<TypedPathElement> parse = parse(path);
         return initObjectFromPath(parse,value, value2, more);
     }
 
     public Object initObjectFromPath(String path, Collection<Object> values) {
-        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        List<TypedPathElement> parse = parse(path);
         return initObjectFromPath(parse,values);
     }
 
     public <T> T initObjectFromPath(String path, Class<T> rootClass, Object value) {
-        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        List<TypedPathElement> parse = parse(path);
         return initObjectFromPath(parse,rootClass,value);
     }
 
     public <T> T initObjectFromPath(String path, Class<T> rootClass, Object value, Object value2, Object... more) {
-        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        List<TypedPathElement> parse = parse(path);
         return initObjectFromPath(parse,rootClass,value,value2,more);
     }
 
     public <T> T initObjectFromPath(String path, Class<T> rootClass, Collection<Object> values) {
-        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        List<TypedPathElement> parse = parse(path);
         return initObjectFromPath(parse,rootClass,values);
     }
 
@@ -107,7 +122,8 @@ public class PathUtils {
 
     private <T> T applyInHolder(List<TypedPathElement> path, Object value) {
         Holder root = new Holder();
-        PathUtils pu = new PathUtils(Holder.class, classRegistry);
+        PathUtils pu = new PathUtils(Holder.class, classRegistry, cache);
+        pu.setEnableCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root,value);
         pu.applyValueToPath(path, backRefCollection);
         LOG.debug("Init from value {} path {}",backRefCollection,path.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
@@ -116,7 +132,8 @@ public class PathUtils {
 
     private <T> T applyInHolder(List<TypedPathElement> path, Object value, Object value2, Object... more) {
         Holder root = new Holder();
-        PathUtils pu = new PathUtils(Holder.class, classRegistry);
+        PathUtils pu = new PathUtils(Holder.class, classRegistry, cache);
+        pu.setEnableCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root,value);
         backRefCollection.addValue(value2);
         if(more != null) {
@@ -129,7 +146,8 @@ public class PathUtils {
 
     private <T> T applyInHolder(List<TypedPathElement> path, Collection<Object> values) {
         Holder root = new Holder();
-        PathUtils pu = new PathUtils(Holder.class, classRegistry);
+        PathUtils pu = new PathUtils(Holder.class, classRegistry, cache);
+        pu.setEnableCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root);
         if(values != null) {
             values.stream().forEach(backRefCollection::addValue);
@@ -156,7 +174,7 @@ public class PathUtils {
     }
 
     public Object applyValuesToPath(String path, Object root, Collection<Object> values) {
-        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        List<TypedPathElement> parse = parse(path);
         ReferenceList backRefCollection = new ReferenceList(root);
         if(values == null && values.size() == 0) {
             backRefCollection.addValue(null);
@@ -168,7 +186,7 @@ public class PathUtils {
     }
 
     public Object applyValuesToPath(String path, Object root, Object... values) {
-        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        List<TypedPathElement> parse = parse(path);
         ReferenceList backRefCollection = new ReferenceList(root);
         if(values == null && values.length == 0) {
             backRefCollection.addValue(null);
@@ -180,7 +198,7 @@ public class PathUtils {
     }
 
     public Object applyValueToPath(String path, Object root, Object value) {
-        List<TypedPathElement> parse = JavaPathParser.parse(path);
+        List<TypedPathElement> parse = parse(path);
         ReferenceList backRefCollection = new ReferenceList(root,value);
         LOG.debug("Applying value {} to path {}",backRefCollection,parse.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
         return applyValueToPath(parse,backRefCollection);
@@ -195,7 +213,7 @@ public class PathUtils {
         Object root = valuesRefsCollection.getRoot();
         Objects.requireNonNull(root,"Requires root object");
         TypedPathElement rootPathElement = path.get(0);
-        //Class<?> vClass = value == null ? null : value.getClass();
+        LOG.trace("Processing path element: {}; root object: {}",rootPathElement,root);
         if(rootPathElement.getName().startsWith("@")) {
             if(rootPathElement.getType() == null) {
                 return applyValueToPath(path.subList(1,path.size()),valuesRefsCollection);
@@ -208,8 +226,8 @@ public class PathUtils {
                     throw new JavaPathRuntimeException("Cannot find class for "+rootPathElement,e);
                 }
             }
-            PathUtils nextUtils = new PathUtils(refClass,classRegistry);
-            nextUtils.setEnableAccessorsCaching(enableAccessorsCaching);
+            PathUtils nextUtils = new PathUtils(refClass, classRegistry, cache);
+            nextUtils.setEnableCaching(enableCaching);
             if(rootPathElement.getName().equalsIgnoreCase("@new")) {
                 Function<ReferenceList, Object> constructor = nextUtils.offerConstructor(valuesRefsCollection, rootPathElement);
                 if (constructor != null) {
@@ -235,8 +253,8 @@ public class PathUtils {
                 Function<ReferenceList, Object> getter = offerGetter(valuesRefsCollection, rootPathElement);
                 Object nextRoot =  getter.apply(valuesRefsCollection);
                 Objects.requireNonNull(nextRoot,"Object for path element '"+rootPathElement+"' is not initialized!");
-                PathUtils nextUtils = new PathUtils(nextRoot.getClass(),classRegistry);
-                nextUtils.setEnableAccessorsCaching(enableAccessorsCaching);
+                PathUtils nextUtils = new PathUtils(nextRoot.getClass(), classRegistry, cache);
+                nextUtils.setEnableCaching(enableCaching);
                 valuesRefsCollection.addRoot(nextRoot);
                 return nextUtils.applyValueToPath(path.subList(1,path.size()),valuesRefsCollection);
             }
@@ -253,6 +271,7 @@ public class PathUtils {
                 constructor = constructors.iterator().next();
             }
         if(constructor != null) {
+            LOG.trace("Constructor found {}",constructor);
             Constructor finalConstructor = constructor;
             return b->{
                 Object[] propertiesForGetter = pl.getPropertiesForGetter(b);
@@ -273,6 +292,7 @@ public class PathUtils {
                 method = methods.iterator().next();
             }
         if(method != null) {
+            LOG.trace("Getter method found {}",method);
             Method finalMethod = method;
             return b->{
                 Object[] propertiesForGetter = pl.getPropertiesForGetter(b);
@@ -280,10 +300,13 @@ public class PathUtils {
             };
         } else {
             String label = pl.getLabel();
+            LOG.trace("Getter method not found for {}. Trying field",label);
             Field field = CallTree.forClass(aClass).findField(pl.getLabel());
             if(field == null) {
+                LOG.trace("Field also not found. Using root as getter.");
                 return b->b.getRoot();
             } else {
+                LOG.trace("Field found {}",field);
                 return b->get(backReferences, pl,field,b.getRoot());
             }
         }
@@ -300,6 +323,7 @@ public class PathUtils {
                 method = methods.iterator().next();
             }
         if(method != null) {
+            LOG.trace("Setter method found {}",method);
             Method finalMethod = method;
             if(method.getParameterCount() == 0) {
                 return b-> (T) invoke(finalMethod,b.getRoot(),null);
@@ -307,6 +331,7 @@ public class PathUtils {
                 return b-> (T) invoke(finalMethod, b.getRoot(), pl.getPropertiesForSetter(b));
             }
         } else {
+            LOG.trace("Setter method not found for {}. Trying field",pl.getLabel());
             return b-> (T) fieldSetter(pl).apply(b,b.getValue(0));
         }
     }
@@ -373,16 +398,18 @@ public class PathUtils {
         String label = pl.getLabel();
         Field field = CallTree.forClass(aClass).findField(pl.getLabel());
         if(field != null) {
+            LOG.trace("Field for setter found {}",field);
             return (b, v)->{
                 set(field, b.getRoot(), v);
                 return (T) v;
             };
         }
+        LOG.trace("Field for setter not found");
         return (b,v)->{throw new JavaPathRuntimeException("No setter found for "+label);};
     }
 
-    public void setEnableAccessorsCaching(boolean enableAccessorsCaching) {
-        this.enableAccessorsCaching = enableAccessorsCaching;
+    public void setEnableCaching(boolean enableCaching) {
+        this.enableCaching = enableCaching;
     }
 
 }

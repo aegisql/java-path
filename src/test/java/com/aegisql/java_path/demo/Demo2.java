@@ -23,4 +23,20 @@ public class Demo2 {
         assertEquals("John",b.a.name);
     }
 
+    @Test
+    public void testWithEnabledCaching() {
+        PathUtils pathUtils = new PathUtils(B.class);
+        pathUtils.setEnableCaching(true);
+
+        B b1 = new B();
+        pathUtils.applyValueToPath("a.name", b1, "John");
+        assertEquals("John",b1.a.name);
+
+        B b2 = new B();
+        pathUtils.applyValueToPath("a.name", b2, "Mike");
+        assertEquals("Mike",b2.a.name);
+
+    }
+
+
 }

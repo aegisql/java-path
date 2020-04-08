@@ -15,7 +15,7 @@ public class Demo7 {
     public void test() {
         A a = new A();
         PathUtils pathUtils = new PathUtils(A.class);
-        pathUtils.applyValueToPath("stringBuilder{John}.append{' '}.append", a, "Silver");
+        pathUtils.applyValueToPath("stringBuilder(John).append(' ').append", a, "Silver");
         assertEquals("John Silver",a.stringBuilder.toString());
     }
 

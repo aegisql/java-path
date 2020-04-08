@@ -73,7 +73,7 @@ public class PathUtilsTest {
     public void stringBuilderAppendTest() {
         StringBuilder sb = new StringBuilder();
         PathUtils pu = new PathUtils(StringBuilder.class);
-        pu.applyValueToPath("append{a}.append{b}.append{c}.append{int $}",sb,100);
+        pu.applyValueToPath("append(a).append(b).append(c).append(int $)",sb,100);
 
         assertEquals("abc100",sb.toString());
     }
@@ -82,7 +82,7 @@ public class PathUtilsTest {
     public void backRefTest() {
         StringBuilder sb = new StringBuilder();
         PathUtils pu = new PathUtils(StringBuilder.class);
-        pu.applyValueToPath("append{a}.append{b}.(string @new{TESTING}).append{#1}.append{int $}",sb,100);
+        pu.applyValueToPath("append(a).append(b).(string @new(TESTING)).append(#1).append(int $)",sb,100);
         assertEquals("abTESTING100",sb.toString());
     }
 
@@ -90,21 +90,21 @@ public class PathUtilsTest {
     public void backRefFactoryTest() {
         StringBuilder sb = new StringBuilder();
         PathUtils pu = new PathUtils(StringBuilder.class);
-        pu.applyValueToPath("append{a}.append{b}.(Integer @valueOf{100}).append{#1}.append{int $}",sb,100);
+        pu.applyValueToPath("append(a).append(b).(Integer @valueOf(100)).append(#1).append(int $)",sb,100);
         assertEquals("ab100100",sb.toString());
     }
 
     @Test
     public void initWithMultipleParametersTest() {
         PathUtils pu = new PathUtils(StringBuilder.class);
-        StringBuilder sb = pu.initObjectFromPath("#.append{$0}.append{$1}.append{$2}.append{$3}", StringBuilder.class, "ab","cd","dc","ba");
+        StringBuilder sb = pu.initObjectFromPath("#.append($0).append($1).append($2).append($3)", StringBuilder.class, "ab","cd","dc","ba");
         assertEquals("abcddcba",sb.toString());
     }
 
     @Test
     public void initWithMultipleParametersNoClassTest() {
         PathUtils pu = new PathUtils(StringBuilder.class);
-        StringBuilder sb = (StringBuilder) pu.initObjectFromPath("("+StringBuilder.class.getName()+" #).append{$0}.append{$1}.append{$2}.append{$3}", "ab","cd","dc","ba");
+        StringBuilder sb = (StringBuilder) pu.initObjectFromPath("("+StringBuilder.class.getName()+" #).append($0).append($1).append($2).append($3)", "ab","cd","dc","ba");
         assertEquals("abcddcba",sb.toString());
     }
 
@@ -124,7 +124,7 @@ public class PathUtilsTest {
     public void testAS() {
         AS a = new AS();
         PathUtils pu = new PathUtils(AS.class);
-        Object as = pu.applyValueToPath("setVal{#}", a,"test");
+        Object as = pu.applyValueToPath("setVal(#)", a,"test");
         assertEquals("test",a.val);
     }
 
@@ -142,8 +142,8 @@ public class PathUtilsTest {
         PathUtils pu = new PathUtils(PC.class);
         PC root = new PC(null);
         pu.applyValueToPath("a",root,"PARENT");
-        pu.applyValueToPath("child{#}.a",root,"CHILD");
-        pu.applyValueToPath("child{#}.child{#1}.a",root,"GRAND-CHILD");
+        pu.applyValueToPath("child(#).a",root,"CHILD");
+        pu.applyValueToPath("child(#).child(#1).a",root,"GRAND-CHILD");
         assertNull(root.parent);
         assertNotNull(root.child);
         assertNotNull(root.child.parent);

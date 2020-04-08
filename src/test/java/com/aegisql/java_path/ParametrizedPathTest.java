@@ -10,10 +10,7 @@ import static org.junit.Assert.assertTrue;
 public class ParametrizedPathTest {
 
     String s1 = "test"; // non parametrized
-    String s2 = "test{a}"; //parametrized with String 'a'
-    String s3 = "test{str 'str a', int 0}"; // parametrized with String 'str a' and Integer(0)
-    String s4 = "test{#, $, str a, int 0}"; // parametrized with builder, value with auto class, String 'a' and Integer(0)
-    String s5 = "test{#, $java.lang.Integer, str a, int 0}"; // parametrized with builder, value with explicit class Integer, String 'a' and Integer(0)
+    String s2 = "test(a)"; //parametrized with String 'a'
 
     ClassRegistry classRegistry = new ClassRegistry();
 

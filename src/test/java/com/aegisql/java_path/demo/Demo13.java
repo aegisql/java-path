@@ -38,7 +38,7 @@ public class Demo13 {
         classRegistry.registerClassSimpleName(A.class);
 
         PathUtils pathUtils = new PathUtils(A.class,classRegistry);
-        pathUtils.applyValueToPath("@ignored.(A @new{Ann}).(A @new{John}).mother{#1}.father{#2}.name",a,"Nick");
+        pathUtils.applyValueToPath("@ignored.(A @new(Ann)).(A @new(John)).mother(#1).father(#2).name",a,"Nick");
 
         assertEquals("Nick",a.name);
         assertEquals("Ann",a.mother.name);

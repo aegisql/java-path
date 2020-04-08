@@ -11,7 +11,7 @@ public class ParametrizedPropertyTest {
     ClassRegistry classRegistry = new ClassRegistry();
 
     private ParametrizedProperty p(String str) {
-        List<TypedPathElement> parse = JavaPathParser.parse("x{"+str+"}");
+        List<TypedPathElement> parse = JavaPathParser.parse("x("+str+")");
         assertTrue(parse.size() == 1);
         return new ParametrizedProperty(classRegistry,parse.get(0).getParameters().get(0),false);
     }

@@ -24,9 +24,7 @@ PARSER_END(CCJavaPathParser)
 
 TOKEN :
 {
-  <K_LBRACE: "{">
-| <K_RBRACE: "}">
-| <K_LPARENTHESIS : "(">
+  <K_LPARENTHESIS : "(">
 | <K_RPARENTHESIS : ")">
 | <K_DOT: ".">
 | <K_COMMA: ",">
@@ -37,7 +35,7 @@ TOKEN :
 | <K_BACK_REF_ELEMENT : "#"(<DIGIT> )*>
 | <K_REF_ELEMENT : "$"(<DIGIT> )*>
 | < K_TYPE_ELEMENT: ((<LETTER>|<DIGIT>|<SPECIAL> )+ ( <K_DOT> (<LETTER> | <DIGIT>|<SPECIAL> )+ )* <K_SPACE>) >
-| < K_PATH_ELEMENT: ( ~["'","\""," ","\t",".",",","{","}","(",")","\\"] )+ >
+| < K_PATH_ELEMENT: ( ~["'","\""," ","\t",".",",","(",")","\\"] )+ >
 | <K_QUOTED_STRING: "\"" ( (~["\"","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\""] ) ) )* "\"">
 | <K_SINGLE_QUOTED_STRING: "\'" ( (~["\'","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\'"] ) ) )* "\'">
 }
@@ -48,16 +46,16 @@ void comma() :
     <K_COMMA>
 }
 
-void lBrace() #void:
+void lParenthesis() #void:
 {}
 {
-    <K_LBRACE>
+    <K_LPARENTHESIS>
 }
 
-void rBrace() :
+void rParenthesis() :
 {}
 {
-    <K_RBRACE>
+    <K_RPARENTHESIS>
 }
 
 /** Root production. */
@@ -128,7 +126,7 @@ void path() #void:
 void parametrizedPathElement() #void:
 {}
 {
-    pathElement() [lBrace() parameters() rBrace() ]
+    pathElement() [lParenthesis() [parameters()] rParenthesis() ]
 }
 
 void pathElement() :

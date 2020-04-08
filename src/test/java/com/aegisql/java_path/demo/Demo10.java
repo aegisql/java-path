@@ -17,8 +17,8 @@ public class Demo10 {
     public void test() {
         A a = new A();
         PathUtils pathUtils = new PathUtils(A.class);
-        pathUtils.applyValueToPath("(HashMap map).put{$,firstName}", a, "John");
-        pathUtils.applyValueToPath("map.put{$,lastName}", a, "Silver");
+        pathUtils.applyValueToPath("(HashMap map).put($,firstName)", a, "John");
+        pathUtils.applyValueToPath("map.put($,lastName)", a, "Silver");
         assertEquals("firstName",a.map.get("John"));
         assertEquals("lastName",a.map.get("Silver"));
     }

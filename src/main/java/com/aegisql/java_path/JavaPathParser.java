@@ -38,7 +38,7 @@ public class JavaPathParser {
         }
 
         @Override
-        public Object visit(ASTrBrace node, Object data) {
+        public Object visit(ASTrParenthesis node, Object data) {
             if(stack.size() > 1) {
                 stack.pop();
             }

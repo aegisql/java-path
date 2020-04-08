@@ -23,8 +23,8 @@ public class Demo12 {
         A a = new A(null);
         PathUtils pathUtils = new PathUtils(A.class);
         pathUtils.applyValueToPath("name",a,"PARENT");
-        pathUtils.applyValueToPath("child{#0}.name",a,"CHILD");
-        pathUtils.applyValueToPath("child{#0}.child{#1}.name",a,"GRAND-CHILD");
+        pathUtils.applyValueToPath("child(#0).name",a,"CHILD");
+        pathUtils.applyValueToPath("child(#0).child(#1).name",a,"GRAND-CHILD");
         assertNull(a.parent);
         assertNotNull(a.child);
         assertNotNull(a.child.parent);

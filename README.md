@@ -6,13 +6,13 @@ conveyor-core
 <dependency>
   <groupId>com.aegisql</groupId>
   <artifactId>java-path</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
 </dependency>
 ```
 
 To generate the parser code
 ```shell script
-rm -R src/main/javacc/com/* 
+rm -rf src/main/javacc/com/* 
 mvn clean generate-sources 
 mv target/generated-sources/jjtree/com/aegisql/java_path/parser/* src/main/javacc/com/aegisql/java_path/parser/
 ```

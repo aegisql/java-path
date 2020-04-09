@@ -1,6 +1,6 @@
 package com.aegisql.java_path.demo;
 
-import com.aegisql.java_path.PathUtils;
+import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -21,7 +21,7 @@ public class Demo15 {
 
     @Test
     public void test() {
-        PathUtils pathUtils = new PathUtils(HashMap.class);
+        JavaPath pathUtils = new JavaPath(HashMap.class);
         Function<Relation,Map<Relation,String>> lambda = k->new HashMap<>();
         HashMap<Relation,Map<Field,Object>> map = pathUtils.initObjectFromPath("#.computeIfAbsent($0,$1).put($2,$3)", HashMap.class, FATHER, lambda, FIRST_NAME, "John");
         assertNotNull(map);

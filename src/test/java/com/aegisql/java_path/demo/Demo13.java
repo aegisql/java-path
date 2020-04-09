@@ -1,7 +1,7 @@
 package com.aegisql.java_path.demo;
 
 import com.aegisql.java_path.ClassRegistry;
-import com.aegisql.java_path.PathUtils;
+import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -37,7 +37,7 @@ public class Demo13 {
         ClassRegistry classRegistry = new ClassRegistry();
         classRegistry.registerClassSimpleName(A.class);
 
-        PathUtils pathUtils = new PathUtils(A.class,classRegistry);
+        JavaPath pathUtils = new JavaPath(A.class,classRegistry);
         pathUtils.applyValueToPath("@ignored.(A @new(Ann)).(A @new(John)).mother(#1).father(#2).name",a,"Nick");
 
         assertEquals("Nick",a.name);

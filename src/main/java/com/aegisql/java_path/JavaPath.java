@@ -13,9 +13,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class PathUtils {
+public class JavaPath {
 
-    private final static Logger LOG = LoggerFactory.getLogger(PathUtils.class);
+    private final static Logger LOG = LoggerFactory.getLogger(JavaPath.class);
 
     static class Holder {
         @Label("#")
@@ -29,7 +29,7 @@ public class PathUtils {
     private boolean enableCaching = false;
 
 
-    private PathUtils(Class<?> aClass,ClassRegistry registry, Map<String,List<TypedPathElement>> cache) {
+    private JavaPath(Class<?> aClass, ClassRegistry registry, Map<String,List<TypedPathElement>> cache) {
         Objects.requireNonNull(aClass,"Builder class is null");
         this.aClass = aClass;
         this.callTree = CallTree.forClass(aClass);
@@ -37,14 +37,14 @@ public class PathUtils {
         this.cache = cache;
     }
 
-    public PathUtils(Class<?> aClass,ClassRegistry registry) {
+    public JavaPath(Class<?> aClass, ClassRegistry registry) {
         Objects.requireNonNull(aClass,"Builder class is null");
         this.aClass = aClass;
         this.callTree = CallTree.forClass(aClass);
         this.classRegistry = registry;
     }
 
-    public PathUtils(Class<?> aClass) {
+    public JavaPath(Class<?> aClass) {
         this(aClass,new ClassRegistry());
     }
 
@@ -122,7 +122,7 @@ public class PathUtils {
 
     private <T> T applyInHolder(List<TypedPathElement> path, Object value) {
         Holder root = new Holder();
-        PathUtils pu = new PathUtils(Holder.class, classRegistry, cache);
+        JavaPath pu = new JavaPath(Holder.class, classRegistry, cache);
         pu.setEnableCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root,value);
         pu.applyValueToPath(path, backRefCollection);
@@ -132,7 +132,7 @@ public class PathUtils {
 
     private <T> T applyInHolder(List<TypedPathElement> path, Object value, Object value2, Object... more) {
         Holder root = new Holder();
-        PathUtils pu = new PathUtils(Holder.class, classRegistry, cache);
+        JavaPath pu = new JavaPath(Holder.class, classRegistry, cache);
         pu.setEnableCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root,value);
         backRefCollection.addValue(value2);
@@ -146,7 +146,7 @@ public class PathUtils {
 
     private <T> T applyInHolder(List<TypedPathElement> path, Collection<Object> values) {
         Holder root = new Holder();
-        PathUtils pu = new PathUtils(Holder.class, classRegistry, cache);
+        JavaPath pu = new JavaPath(Holder.class, classRegistry, cache);
         pu.setEnableCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root);
         if(values != null) {
@@ -226,7 +226,7 @@ public class PathUtils {
                     throw new JavaPathRuntimeException("Cannot find class for "+rootPathElement,e);
                 }
             }
-            PathUtils nextUtils = new PathUtils(refClass, classRegistry, cache);
+            JavaPath nextUtils = new JavaPath(refClass, classRegistry, cache);
             nextUtils.setEnableCaching(enableCaching);
             if(rootPathElement.getName().equalsIgnoreCase("@new")) {
                 Function<ReferenceList, Object> constructor = nextUtils.offerConstructor(valuesRefsCollection, rootPathElement);
@@ -253,7 +253,7 @@ public class PathUtils {
                 Function<ReferenceList, Object> getter = offerGetter(valuesRefsCollection, rootPathElement);
                 Object nextRoot =  getter.apply(valuesRefsCollection);
                 Objects.requireNonNull(nextRoot,"Object for path element '"+rootPathElement+"' is not initialized!");
-                PathUtils nextUtils = new PathUtils(nextRoot.getClass(), classRegistry, cache);
+                JavaPath nextUtils = new JavaPath(nextRoot.getClass(), classRegistry, cache);
                 nextUtils.setEnableCaching(enableCaching);
                 valuesRefsCollection.addRoot(nextRoot);
                 return nextUtils.applyValueToPath(path.subList(1,path.size()),valuesRefsCollection);

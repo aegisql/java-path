@@ -1,6 +1,6 @@
 package com.aegisql.java_path.demo;
 
-import com.aegisql.java_path.PathUtils;
+import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -21,7 +21,7 @@ public class Demo12 {
     @Test
     public void test() {
         A a = new A(null);
-        PathUtils pathUtils = new PathUtils(A.class);
+        JavaPath pathUtils = new JavaPath(A.class);
         pathUtils.applyValueToPath("name",a,"PARENT");
         pathUtils.applyValueToPath("child(#0).name",a,"CHILD");
         pathUtils.applyValueToPath("child(#0).child(#1).name",a,"GRAND-CHILD");

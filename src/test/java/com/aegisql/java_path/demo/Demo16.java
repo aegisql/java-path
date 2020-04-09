@@ -1,6 +1,6 @@
 package com.aegisql.java_path.demo;
 
-import com.aegisql.java_path.PathUtils;
+import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -17,7 +17,7 @@ public class Demo16 {
     @Test
     public void test() {
         A a = new A();
-        PathUtils pathUtils = new PathUtils(A.class);
+        JavaPath pathUtils = new JavaPath(A.class);
         pathUtils.applyValueToPath("name", a, "John");
         pathUtils.applyValueToPath("toUpper()", a,null);
         assertEquals("JOHN",a.name);
@@ -26,7 +26,7 @@ public class Demo16 {
     @Test
     public void testOmittedParenthesis () {
         A a = new A();
-        PathUtils pathUtils = new PathUtils(A.class);
+        JavaPath pathUtils = new JavaPath(A.class);
         pathUtils.applyValueToPath("name", a, "John");
         pathUtils.applyValueToPath("toUpper", a,null);
         assertEquals("JOHN",a.name);

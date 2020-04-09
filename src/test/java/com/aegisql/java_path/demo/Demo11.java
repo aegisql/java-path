@@ -1,7 +1,7 @@
 package com.aegisql.java_path.demo;
 
 import com.aegisql.java_path.ClassRegistry;
-import com.aegisql.java_path.PathUtils;
+import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -30,7 +30,7 @@ public class Demo11 {
         ClassRegistry  classRegistry = new ClassRegistry();
         classRegistry.registerClassSimpleName(PhoneType.class);
 
-        PathUtils pathUtils = new PathUtils(A.class,classRegistry);
+        JavaPath pathUtils = new JavaPath(A.class,classRegistry);
 
         //init objects
         //pass value explicitly

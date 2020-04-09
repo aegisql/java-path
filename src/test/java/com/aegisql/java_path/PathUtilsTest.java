@@ -24,14 +24,14 @@ public class PathUtilsTest {
 
     @Test
     public void setATest() {
-        PathUtils pu = new PathUtils(PathUtilsTest.class);
+        JavaPath pu = new JavaPath(PathUtilsTest.class);
         pu.applyValueToPath("a",this,"test");
         assertEquals("test",a);
     }
 
     @Test
     public void setUpperATest() {
-        PathUtils pu = new PathUtils(PathUtilsTest.class);
+        JavaPath pu = new JavaPath(PathUtilsTest.class);
         Object o = pu.applyValueToPath("upper",this,"test");
         assertEquals("test",a);
         assertEquals("TEST",o);
@@ -39,7 +39,7 @@ public class PathUtilsTest {
 
     @Test
     public void getRootWithATest() {
-        PathUtils pu = new PathUtils(PathUtilsTest.class);
+        JavaPath pu = new JavaPath(PathUtilsTest.class);
         Object test = pu.initObjectFromPath("(com.aegisql.java_path.PathUtilsTest #0).a", "test");
         assertNotNull(test);
         PathUtilsTest put = (PathUtilsTest) test;
@@ -48,7 +48,7 @@ public class PathUtilsTest {
 
     @Test
     public void getRootWithClassTest() {
-        PathUtils pu = new PathUtils(PathUtilsTest.class);
+        JavaPath pu = new JavaPath(PathUtilsTest.class);
         PathUtilsTest test = pu.initObjectFromPath("#.a",PathUtilsTest.class, "test");
         assertNotNull(test);
         assertEquals("test",test.a);
@@ -56,7 +56,7 @@ public class PathUtilsTest {
 
     @Test
     public void getRootWithClassAndAtTest() {
-        PathUtils pu = new PathUtils(PathUtilsTest.class);
+        JavaPath pu = new JavaPath(PathUtilsTest.class);
         PathUtilsTest test = pu.initObjectFromPath("#.@this_is_a.a",PathUtilsTest.class, "test");
         assertNotNull(test);
         assertEquals("test",test.a);
@@ -64,7 +64,7 @@ public class PathUtilsTest {
 
     @Test(expected = JavaPathRuntimeException.class)
     public void getRootWithClassShouldFailTest() {
-        PathUtils pu = new PathUtils(PathUtilsTest.class);
+        JavaPath pu = new JavaPath(PathUtilsTest.class);
         //cannot refer to #1
         PathUtilsTest test = pu.initObjectFromPath("#1.a",PathUtilsTest.class, "test");
     }
@@ -72,7 +72,7 @@ public class PathUtilsTest {
     @Test
     public void stringBuilderAppendTest() {
         StringBuilder sb = new StringBuilder();
-        PathUtils pu = new PathUtils(StringBuilder.class);
+        JavaPath pu = new JavaPath(StringBuilder.class);
         pu.applyValueToPath("append(a).append(b).append(c).append(int $)",sb,100);
 
         assertEquals("abc100",sb.toString());
@@ -81,7 +81,7 @@ public class PathUtilsTest {
     @Test
     public void backRefTest() {
         StringBuilder sb = new StringBuilder();
-        PathUtils pu = new PathUtils(StringBuilder.class);
+        JavaPath pu = new JavaPath(StringBuilder.class);
         pu.applyValueToPath("append(a).append(b).(string @new(TESTING)).append(#1).append(int $)",sb,100);
         assertEquals("abTESTING100",sb.toString());
     }
@@ -89,21 +89,21 @@ public class PathUtilsTest {
     @Test
     public void backRefFactoryTest() {
         StringBuilder sb = new StringBuilder();
-        PathUtils pu = new PathUtils(StringBuilder.class);
+        JavaPath pu = new JavaPath(StringBuilder.class);
         pu.applyValueToPath("append(a).append(b).(Integer @valueOf(100)).append(#1).append(int $)",sb,100);
         assertEquals("ab100100",sb.toString());
     }
 
     @Test
     public void initWithMultipleParametersTest() {
-        PathUtils pu = new PathUtils(StringBuilder.class);
+        JavaPath pu = new JavaPath(StringBuilder.class);
         StringBuilder sb = pu.initObjectFromPath("#.append($0).append($1).append($2).append($3)", StringBuilder.class, "ab","cd","dc","ba");
         assertEquals("abcddcba",sb.toString());
     }
 
     @Test
     public void initWithMultipleParametersNoClassTest() {
-        PathUtils pu = new PathUtils(StringBuilder.class);
+        JavaPath pu = new JavaPath(StringBuilder.class);
         StringBuilder sb = (StringBuilder) pu.initObjectFromPath("("+StringBuilder.class.getName()+" #).append($0).append($1).append($2).append($3)", "ab","cd","dc","ba");
         assertEquals("abcddcba",sb.toString());
     }
@@ -123,7 +123,7 @@ public class PathUtilsTest {
     @Test
     public void testAS() {
         AS a = new AS();
-        PathUtils pu = new PathUtils(AS.class);
+        JavaPath pu = new JavaPath(AS.class);
         Object as = pu.applyValueToPath("setVal(#)", a,"test");
         assertEquals("test",a.val);
     }
@@ -139,7 +139,7 @@ public class PathUtilsTest {
 
     @Test
     public void parentChildTest() {
-        PathUtils pu = new PathUtils(PC.class);
+        JavaPath pu = new JavaPath(PC.class);
         PC root = new PC(null);
         pu.applyValueToPath("a",root,"PARENT");
         pu.applyValueToPath("child(#).a",root,"CHILD");
@@ -167,7 +167,7 @@ public class PathUtilsTest {
     public void testPrimitiveTypeCasting() {
 
         A a = new A();
-        PathUtils pathUtils = new PathUtils(A.class);
+        JavaPath pathUtils = new JavaPath(A.class);
         pathUtils.applyValueToPath("add", a, 100);
 
 

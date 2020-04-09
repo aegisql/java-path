@@ -1,6 +1,6 @@
 package com.aegisql.java_path.demo;
 
-import com.aegisql.java_path.PathUtils;
+import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -18,7 +18,7 @@ public class Demo3 {
     @Test
     public void test() {
         A a = new A();
-        PathUtils pathUtils = new PathUtils(A.class);
+        JavaPath pathUtils = new JavaPath(A.class);
         pathUtils.applyValueToPath("setName", a, "John");
         assertEquals("John",a.name);
     }

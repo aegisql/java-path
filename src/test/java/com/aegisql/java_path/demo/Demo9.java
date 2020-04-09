@@ -1,6 +1,6 @@
 package com.aegisql.java_path.demo;
 
-import com.aegisql.java_path.PathUtils;
+import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
 import java.util.Map;
@@ -16,7 +16,7 @@ public class Demo9 {
     @Test
     public void test() {
         A a = new A();
-        PathUtils pathUtils = new PathUtils(A.class);
+        JavaPath pathUtils = new JavaPath(A.class);
         pathUtils.applyValueToPath("(HashMap map).put(firstName)", a, "John");
         pathUtils.applyValueToPath("map.put(lastName)", a, "Silver");
         assertEquals("John",a.map.get("firstName"));

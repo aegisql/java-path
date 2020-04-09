@@ -1,7 +1,7 @@
 package com.aegisql.java_path.demo;
 
+import com.aegisql.java_path.JavaPath;
 import com.aegisql.java_path.Label;
-import com.aegisql.java_path.PathUtils;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -32,7 +32,7 @@ public class Demo17 {
     @Test
     public void test() {
         B b = new B();
-        PathUtils pathUtils = new PathUtils(B.class);
+        JavaPath pathUtils = new JavaPath(B.class);
         pathUtils.applyValueToPath("getA().setName($)", b, "John");
         assertEquals("John",b.a.name);
     }
@@ -40,7 +40,7 @@ public class Demo17 {
     @Test
     public void testWithOptionalDollarSign() {
         B b = new B();
-        PathUtils pathUtils = new PathUtils(B.class);
+        JavaPath pathUtils = new JavaPath(B.class);
         pathUtils.applyValueToPath("getA().setName()", b, "John");
         assertEquals("John",b.a.name);
     }
@@ -48,7 +48,7 @@ public class Demo17 {
     @Test
     public void testWithOptionalDollarSignAndParenthesis() {
         B b = new B();
-        PathUtils pathUtils = new PathUtils(B.class);
+        JavaPath pathUtils = new JavaPath(B.class);
         pathUtils.applyValueToPath("getA.setName", b, "John");
         assertEquals("John",b.a.name);
     }
@@ -56,7 +56,7 @@ public class Demo17 {
     @Test
     public void testWithAnnotatedNames() {
         B b = new B();
-        PathUtils pathUtils = new PathUtils(B.class);
+        JavaPath pathUtils = new JavaPath(B.class);
         pathUtils.applyValueToPath("a.name", b, "John");
         assertEquals("John",b.a.name);
     }

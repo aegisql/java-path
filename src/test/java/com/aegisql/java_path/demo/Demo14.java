@@ -1,7 +1,7 @@
 package com.aegisql.java_path.demo;
 
 import com.aegisql.java_path.ClassRegistry;
-import com.aegisql.java_path.PathUtils;
+import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -32,7 +32,7 @@ public class Demo14 {
         cr.registerClassSimpleName(Field.class);
 
         A a = new A();
-        PathUtils pathUtils = new PathUtils(A.class,cr);
+        JavaPath pathUtils = new JavaPath(A.class,cr);
         pathUtils.applyValuesToPath("(HashMap map).computeIfAbsent($0,key->new HashMap).put($1,$2)", a, FATHER, Field.FIRST_NAME,"John");
         assertEquals("John",a.map.get(FATHER).get(Field.FIRST_NAME));
     }
@@ -40,7 +40,7 @@ public class Demo14 {
     @Test
     public void testWithCollection() {
         A a = new A();
-        PathUtils pathUtils = new PathUtils(A.class);
+        JavaPath pathUtils = new JavaPath(A.class);
         pathUtils.applyValuesToPath("(HashMap map).computeIfAbsent($0,key->new HashMap).put($1,$2)", a, Arrays.asList(FATHER, Field.FIRST_NAME,"John"));
         assertEquals("John",a.map.get(FATHER).get(Field.FIRST_NAME));
     }
@@ -48,7 +48,7 @@ public class Demo14 {
     @Test
     public void testWithLambda() {
         A a = new A();
-        PathUtils pathUtils = new PathUtils(A.class);
+        JavaPath pathUtils = new JavaPath(A.class);
         Function<Relation,Map<Relation,String>> lambda = k->new HashMap<>();
         pathUtils.applyValuesToPath("(HashMap map).computeIfAbsent($0,$1).put($2,$3)", a, FATHER, lambda, Field.FIRST_NAME, "John");
         pathUtils.applyValuesToPath("map.get($0).put($1,$2)", a, FATHER,  LAST_NAME, "Smith");

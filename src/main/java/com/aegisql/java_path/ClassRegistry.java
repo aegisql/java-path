@@ -94,7 +94,7 @@ public class ClassRegistry {
         CLASS_MAP.put("TreeMap", TreeMap.class);
         CLASS_MAP.put("HashSet", HashSet.class);
         CLASS_MAP.put("TreeSet", TreeSet.class);
-        CLASS_MAP.put(PathUtils.Holder.class.getName(),PathUtils.Holder.class);
+        CLASS_MAP.put(JavaPath.Holder.class.getName(), JavaPath.Holder.class);
 
         CONVERSION_MAP.put(String.class.getName(), identity());
         CONVERSION_MAP.put(Character.class.getName(), valueOf(Character.class));

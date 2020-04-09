@@ -1,6 +1,6 @@
 package com.aegisql.java_path.demo;
 
-import com.aegisql.java_path.PathUtils;
+import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -18,14 +18,14 @@ public class Demo2 {
     @Test
     public void test() {
         B b = new B();
-        PathUtils pathUtils = new PathUtils(B.class);
+        JavaPath pathUtils = new JavaPath(B.class);
         pathUtils.applyValueToPath("a.name", b, "John");
         assertEquals("John",b.a.name);
     }
 
     @Test
     public void testWithEnabledCaching() {
-        PathUtils pathUtils = new PathUtils(B.class);
+        JavaPath pathUtils = new JavaPath(B.class);
         pathUtils.setEnableCaching(true);
 
         B b1 = new B();

@@ -199,8 +199,6 @@ TypedValue forwardRef() #void:
 
 void parameters() :
 {
-    String type = null;
-    String value = null;
     TypedValue tv = null;
 }
 {

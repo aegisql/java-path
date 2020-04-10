@@ -12,6 +12,7 @@ public class ParametrizedProperty {
     private final int backReferenceIdx;
     private final int valueIdx;
     private final String typeAlias;
+    private final Object preEvaluatedValue;
 
     private final StringConverter<?> defaultConverter = cls -> {
         StringConverter<?> converter = StringConverter.constructor(getPropertyType());
@@ -34,6 +35,7 @@ public class ParametrizedProperty {
         this.value = typedValue.isDollarSign();
         this.backReferenceIdx = typedValue.getBackRefIdx();
         this.valueIdx = typedValue.getValueIdx();
+        this.preEvaluatedValue = typedValue.getPreEvaluatedValue();
         Objects.requireNonNull(typedValue,"Requires property");
             if(typedValue.parametrized()) {
                 this.typeAlias = typedValue.getType();
@@ -110,6 +112,10 @@ public class ParametrizedProperty {
 
     public int getValueIdx() {
         return valueIdx;
+    }
+
+    public Object getPreEvaluatedValue(){
+        return preEvaluatedValue;
     }
 
     public Object getProperty() {

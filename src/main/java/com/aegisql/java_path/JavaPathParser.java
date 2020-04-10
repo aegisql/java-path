@@ -1,6 +1,8 @@
 package com.aegisql.java_path;
 
 import com.aegisql.java_path.parser.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringReader;
 import java.util.Collections;
@@ -8,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class JavaPathParser {
+
+    private final static Logger LOG = LoggerFactory.getLogger(JavaPathParser.class);
 
     private static class Visitor implements CCJavaPathParserVisitor {
 
@@ -34,6 +38,7 @@ public class JavaPathParser {
             if(stack.size() > 1) {
                 stack.pop();
             }
+            LOG.trace("parse:, stack: {}",stack);
             return node.childrenAccept(this,data);
         }
 
@@ -42,6 +47,7 @@ public class JavaPathParser {
             if(stack.size() > 1) {
                 stack.pop();
             }
+            LOG.trace("parse:) stack: {}",stack);
             return node.childrenAccept(this,data);
         }
 
@@ -51,6 +57,7 @@ public class JavaPathParser {
             if(typedPathElement != null) {
                 stack.getFirst().add(typedPathElement);
             }
+            LOG.trace("parse:parse {} stack: {}",typedPathElement,stack);
             return node.childrenAccept(this,data);
         }
 
@@ -59,6 +66,7 @@ public class JavaPathParser {
             TypedPathElement typedPathElement = new TypedPathElement();
             stack.getFirst().add(typedPathElement);
             typedPathElement.setType(toString(node.jjtGetValue()));
+            LOG.trace("parse:fullPath {} stack: {}",typedPathElement,stack);
             return node.childrenAccept(this,data);
         }
 
@@ -70,6 +78,7 @@ public class JavaPathParser {
             }
             stack.getFirst().getLast().setName(toString(node.jjtGetValue()));
             maxBackRef++;
+            LOG.trace("parse:pathElement maxBackRef {} stack: {}", maxBackRef, stack);
             return node.childrenAccept(this,data);
         }
 
@@ -87,6 +96,7 @@ public class JavaPathParser {
                 }
                 stack.push(typedValue.getTypedPathElements());
             }
+            LOG.trace("parse:parameters {} stack: {}",typedValue,stack);
             return node.childrenAccept(this,data);
         }
 
@@ -94,6 +104,7 @@ public class JavaPathParser {
 
 
     public static List<TypedPathElement> parse(String path) {
+        LOG.debug("parsing {}",path);
         LinkedList<TypedPathElement> elements = new LinkedList<>();
         CCJavaPathParser parser = new CCJavaPathParser(r(path));
         SimpleNode sn = null;

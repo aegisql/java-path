@@ -9,7 +9,6 @@ public class Demo3 {
 
     public static class A {
         String name;
-
         public void setName(String name) {
             this.name = name;
         }

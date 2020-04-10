@@ -208,11 +208,34 @@ public class JavaPath {
         Objects.requireNonNull(path,"Requires path");
         int size = path.size();
         if(size == 0) {
-            return null;
+            return (T) valuesRefsCollection.getRoot(); //last calculated getter
         }
         Object root = valuesRefsCollection.getRoot();
         Objects.requireNonNull(root,"Requires root object");
         TypedPathElement rootPathElement = path.get(0);
+
+        if(rootPathElement.parametrized()) {
+            for(TypedValue tv:rootPathElement.getParameters()) {
+                if(tv.getBackRefIdx() >= 0 && tv.hasPath()) {
+                    List<TypedPathElement> typedPathElements = new ArrayList<>(tv.getTypedPathElements());
+                    LOG.debug("Value {}{} has own path that will be evaluated: {}",tv.getValue(),tv.getBackRefIdx(),typedPathElements);
+                    Object pathRoot = valuesRefsCollection.getReference(tv.getBackRefIdx());
+                    Class<?> pathRootClass = pathRoot.getClass();
+                    ReferenceList rl = new ReferenceList(pathRoot);
+                    valuesRefsCollection.getValues().forEach(rl::addValue);
+                    TypedPathElement term = new TypedPathElement();
+                    term.setName("@");
+                    typedPathElements.add(term);
+                    JavaPath javaPath = new JavaPath(pathRootClass,classRegistry,cache);
+                    Object res = javaPath.applyValueToPath(typedPathElements,rl);
+                    LOG.debug("Evaluation result: {}",res);
+                    tv.setPreEvaluatedValue(res);
+                    tv.setType(res == null ? null : res.getClass().getName());
+                    tv.setBackRefIdx(-1);
+                }
+            }
+        }
+
         LOG.trace("Processing path element: {}; root object: {}",rootPathElement,root);
         if(rootPathElement.getName().startsWith("@")) {
             if(rootPathElement.getType() == null) {
@@ -264,7 +287,8 @@ public class JavaPath {
     public Function<ReferenceList,Object> offerConstructor(ReferenceList backReferences, TypedPathElement javaPath) {
         ParametrizedPath pl = new ParametrizedPath(classRegistry, aClass,javaPath);
         Constructor constructor = null;
-          Set<Constructor> constructors = callTree.findConstructorCandidates(pl.getClassesForGetter(backReferences));
+        Class<?>[] classesForGetter = pl.getClassesForGetter(backReferences);
+        Set<Constructor> constructors = callTree.findConstructorCandidates(classesForGetter);
             if(constructors.size() > 1) {
                 throw new JavaPathRuntimeException("More than one constructor candidates found for "+pl+"; "+constructors);
             } else if(constructors.size() == 1) {
@@ -278,6 +302,8 @@ public class JavaPath {
                 return invoke(finalConstructor, propertiesForGetter);
             };
         } else {
+            String msg = Arrays.stream(classesForGetter).map(cls -> cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
+            LOG.trace("Constructor not found for classes {}.",msg);
             throw new JavaPathRuntimeException("Could not find constructor for "+javaPath);
         }
     }
@@ -285,7 +311,8 @@ public class JavaPath {
     public Function<ReferenceList, Object> offerGetter(ReferenceList backReferences, TypedPathElement javaPath) {
         ParametrizedPath pl = new ParametrizedPath(classRegistry, aClass,javaPath);
         Method method = null;
-            Set<Method> methods = callTree.findMethodCandidates(pl.getLabel(),pl.getClassesForGetter(backReferences));
+        Class<?>[] classesForGetter = pl.getClassesForGetter(backReferences);
+        Set<Method> methods = callTree.findMethodCandidates(pl.getLabel(),classesForGetter);
             if(methods.size() > 1) {
                 throw new JavaPathRuntimeException("More than one getter method candidates found for "+pl+"; "+methods);
             } else if(methods.size() == 1) {
@@ -300,10 +327,13 @@ public class JavaPath {
             };
         } else {
             String label = pl.getLabel();
-            LOG.trace("Getter method not found for {}. Trying field",label);
+            if(LOG.isTraceEnabled()) {
+                String msg = Arrays.stream(classesForGetter).map(cls -> cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
+                LOG.trace("Getter method not found for name '{}' and classes {}. Trying field", label, msg);
+            }
             Field field = CallTree.forClass(aClass).findField(pl.getLabel());
             if(field == null) {
-                LOG.trace("Field also not found. Using root as getter.");
+                LOG.trace("Field also not found. Using root of {}.class as getter.",backReferences.getRootClass().getSimpleName());
                 return b->b.getRoot();
             } else {
                 LOG.trace("Field found {}",field);
@@ -316,7 +346,8 @@ public class JavaPath {
         ParametrizedPath pl = new ParametrizedPath(classRegistry, aClass,javaPath);
         BiConsumer<Object,Object> setter;
         Method method = null;
-            Set<Method> methods = callTree.findMethodCandidates(pl.getLabel(),pl.getClassesForSetter(backReferences));
+        Class<?>[] classesForSetter = pl.getClassesForSetter(backReferences);
+        Set<Method> methods = callTree.findMethodCandidates(pl.getLabel(),classesForSetter);
             if(methods.size() > 1) {
                 throw new JavaPathRuntimeException("More than one setter method candidates found for "+pl+"; "+methods);
             } else if(methods.size() == 1) {
@@ -331,7 +362,10 @@ public class JavaPath {
                 return b-> (T) invoke(finalMethod, b.getRoot(), pl.getPropertiesForSetter(b));
             }
         } else {
-            LOG.trace("Setter method not found for {}. Trying field",pl.getLabel());
+            if(LOG.isTraceEnabled()) {
+                String msg = Arrays.stream(classesForSetter).map(cls -> cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
+                LOG.trace("Setter method not found for name '{}' and classes {}. Trying field", pl.getLabel(),msg);
+            }
             return b-> (T) fieldSetter(pl).apply(b,b.getValue(0));
         }
     }
@@ -404,7 +438,7 @@ public class JavaPath {
                 return (T) v;
             };
         }
-        LOG.trace("Field for setter not found");
+        LOG.trace("Field for setter not found for name '{}'",label);
         return (b,v)->{throw new JavaPathRuntimeException("No setter found for "+label);};
     }
 

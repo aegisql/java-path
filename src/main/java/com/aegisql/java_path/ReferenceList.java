@@ -74,7 +74,15 @@ public class ReferenceList {
             return val.getClass();
         }
     }
-    
+
+    public List<Object> getReferences() {
+        return references;
+    }
+
+    public List<Object> getValues() {
+        return values;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ReferenceList{");

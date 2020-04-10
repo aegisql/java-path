@@ -10,8 +10,7 @@ public class Demo4 {
 
     public static class A {
         String name;
-
-        @Label("first_name")
+        @Label({"first_name"})
         public void setName(String name) {
             this.name = name;
         }

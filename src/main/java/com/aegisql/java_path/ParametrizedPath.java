@@ -43,7 +43,9 @@ public class ParametrizedPath {
     public Object[] getPropertiesForGetter(ReferenceList backRefObjects) {
         List<Object> objects = new ArrayList<>();
         for(ParametrizedProperty lp:labelProperties) {
-            if(lp.isBuilder()) {
+            if(lp.getPreEvaluatedValue() != null) {
+                objects.add(lp.getPreEvaluatedValue());
+            } else if(lp.isBuilder()) {
                 objects.add(backRefObjects.getReference(lp.getBackReferenceIdx()));
             } else if(lp.isValue()) {
                 objects.add( backRefObjects.getValue(lp.getValueIdx()) );
@@ -60,7 +62,9 @@ public class ParametrizedPath {
         boolean valueNotSet = true;
         List<Object> objects = new ArrayList<>();
         for(ParametrizedProperty lp:labelProperties) {
-            if(lp.isBuilder()) {
+            if(lp.getPreEvaluatedValue() != null) {
+                objects.add(lp.getPreEvaluatedValue());
+            } else if(lp.isBuilder()) {
                 objects.add(backRefObjects.getRoot());
             } else if(lp.isValue()) {
                 objects.add( backRefObjects.getValue(lp.getValueIdx()) );

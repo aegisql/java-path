@@ -113,14 +113,21 @@ void fullPath() :
     {
         jjtThis.jjtSetValue(type);
     }
-
 }
 
-void path() #void:
+String path() #void:
 {
+    String type = null;
 }
 {
-    parametrizedPathElement() [<K_DOT> parametrizedPathElement() ]
+    (
+    lParenthesis() [type = fullType()] parametrizedPathElement() rParenthesis() [<K_DOT> path() ]
+    |
+    parametrizedPathElement() [<K_DOT> path() ]
+    )
+    {
+        return type;
+    }
 }
 
 void parametrizedPathElement() #void:
@@ -154,9 +161,10 @@ String fullType() #void:
 TypedValue backRef() #void:
 {
     Token t = null;
+    String type = null;
 }
 {
-    t = <K_BACK_REF_ELEMENT> [<K_DOT> path() ]
+    t = <K_BACK_REF_ELEMENT> [<K_DOT> type = path() ]
     {
     TypedValue tv = new TypedValue();
     String numStr = t.image;
@@ -165,6 +173,7 @@ TypedValue backRef() #void:
     } else {
         tv.setBackRefIdx(Integer.valueOf(numStr.substring(1)));
     }
+    tv.setType(type);
     tv.setValue(numStr);
     return tv;
 }

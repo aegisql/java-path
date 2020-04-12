@@ -11,6 +11,7 @@ public class TypedValue {
     private int valueIdx = -1;
     private LinkedList<TypedPathElement> typedPathElements = new LinkedList<>();
     private Object preEvaluatedValue = null;
+    private boolean preEvaluatedValueSet = false;
 
     public String getValue() {
         return value;
@@ -95,6 +96,14 @@ public class TypedValue {
 
     public void setPreEvaluatedValue(Object preEvaluatedValue) {
         this.preEvaluatedValue = preEvaluatedValue;
+    }
+
+    public boolean isPreEvaluatedValueSet() {
+        return preEvaluatedValueSet;
+    }
+
+    public void setPreEvaluatedValueSet(boolean preEvaluatedValueSet) {
+        this.preEvaluatedValueSet = preEvaluatedValueSet;
     }
 
     @Override

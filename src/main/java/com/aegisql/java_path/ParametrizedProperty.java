@@ -13,6 +13,7 @@ public class ParametrizedProperty {
     private final int valueIdx;
     private final String typeAlias;
     private final Object preEvaluatedValue;
+    private final boolean preEvaluatedValueSet;
 
     private final StringConverter<?> defaultConverter = cls -> {
         StringConverter<?> converter = StringConverter.constructor(getPropertyType());
@@ -36,6 +37,7 @@ public class ParametrizedProperty {
         this.backReferenceIdx = typedValue.getBackRefIdx();
         this.valueIdx = typedValue.getValueIdx();
         this.preEvaluatedValue = typedValue.getPreEvaluatedValue();
+        this.preEvaluatedValueSet = typedValue.isPreEvaluatedValueSet();
         Objects.requireNonNull(typedValue,"Requires property");
             if(typedValue.parametrized()) {
                 this.typeAlias = typedValue.getType();
@@ -116,6 +118,10 @@ public class ParametrizedProperty {
 
     public Object getPreEvaluatedValue(){
         return preEvaluatedValue;
+    }
+
+    public boolean isPreEvaluatedValueSet() {
+        return preEvaluatedValueSet;
     }
 
     public Object getProperty() {

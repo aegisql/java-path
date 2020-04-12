@@ -210,33 +210,33 @@ public class JavaPath {
         if(size == 0) {
             return (T) valuesRefsCollection.getRoot(); //last calculated getter
         }
-        Object root = valuesRefsCollection.getRoot();
-        Objects.requireNonNull(root,"Requires root object");
         TypedPathElement rootPathElement = path.get(0);
 
         if(rootPathElement.parametrized()) {
             for(TypedValue tv:rootPathElement.getParameters()) {
                 if(tv.getBackRefIdx() >= 0 && tv.hasPath()) {
                     List<TypedPathElement> typedPathElements = new ArrayList<>(tv.getTypedPathElements());
-                    LOG.debug("Value {}{} has own path that will be evaluated: {}",tv.getValue(),tv.getBackRefIdx(),typedPathElements);
+                    LOG.debug("Value {} has own path that will be evaluated: {}",tv.getValue(),typedPathElements);
                     Object pathRoot = valuesRefsCollection.getReference(tv.getBackRefIdx());
                     Class<?> pathRootClass = pathRoot.getClass();
                     ReferenceList rl = new ReferenceList(pathRoot);
                     valuesRefsCollection.getValues().forEach(rl::addValue);
+                    typedPathElements.get(typedPathElements.size()-1).getOwnTypedValue().setPreEvaluatedValueSet(true);
                     TypedPathElement term = new TypedPathElement();
                     term.setName("@");
                     typedPathElements.add(term);
                     JavaPath javaPath = new JavaPath(pathRootClass,classRegistry,cache);
+                    tv.setPreEvaluatedValueSet(true);
                     Object res = javaPath.applyValueToPath(typedPathElements,rl);
-                    LOG.debug("Evaluation result: {}",res);
+                    LOG.trace("Evaluation result: {}",res);
                     tv.setPreEvaluatedValue(res);
-                    tv.setType(res == null ? null : res.getClass().getName());
+                    tv.setType(res == null ? tv.getType() : res.getClass().getName());
                     tv.setBackRefIdx(-1);
                 }
             }
         }
 
-        LOG.trace("Processing path element: {}; root object: {}",rootPathElement,root);
+        LOG.trace("Processing path element: {}; root object: {}",rootPathElement,valuesRefsCollection.getRoot());
         if(rootPathElement.getName().startsWith("@")) {
             if(rootPathElement.getType() == null) {
                 return applyValueToPath(path.subList(1,path.size()),valuesRefsCollection);
@@ -275,11 +275,19 @@ public class JavaPath {
             } else {
                 Function<ReferenceList, Object> getter = offerGetter(valuesRefsCollection, rootPathElement);
                 Object nextRoot =  getter.apply(valuesRefsCollection);
-                Objects.requireNonNull(nextRoot,"Object for path element '"+rootPathElement+"' is not initialized!");
-                JavaPath nextUtils = new JavaPath(nextRoot.getClass(), classRegistry, cache);
-                nextUtils.setEnableCaching(enableCaching);
-                valuesRefsCollection.addRoot(nextRoot);
-                return nextUtils.applyValueToPath(path.subList(1,path.size()),valuesRefsCollection);
+                if(rootPathElement.getOwnTypedValue().isPreEvaluatedValueSet()) {
+                    Class<?> nextClass = nextRoot == null ? classRegistry.classMap.get(rootPathElement.getOwnTypedValue().getType()) : nextRoot.getClass();
+                    JavaPath nextUtils = new JavaPath(nextClass, classRegistry, cache);
+                    nextUtils.setEnableCaching(enableCaching);
+                    valuesRefsCollection.addRoot(nextRoot);
+                    return nextUtils.applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
+                } else {
+                    Objects.requireNonNull(nextRoot, "Object for path element '" + rootPathElement + "' is not initialized!");
+                    JavaPath nextUtils = new JavaPath(nextRoot.getClass(), classRegistry, cache);
+                    nextUtils.setEnableCaching(enableCaching);
+                    valuesRefsCollection.addRoot(nextRoot);
+                    return nextUtils.applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
+                }
             }
         }
     }
@@ -398,6 +406,12 @@ public class JavaPath {
             Object o = field.get(builder);
             if(o==null) {
                 ParametrizedProperty labelProperty = pl.getParametrizedProperty();
+                if(labelProperty.isPreEvaluatedValueSet()) {
+                    Object preEvaluatedValue = labelProperty.getPreEvaluatedValue();
+                    field.setAccessible(true);
+                    field.set(builder,preEvaluatedValue);
+                    return preEvaluatedValue;
+                }
                 Class<?> fieldType;
                 if(labelProperty.getTypeAlias() != null && labelProperty.getPropertyType() != null) {
                     fieldType = labelProperty.getPropertyType();

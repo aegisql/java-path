@@ -74,6 +74,7 @@ public class JavaPathParser {
         public Object visit(ASTpathElement node, Object data) {
             if(stack.size() > 1) {
                 TypedPathElement typedPathElement = new TypedPathElement();
+                typedPathElement.setType(stack.getLast().getLast().getParameters().getLast().getType());
                 stack.getFirst().add(typedPathElement);
             }
             stack.getFirst().getLast().setName(toString(node.jjtGetValue()));

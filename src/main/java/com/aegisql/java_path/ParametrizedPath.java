@@ -18,17 +18,17 @@ public class ParametrizedPath {
     private final List<ParametrizedProperty> labelProperties;
     private final ParametrizedProperty parametrizedProperty;
 
-    public ParametrizedPath(ClassRegistry classRegistry, Class<?> aClass, TypedPathElement javaPath) {
+    public ParametrizedPath(ClassRegistry classRegistry, TypedPathElement javaPath) {
         this.classRegistry = classRegistry == null? new ClassRegistry():classRegistry;
         this.pathElement = javaPath;
         this.wholeLabel = javaPath.toString();
         this.label = javaPath.getName();
-        this.parametrizedProperty = new ParametrizedProperty(classRegistry,pathElement.getOwnTypedValue(),true);
+        this.parametrizedProperty = new ParametrizedProperty(this.classRegistry,pathElement.getOwnTypedValue(),true);
 
         if(this.pathElement.parametrized()) {
             this.labelProperties = pathElement.getParameters()
                     .stream()
-                    .map(tv-> new ParametrizedProperty(classRegistry,tv,false))
+                    .map(tv-> new ParametrizedProperty(this.classRegistry,tv,false))
                     .peek(lp->{if(lp.isValue() && lp.getPropertyType() != null) hasValueType = true;})
                     .collect(Collectors.toList());
         } else {
@@ -62,7 +62,7 @@ public class ParametrizedPath {
         boolean valueNotSet = true;
         List<Object> objects = new ArrayList<>();
         for(ParametrizedProperty lp:labelProperties) {
-            if(lp.getPreEvaluatedValue() != null) {
+            if(lp.isPreEvaluatedValueSet()) {
                 objects.add(lp.getPreEvaluatedValue());
             } else if(lp.isBuilder()) {
                 objects.add(backRefObjects.getRoot());

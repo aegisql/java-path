@@ -17,7 +17,7 @@ public class ParametrizedPathTest {
     private ParametrizedPath p(Class<?> aClass, String str) {
         List<TypedPathElement> parse = JavaPathParser.parse(str);
         assertTrue(parse.size() == 1);
-        return new ParametrizedPath(classRegistry,aClass,parse.get(0));
+        return new ParametrizedPath(classRegistry,parse.get(0));
     }
 
     @Test

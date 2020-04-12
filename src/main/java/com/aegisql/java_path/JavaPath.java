@@ -293,7 +293,7 @@ public class JavaPath {
     }
 
     public Function<ReferenceList,Object> offerConstructor(ReferenceList backReferences, TypedPathElement javaPath) {
-        ParametrizedPath pl = new ParametrizedPath(classRegistry, aClass,javaPath);
+        ParametrizedPath pl = new ParametrizedPath(classRegistry,javaPath);
         Constructor constructor = null;
         Class<?>[] classesForGetter = pl.getClassesForGetter(backReferences);
         Set<Constructor> constructors = callTree.findConstructorCandidates(classesForGetter);
@@ -317,7 +317,7 @@ public class JavaPath {
     }
 
     public Function<ReferenceList, Object> offerGetter(ReferenceList backReferences, TypedPathElement javaPath) {
-        ParametrizedPath pl = new ParametrizedPath(classRegistry, aClass,javaPath);
+        ParametrizedPath pl = new ParametrizedPath(classRegistry,javaPath);
         Method method = null;
         Class<?>[] classesForGetter = pl.getClassesForGetter(backReferences);
         Set<Method> methods = callTree.findMethodCandidates(pl.getLabel(),classesForGetter);
@@ -351,7 +351,7 @@ public class JavaPath {
     }
 
     public <T> Function<ReferenceList,T> offerSetter(ReferenceList backReferences, TypedPathElement javaPath) {
-        ParametrizedPath pl = new ParametrizedPath(classRegistry, aClass,javaPath);
+        ParametrizedPath pl = new ParametrizedPath(classRegistry,javaPath);
         BiConsumer<Object,Object> setter;
         Method method = null;
         Class<?>[] classesForSetter = pl.getClassesForSetter(backReferences);

@@ -14,7 +14,7 @@ public class ParametrizedPathTest {
 
     ClassRegistry classRegistry = new ClassRegistry();
 
-    private ParametrizedPath p(Class<?> aClass, String str) {
+    private ParametrizedPath p(String str) {
         List<TypedPathElement> parse = JavaPathParser.parse(str);
         assertTrue(parse.size() == 1);
         return new ParametrizedPath(classRegistry,parse.get(0));
@@ -22,12 +22,12 @@ public class ParametrizedPathTest {
 
     @Test
     public void basicGetterTest() {
-        ParametrizedPath pl1 = p(String.class,"test");
+        ParametrizedPath pl1 = p("test");
         assertEquals(s1,pl1.getLabel());
         assertEquals(0,pl1.getClassesForGetter(new ReferenceList("builder","value")).length);
         assertEquals(0,pl1.getPropertiesForGetter(new ReferenceList("builder","value")).length);
 
-        ParametrizedPath pl2 = p(String.class,s2);
+        ParametrizedPath pl2 = p(s2);
         assertEquals("test",pl1.getLabel());
         assertEquals("a",pl2.getPropertiesForGetter(new ReferenceList("builder","value"))[0]);
         assertEquals(1,pl2.getClassesForGetter(new ReferenceList("builder","value")).length);
@@ -36,12 +36,12 @@ public class ParametrizedPathTest {
 
     @Test
     public void basicSetterTest() {
-        ParametrizedPath pl1 = p(String.class,"test");
+        ParametrizedPath pl1 = p("test");
         assertEquals(s1,pl1.getLabel());
         assertEquals(1,pl1.getClassesForSetter(new ReferenceList("builder","value")).length);
         assertEquals(1,pl1.getPropertiesForSetter(new ReferenceList("builder","value")).length);
 
-        ParametrizedPath pl2 = p(String.class,s2);
+        ParametrizedPath pl2 = p(s2);
         assertEquals("test",pl1.getLabel());
         assertEquals("a",pl2.getPropertiesForSetter(new ReferenceList("builder","value"))[0]);
         assertEquals("value",pl2.getPropertiesForSetter(new ReferenceList("builder","value"))[1]);

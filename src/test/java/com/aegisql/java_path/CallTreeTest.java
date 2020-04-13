@@ -10,21 +10,21 @@ import static org.junit.Assert.*;
 public class CallTreeTest {
 
     class X{
-        @Label("a")
-        @NoLabel
+        @PathElement("a")
+        @NoPathElement
         void x(){}
     }
     String a = "test";
     void a(){}
     void a(String x){}
     void a(String x, String y){}
-    @Label({"bee","bi"})
+    @PathElement({"bee","bi"})
     void b(String x){}
     void o(CharSequence x){}
     void o(CharSequence x,CharSequence y){}
     void o(CharSequence x,CharSequence y,CharSequence z){}
 
-    @NoLabel
+    @NoPathElement
     void noLabel(){};
 
     @Test

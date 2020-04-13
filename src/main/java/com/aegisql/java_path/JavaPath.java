@@ -18,7 +18,7 @@ public class JavaPath {
     private final static Logger LOG = LoggerFactory.getLogger(JavaPath.class);
 
     static class Holder {
-        @Label("#")
+        @PathElement("#")
         Object _holder_;
     }
 

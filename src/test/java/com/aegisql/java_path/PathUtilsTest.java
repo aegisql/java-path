@@ -11,7 +11,7 @@ public class PathUtilsTest {
 
     private String a;
 
-    @Label("upper")
+    @PathElement("upper")
     String setUpperA( String s) {
         a = s;
         return a.toUpperCase();

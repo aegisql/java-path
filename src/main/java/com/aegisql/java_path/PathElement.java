@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Documented
 @Target({ElementType.METHOD,ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Label {
+public @interface PathElement {
 	
 	/**
 	 * Value. - collection of matching labels

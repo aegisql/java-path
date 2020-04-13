@@ -1,7 +1,7 @@
 package com.aegisql.java_path.demo;
 
 import com.aegisql.java_path.JavaPath;
-import com.aegisql.java_path.NoLabel;
+import com.aegisql.java_path.NoPathElement;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -15,7 +15,7 @@ public class Demo6 {
             stringBuilder.append(str == null ? "N/A" : str);
         }
 
-        @NoLabel
+        @NoPathElement
         public void add(Object val) {
             stringBuilder.append(val);
         }

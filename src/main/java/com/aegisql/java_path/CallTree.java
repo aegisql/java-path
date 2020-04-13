@@ -65,10 +65,10 @@ public class CallTree {
 
         String name = f.getName();
 
-        NoLabel noLabel = f.getAnnotation(NoLabel.class);
-        Label label     = f.getAnnotation(Label.class);
-        if(noLabel != null) {
-            if(label == null) {
+        NoPathElement noPathElement = f.getAnnotation(NoPathElement.class);
+        PathElement pathElement = f.getAnnotation(PathElement.class);
+        if(noPathElement != null) {
+            if(pathElement == null) {
                 return;
             } else {
                 throw new JavaPathRuntimeException("Field " + f + " has both @Label and @NoLabel annotations. Please remove one.");
@@ -78,8 +78,8 @@ public class CallTree {
         CallableNode callableNode = fieldsMap.computeIfAbsent(name, p -> new CallableNode(f.getType(),0));
         callableNode.addNode(f);
 
-        if(label != null) {
-            Arrays.stream(label.value()).forEach(l->{
+        if(pathElement != null) {
+            Arrays.stream(pathElement.value()).forEach(l->{
                 if(knownLabels.contains(l)) {
                     throw new JavaPathRuntimeException("Duplicated label " + l + " found for field "+f);
                 }
@@ -92,11 +92,11 @@ public class CallTree {
 
     public void addMethod(Method method) {
         String name = method.getName();
-        NoLabel noLabel = method.getAnnotation(NoLabel.class);
-        Label label     = method.getAnnotation(Label.class);
+        NoPathElement noPathElement = method.getAnnotation(NoPathElement.class);
+        PathElement pathElement = method.getAnnotation(PathElement.class);
 
-        if(noLabel != null) {
-            if(label == null) {
+        if(noPathElement != null) {
+            if(pathElement == null) {
                 return;
             } else {
                 throw new JavaPathRuntimeException("Method " + method + " has both @Label and @NoLabel annotations. Please remove one.");
@@ -115,8 +115,8 @@ public class CallTree {
             callableNode = parameterMap.computeIfAbsent(pClass, p -> new CallableNode(p,0));
             callableNode.addNode(args,method);
         }
-        if(label != null) {
-            Arrays.stream(label.value())
+        if(pathElement != null) {
+            Arrays.stream(pathElement.value())
                     .filter(l-> ! l.equals(name))
                     .peek(l->{
                         if(knownLabels.contains(l) || (namesMap.containsKey(l) && parameterMap != namesMap.get(l))) {

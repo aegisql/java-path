@@ -1,7 +1,7 @@
 package com.aegisql.java_path.demo;
 
 import com.aegisql.java_path.JavaPath;
-import com.aegisql.java_path.Label;
+import com.aegisql.java_path.PathElement;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -11,7 +11,7 @@ public class Demo17 {
     public static class A {
         String name;
 
-        @Label("name")
+        @PathElement("name")
         public void setName(String name) {
             this.name = name;
         }
@@ -20,7 +20,7 @@ public class Demo17 {
     public static class B {
         A a;
 
-        @Label("a")
+        @PathElement("a")
         public A getA() {
             if(a==null) {
                 a = new A();

@@ -108,6 +108,13 @@ public class PathUtilsTest {
         assertEquals("abcddcba",sb.toString());
     }
 
+    @Test
+    public void initWithMultipleParametersAndFieldsNoClassTest() {
+        JavaPath pu = new JavaPath(StringBuilder.class);
+        StringBuilder sb = (StringBuilder) pu.initObjectFromPath("("+StringBuilder.class.getName()+" #).append($0.substring(int 1)).append($1).append($2).append($3.substring(int 1,int 3))", "zab","cd","dc","zbaz");
+        assertEquals("abcddcba",sb.toString());
+    }
+
     public static class AS {
         private String val;
 

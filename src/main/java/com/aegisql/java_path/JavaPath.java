@@ -214,24 +214,12 @@ public class JavaPath {
 
         if(rootPathElement.parametrized()) {
             for(TypedValue tv:rootPathElement.getParameters()) {
-                if(tv.getBackRefIdx() >= 0 && tv.hasPath()) {
-                    List<TypedPathElement> typedPathElements = new ArrayList<>(tv.getTypedPathElements());
-                    LOG.debug("Value {} has own path that will be evaluated: {}",tv.getValue(),typedPathElements);
-                    Object pathRoot = valuesRefsCollection.getReference(tv.getBackRefIdx());
-                    Class<?> pathRootClass = pathRoot.getClass();
-                    ReferenceList rl = new ReferenceList(pathRoot);
-                    valuesRefsCollection.getValues().forEach(rl::addValue);
-                    typedPathElements.get(typedPathElements.size()-1).getOwnTypedValue().setPreEvaluatedValueSet(true);
-                    TypedPathElement term = new TypedPathElement();
-                    term.setName("@");
-                    typedPathElements.add(term);
-                    JavaPath javaPath = new JavaPath(pathRootClass,classRegistry,cache);
-                    tv.setPreEvaluatedValueSet(true);
-                    Object res = javaPath.applyValueToPath(typedPathElements,rl);
-                    LOG.trace("Evaluation result: {}",res);
-                    tv.setPreEvaluatedValue(res);
-                    tv.setType(res == null ? tv.getType() : res.getClass().getName());
-                    tv.setBackRefIdx(-1);
+                if(tv.hasPath()) {
+                    if (tv.getBackRefIdx() >= 0) {
+                        applyBackReference(valuesRefsCollection, tv);
+                    } else if(tv.getValueIdx() >= 0) {
+                        applyValueReference(valuesRefsCollection, tv);
+                    }
                 }
             }
         }
@@ -240,56 +228,104 @@ public class JavaPath {
         if(rootPathElement.getName().startsWith("@")) {
             if(rootPathElement.getType() == null) {
                 return applyValueToPath(path.subList(1,path.size()),valuesRefsCollection);
-            }
-            Class refClass = classRegistry.classMap.get(rootPathElement.getType());
-            if(refClass == null) {
-                try {
-                    refClass = Class.forName(rootPathElement.getType());
-                } catch (ClassNotFoundException e) {
-                    throw new JavaPathRuntimeException("Cannot find class for "+rootPathElement,e);
-                }
-            }
-            JavaPath nextUtils = new JavaPath(refClass, classRegistry, cache);
-            nextUtils.setEnableCaching(enableCaching);
-            if(rootPathElement.getName().equalsIgnoreCase("@new")) {
-                Function<ReferenceList, Object> constructor = nextUtils.offerConstructor(valuesRefsCollection, rootPathElement);
-                if (constructor != null) {
-                    Object nextRef = constructor.apply(valuesRefsCollection);
-                    valuesRefsCollection.addReference(nextRef);
-                    return applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
-                }
-                throw new JavaPathRuntimeException("Expected constructor of class "+refClass+" for "+rootPathElement );
             } else {
-                rootPathElement.setName(rootPathElement.getName().substring(1));
-                Function<ReferenceList, Object> getter = nextUtils.offerGetter(valuesRefsCollection, rootPathElement);
-                if (getter != null) {
-                    Object nextRef = getter.apply(valuesRefsCollection);
-                    valuesRefsCollection.addReference(nextRef);
-                    return applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
-                }
-                throw new JavaPathRuntimeException("Expected getter for class "+refClass+" for "+rootPathElement );
+                return applyAtSign(path, valuesRefsCollection, rootPathElement);
             }
         } else {
             if(size == 1) {
                 return (T) offerSetter(valuesRefsCollection, rootPathElement).apply(valuesRefsCollection);
             } else {
-                Function<ReferenceList, Object> getter = offerGetter(valuesRefsCollection, rootPathElement);
-                Object nextRoot =  getter.apply(valuesRefsCollection);
-                if(rootPathElement.getOwnTypedValue().isPreEvaluatedValueSet()) {
-                    Class<?> nextClass = nextRoot == null ? classRegistry.classMap.get(rootPathElement.getOwnTypedValue().getType()) : nextRoot.getClass();
-                    JavaPath nextUtils = new JavaPath(nextClass, classRegistry, cache);
-                    nextUtils.setEnableCaching(enableCaching);
-                    valuesRefsCollection.addRoot(nextRoot);
-                    return nextUtils.applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
-                } else {
-                    Objects.requireNonNull(nextRoot, "Object for path element '" + rootPathElement + "' is not initialized!");
-                    JavaPath nextUtils = new JavaPath(nextRoot.getClass(), classRegistry, cache);
-                    nextUtils.setEnableCaching(enableCaching);
-                    valuesRefsCollection.addRoot(nextRoot);
-                    return nextUtils.applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
-                }
+                return offerGetter(path, valuesRefsCollection, rootPathElement);
             }
         }
+    }
+
+    private <T> T applyAtSign(List<TypedPathElement> path, ReferenceList valuesRefsCollection, TypedPathElement rootPathElement) {
+        Class refClass = classRegistry.classMap.get(rootPathElement.getType());
+        if (refClass == null) {
+            try {
+                refClass = Class.forName(rootPathElement.getType());
+            } catch (ClassNotFoundException e) {
+                throw new JavaPathRuntimeException("Cannot find class for " + rootPathElement, e);
+            }
+        }
+        JavaPath nextUtils = new JavaPath(refClass, classRegistry, cache);
+        nextUtils.setEnableCaching(enableCaching);
+        if (rootPathElement.getName().equalsIgnoreCase("@new")) {
+            Function<ReferenceList, Object> constructor = nextUtils.offerConstructor(valuesRefsCollection, rootPathElement);
+            if (constructor != null) {
+                Object nextRef = constructor.apply(valuesRefsCollection);
+                valuesRefsCollection.addReference(nextRef);
+                return applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
+            }
+            throw new JavaPathRuntimeException("Expected constructor of class " + refClass + " for " + rootPathElement);
+        } else {
+            rootPathElement.setName(rootPathElement.getName().substring(1));
+            Function<ReferenceList, Object> getter = nextUtils.offerGetter(valuesRefsCollection, rootPathElement);
+            if (getter != null) {
+                Object nextRef = getter.apply(valuesRefsCollection);
+                valuesRefsCollection.addReference(nextRef);
+                return applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
+            }
+            throw new JavaPathRuntimeException("Expected getter for class " + refClass + " for " + rootPathElement);
+        }
+    }
+
+    private <T> T offerGetter(List<TypedPathElement> path, ReferenceList valuesRefsCollection, TypedPathElement rootPathElement) {
+        Function<ReferenceList, Object> getter = offerGetter(valuesRefsCollection, rootPathElement);
+        Object nextRoot =  getter.apply(valuesRefsCollection);
+        if(rootPathElement.getOwnTypedValue().isPreEvaluatedValueSet()) {
+            Class<?> nextClass = nextRoot == null ? classRegistry.classMap.get(rootPathElement.getOwnTypedValue().getType()) : nextRoot.getClass();
+            JavaPath nextUtils = new JavaPath(nextClass, classRegistry, cache);
+            nextUtils.setEnableCaching(enableCaching);
+            valuesRefsCollection.addRoot(nextRoot);
+            return nextUtils.applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
+        } else {
+            Objects.requireNonNull(nextRoot, "Object for path element '" + rootPathElement + "' is not initialized!");
+            JavaPath nextUtils = new JavaPath(nextRoot.getClass(), classRegistry, cache);
+            nextUtils.setEnableCaching(enableCaching);
+            valuesRefsCollection.addRoot(nextRoot);
+            return nextUtils.applyValueToPath(path.subList(1, path.size()), valuesRefsCollection);
+        }
+    }
+
+    private void applyValueReference(ReferenceList valuesRefsCollection, TypedValue tv) {
+        List<TypedPathElement> typedPathElements = new ArrayList<>(tv.getTypedPathElements());
+        LOG.debug("ValueRef Value {} has own path that will be evaluated: {}", tv.getValue(), typedPathElements);
+        Object pathRoot = valuesRefsCollection.getValue(tv.getValueIdx());
+        Class<?> pathRootClass = pathRoot.getClass();
+        ReferenceList rl = new ReferenceList(pathRoot);
+        typedPathElements.get(typedPathElements.size() - 1).getOwnTypedValue().setPreEvaluatedValueSet(true);
+        TypedPathElement term = new TypedPathElement();
+        term.setName("@");
+        typedPathElements.add(term);
+        JavaPath javaPath = new JavaPath(pathRootClass, classRegistry, cache);
+        tv.setPreEvaluatedValueSet(true);
+        Object res = javaPath.applyValueToPath(typedPathElements, rl);
+        LOG.trace("ValueRef Evaluation result: {}", res);
+        tv.setPreEvaluatedValue(res);
+        tv.setType(res == null ? tv.getType() : res.getClass().getName());
+        tv.setValueIdx(-1);
+    }
+
+    private void applyBackReference(ReferenceList valuesRefsCollection, TypedValue tv) {
+        List<TypedPathElement> typedPathElements = new ArrayList<>(tv.getTypedPathElements());
+        LOG.debug("BackRef Value {} has own path that will be evaluated: {}", tv.getValue(), typedPathElements);
+        Object pathRoot = valuesRefsCollection.getReference(tv.getBackRefIdx());
+        Class<?> pathRootClass = pathRoot.getClass();
+        ReferenceList rl = new ReferenceList(pathRoot);
+        valuesRefsCollection.getValues().forEach(rl::addValue);
+        typedPathElements.get(typedPathElements.size() - 1).getOwnTypedValue().setPreEvaluatedValueSet(true);
+        TypedPathElement term = new TypedPathElement();
+        term.setName("@");
+        typedPathElements.add(term);
+        JavaPath javaPath = new JavaPath(pathRootClass, classRegistry, cache);
+        tv.setPreEvaluatedValueSet(true);
+        Object res = javaPath.applyValueToPath(typedPathElements, rl);
+        LOG.trace("BackRef Evaluation result: {}", res);
+        tv.setPreEvaluatedValue(res);
+        tv.setType(res == null ? tv.getType() : res.getClass().getName());
+        tv.setBackRefIdx(-1);
     }
 
     public Function<ReferenceList,Object> offerConstructor(ReferenceList backReferences, TypedPathElement javaPath) {

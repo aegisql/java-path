@@ -64,6 +64,9 @@ public class ParametrizedPath {
         for(ParametrizedProperty lp:labelProperties) {
             if(lp.isPreEvaluatedValueSet()) {
                 objects.add(lp.getPreEvaluatedValue());
+                if(lp.isValue()) {
+                    valueNotSet = false;
+                }
             } else if(lp.isBuilder()) {
                 objects.add(backRefObjects.getRoot());
             } else if(lp.isValue()) {

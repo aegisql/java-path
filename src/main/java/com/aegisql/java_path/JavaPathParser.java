@@ -106,6 +106,9 @@ public class JavaPathParser {
                 }
                 stack.push(typedValue.getTypedPathElements());
             }
+            if(ref.startsWith("$")) {
+                stack.push(typedValue.getTypedPathElements());
+            }
             LOG.trace("parse:parameters {} stack: {}",typedValue,stack);
             return node.childrenAccept(this,data);
         }

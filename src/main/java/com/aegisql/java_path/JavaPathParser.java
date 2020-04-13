@@ -43,6 +43,15 @@ public class JavaPathParser {
         }
 
         @Override
+        public Object visit(ASTlParenthesis node, Object data) {
+            if(stack.size() > 1) {
+                stack.push(stack.getFirst());
+            }
+            LOG.trace("parse:( stack: {}",stack);
+            return node.childrenAccept(this,data);
+        }
+
+        @Override
         public Object visit(ASTrParenthesis node, Object data) {
             if(stack.size() > 1) {
                 stack.pop();

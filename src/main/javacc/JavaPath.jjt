@@ -46,7 +46,7 @@ void comma() :
     <K_COMMA>
 }
 
-void lParenthesis() #void:
+void lParenthesis() :
 {}
 {
     <K_LPARENTHESIS>

@@ -17,11 +17,13 @@ public class JavaPathParser {
 
         private LinkedList<TypedPathElement> rootPath;
         private LinkedList<LinkedList<TypedPathElement>> stack = new LinkedList<>();
+        private LinkedList<TypedPathElement> currentBranch = new LinkedList<>();
         private int maxBackRef = 0;
 
         public Visitor(LinkedList<TypedPathElement> rootPath) {
             this.rootPath = rootPath;
             stack.push(rootPath);
+            currentBranch = rootPath;
         }
 
         private String toString(Object o) {
@@ -44,7 +46,7 @@ public class JavaPathParser {
 
         @Override
         public Object visit(ASTlParenthesis node, Object data) {
-            if(stack.size() > 1) {
+            if(stack.size() > 1 ) {
                 stack.push(stack.getFirst());
             }
             LOG.trace("parse:( stack: {}",stack);
@@ -66,16 +68,19 @@ public class JavaPathParser {
             if(typedPathElement != null) {
                 stack.getFirst().add(typedPathElement);
             }
-            LOG.trace("parse:parse {} stack: {}",typedPathElement,stack);
+            LOG.trace("parse:parse {}, {} stack: {}",node.jjtGetValue(),typedPathElement,stack);
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTfullPath node, Object data) {
+            while(stack.size() > 1) {
+                stack.pop();
+            }
             TypedPathElement typedPathElement = new TypedPathElement();
             stack.getFirst().add(typedPathElement);
             typedPathElement.setType(toString(node.jjtGetValue()));
-            LOG.trace("parse:fullPath {} stack: {}",typedPathElement,stack);
+            LOG.trace("parse:fullPath type='{}' {} stack: {}",node.jjtGetValue(),typedPathElement,stack);
             return node.childrenAccept(this,data);
         }
 
@@ -88,7 +93,7 @@ public class JavaPathParser {
             }
             stack.getFirst().getLast().setName(toString(node.jjtGetValue()));
             maxBackRef++;
-            LOG.trace("parse:pathElement maxBackRef {} stack: {}", maxBackRef, stack);
+            LOG.trace("parse:pathElement '{}' maxBackRef {} stack: {}",node.jjtGetValue(), maxBackRef, stack);
             return node.childrenAccept(this,data);
         }
 

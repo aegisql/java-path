@@ -55,7 +55,7 @@ public class TypedValue {
     }
 
     public boolean isHashSign() {
-        return "#".equals(value);
+        return value != null && value.startsWith("#");
     }
 
     public boolean isDollarSign() {
@@ -113,14 +113,16 @@ public class TypedValue {
         TypedValue that = (TypedValue) o;
         return backRefIdx == that.backRefIdx &&
                 valueIdx == that.valueIdx &&
+                preEvaluatedValueSet == that.preEvaluatedValueSet &&
                 Objects.equals(value, that.value) &&
                 Objects.equals(type, that.type) &&
-                Objects.equals(typedPathElements, that.typedPathElements);
+                Objects.equals(typedPathElements, that.typedPathElements) &&
+                Objects.equals(preEvaluatedValue, that.preEvaluatedValue);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value, type, backRefIdx, valueIdx, typedPathElements);
+        return Objects.hash(value, type, backRefIdx, valueIdx, typedPathElements, preEvaluatedValue, preEvaluatedValueSet);
     }
 
     @Override

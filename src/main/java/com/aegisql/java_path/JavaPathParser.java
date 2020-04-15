@@ -15,9 +15,9 @@ public class JavaPathParser {
 
     private static class Visitor implements CCJavaPathParserVisitor {
 
-        private LinkedList<TypedPathElement> rootPath;
         private LinkedList<LinkedList<TypedPathElement>> stack = new LinkedList<>();
-        private LinkedList<TypedPathElement> currentPath = new LinkedList<>();
+        private LinkedList<TypedPathElement> rootPath;
+        private LinkedList<TypedPathElement> currentPath;
         private int maxBackRef = 0;
 
         public Visitor(LinkedList<TypedPathElement> rootPath) {
@@ -90,8 +90,8 @@ public class JavaPathParser {
                 currentPath.add(typedPathElement);
             }
             currentPath.getLast().setName(toString(node.jjtGetValue()));
-            LOG.trace("parse:pathElement '{}' maxBackRef {} current: {} stack: {}",node.jjtGetValue(), maxBackRef, currentPath, stack);
             maxBackRef++;
+            LOG.trace("parse:pathElement '{}' maxBackRef {} current: {} stack: {}",node.jjtGetValue(), maxBackRef, currentPath, stack);
             return node.childrenAccept(this,data);
         }
 
@@ -127,6 +127,7 @@ public class JavaPathParser {
         } catch (ParseException e) {
             throw new JavaPathRuntimeException("Failed parsing JavaPath '"+path+"'",e);
         }
+        LOG.debug("parsing of {} complete: {}",path,elements);
         return Collections.unmodifiableList(elements);
     }
 

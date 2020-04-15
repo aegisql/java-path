@@ -411,6 +411,33 @@ public class ParserTest {
                 .acceptPathElement(pe->{
                     TU.assertName("setDesc",pe);
                     TU.forTypedValues(2,pe)
+                            .acceptTypedValue(tv->{
+                                TU.assertValueEquals("#0",tv);
+                                TU.forPathElements(1,tv)
+                                        .acceptPathElement(pe2->{
+                                            TU.assertName("id",pe2);
+                                        })
+                                        .test();
+                            })
+                            .acceptTypedValue(tv->{
+                                TU.assertValueEquals("#0",tv);
+                                TU.forPathElements(3,tv)
+                                        .acceptPathElement(pe2->{
+                                            TU.assertName("desc",pe2);
+                                        })
+                                        .acceptPathElement(pe2->{
+                                            TU.assertName("setDesc",pe2);
+                                            TU.forTypedValues(1,pe2)
+                                                    .acceptTypedValue(tv2->{
+                                                        TU.assertValueEquals("fromTest",tv2);
+                                                    })
+                                                    .test();
+                                        })
+                                        .acceptPathElement(pe2->{
+                                            TU.assertName("val",pe2);
+                                        })
+                                        .test();
+                            })
                             .test();
                 })
                 .acceptPathElement(pe->{
@@ -426,18 +453,67 @@ public class ParserTest {
         TU.forPathElements(5,pathList)
                 .acceptPathElement(pe->{
                     TU.assertName("#",pe);
+                    TU.assertType(StringBuilder.class.getName(),pe);
                 })
                 .acceptPathElement(pe->{
                     TU.assertName("append",pe);
+                    TU.forTypedValues(1,pe)
+                            .acceptTypedValue(tv->{
+                                TU.assertValueEquals("$0",tv);
+                                TU.assertValueReference(0,tv);
+                                TU.forPathElements(1,tv)
+                                        .acceptPathElement(pe2->{
+                                            TU.forTypedValues(1,pe2)
+                                                    .acceptTypedValue(tv2->{
+                                                        TU.assertType("int",tv2);
+                                                        TU.assertValueEquals("1",tv2);
+                                                    })
+                                                    .test();
+                                        })
+                                        .test();
+                            })
+                            .test();
                 })
                 .acceptPathElement(pe->{
                     TU.assertName("append",pe);
+                    TU.forTypedValues(1,pe)
+                            .acceptTypedValue(tv->{
+                                TU.assertValueEquals("$1",tv);
+                                TU.assertValueReference(1,tv);
+                            })
+                            .test();
                 })
                 .acceptPathElement(pe->{
                     TU.assertName("append",pe);
+                    TU.forTypedValues(1,pe)
+                            .acceptTypedValue(tv->{
+                                TU.assertValueEquals("$2",tv);
+                                TU.assertValueReference(2,tv);
+                            })
+                            .test();
                 })
                 .acceptPathElement(pe->{
                     TU.assertName("append",pe);
+                    TU.forTypedValues(1,pe)
+                            .acceptTypedValue(tv->{
+                                TU.assertValueEquals("$3",tv);
+                                TU.assertValueReference(3,tv);
+                                TU.forPathElements(1,tv)
+                                        .acceptPathElement(pe2->{
+                                            TU.forTypedValues(2,pe2)
+                                                    .acceptTypedValue(tv2->{
+                                                        TU.assertType("int",tv2);
+                                                        TU.assertValueEquals("1",tv2);
+                                                    })
+                                                    .acceptTypedValue(tv2->{
+                                                        TU.assertType("int",tv2);
+                                                        TU.assertValueEquals("3",tv2);
+                                                    })
+                                                    .test();
+                                        })
+                                        .test();
+                            })
+                            .test();
                 })
                 .test();
     }

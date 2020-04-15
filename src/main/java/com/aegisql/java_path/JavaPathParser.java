@@ -17,13 +17,12 @@ public class JavaPathParser {
 
         private LinkedList<TypedPathElement> rootPath;
         private LinkedList<LinkedList<TypedPathElement>> stack = new LinkedList<>();
-        private LinkedList<TypedPathElement> currentBranch = new LinkedList<>();
+        private LinkedList<TypedPathElement> currentPath = new LinkedList<>();
         private int maxBackRef = 0;
 
         public Visitor(LinkedList<TypedPathElement> rootPath) {
             this.rootPath = rootPath;
-            stack.push(rootPath);
-            currentBranch = rootPath;
+            this.currentPath = rootPath;
         }
 
         private String toString(Object o) {
@@ -37,28 +36,28 @@ public class JavaPathParser {
 
         @Override
         public Object visit(ASTcomma node, Object data) {
-            if(stack.size() > 1) {
-                stack.pop();
+            if(stack.size() > 0) {
+                currentPath = stack.pop();
             }
-            LOG.trace("parse:, stack: {}",stack);
+            LOG.trace("parse:, current: {} stack: {}",currentPath, stack);
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTlParenthesis node, Object data) {
-            if(stack.size() > 1 ) {
-                stack.push(stack.getFirst());
+            if(stack.size() > 0) {
+                stack.push(currentPath);
             }
-            LOG.trace("parse:( stack: {}",stack);
+            LOG.trace("parse:( current: {} stack: {}",currentPath, stack);
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTrParenthesis node, Object data) {
-            if(stack.size() > 1) {
-                stack.pop();
+            if(stack.size() > 0) {
+                currentPath = stack.pop();
             }
-            LOG.trace("parse:) stack: {}",stack);
+            LOG.trace("parse:) current: {} stack: {}",currentPath, stack);
             return node.childrenAccept(this,data);
         }
 
@@ -66,7 +65,7 @@ public class JavaPathParser {
         public Object visit(ASTparse node, Object data) {
             TypedPathElement typedPathElement = (TypedPathElement) node.jjtGetValue();
             if(typedPathElement != null) {
-                stack.getFirst().add(typedPathElement);
+                currentPath.add(typedPathElement);
             }
             LOG.trace("parse:parse {}, {} stack: {}",node.jjtGetValue(),typedPathElement,stack);
             return node.childrenAccept(this,data);
@@ -74,47 +73,43 @@ public class JavaPathParser {
 
         @Override
         public Object visit(ASTfullPath node, Object data) {
-            while(stack.size() > 1) {
-                stack.pop();
-            }
+            currentPath = rootPath;
+            stack.clear();
             TypedPathElement typedPathElement = new TypedPathElement();
-            stack.getFirst().add(typedPathElement);
+            currentPath.add(typedPathElement);
             typedPathElement.setType(toString(node.jjtGetValue()));
-            LOG.trace("parse:fullPath type='{}' {} stack: {}",node.jjtGetValue(),typedPathElement,stack);
+            LOG.trace("parse:fullPath type: '{}' {} current: {}",node.jjtGetValue(),typedPathElement, currentPath);
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTpathElement node, Object data) {
-            if(stack.size() > 1) {
+            if(stack.size() > 0) {
                 TypedPathElement typedPathElement = new TypedPathElement();
-                typedPathElement.setType(stack.getLast().getLast().getParameters().getLast().getType());
-                stack.getFirst().add(typedPathElement);
+                typedPathElement.setType(rootPath.getLast().getParameters().getLast().getType());
+                currentPath.add(typedPathElement);
             }
-            stack.getFirst().getLast().setName(toString(node.jjtGetValue()));
+            currentPath.getLast().setName(toString(node.jjtGetValue()));
+            LOG.trace("parse:pathElement '{}' maxBackRef {} current: {} stack: {}",node.jjtGetValue(), maxBackRef, currentPath, stack);
             maxBackRef++;
-            LOG.trace("parse:pathElement '{}' maxBackRef {} stack: {}",node.jjtGetValue(), maxBackRef, stack);
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTparameters node, Object data) {
             TypedValue typedValue = (TypedValue) node.jjtGetValue();
-            stack.getFirst().getLast().addParameter(typedValue);
-            String ref = typedValue.getValue();
-            if(ref.startsWith("#")) {
-                if(ref.length() > 1) {
-                    int refPos = Integer.valueOf(ref.substring(1));
-                    if(refPos >= maxBackRef) {
-                        throw new JavaPathRuntimeException("Back reference "+ref+" is not visible at position "+maxBackRef);
-                    }
+            currentPath.getLast().addParameter(typedValue);
+            if(typedValue.isHashSign()) {
+                if(typedValue.getBackRefIdx() >= maxBackRef) {
+                    throw new JavaPathRuntimeException("Back reference #"+typedValue.getBackRefIdx()+" is not visible at position "+maxBackRef);
                 }
-                stack.push(typedValue.getTypedPathElements());
+                stack.push(currentPath);
+                currentPath = typedValue.getTypedPathElements();
+            } else if(typedValue.isDollarSign()) {
+                stack.push(currentPath);
+                currentPath = typedValue.getTypedPathElements();
             }
-            if(ref.startsWith("$")) {
-                stack.push(typedValue.getTypedPathElements());
-            }
-            LOG.trace("parse:parameters {} stack: {}",typedValue,stack);
+            LOG.trace("parse:parameters {} current: {} stack: {}",typedValue,currentPath,stack);
             return node.childrenAccept(this,data);
         }
 

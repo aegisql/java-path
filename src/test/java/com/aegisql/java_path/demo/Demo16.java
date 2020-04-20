@@ -18,8 +18,8 @@ public class Demo16 {
     public void test() {
         A a = new A();
         JavaPath pathUtils = new JavaPath(A.class);
-        pathUtils.applyValueToPath("name", a, "John");
-        pathUtils.applyValueToPath("toUpper()", a,null);
+        pathUtils.evalPath("name", a, "John");
+        pathUtils.evalPath("toUpper()", a);
         assertEquals("JOHN",a.name);
     }
 
@@ -27,8 +27,8 @@ public class Demo16 {
     public void testOmittedParenthesis () {
         A a = new A();
         JavaPath pathUtils = new JavaPath(A.class);
-        pathUtils.applyValueToPath("name", a, "John");
-        pathUtils.applyValueToPath("toUpper", a,null);
+        pathUtils.evalPath("name", a, "John");
+        pathUtils.evalPath("toUpper", a);
         assertEquals("JOHN",a.name);
     }
 

@@ -24,9 +24,9 @@ public class Demo5 {
     public void test() {
         A a = new A();
         JavaPath pathUtils = new JavaPath(A.class);
-        pathUtils.applyValueToPath("add", a, "John");
+        pathUtils.evalPath("add", a, "John");
         assertEquals("John",a.stringBuilder.toString());
-        pathUtils.applyValueToPath("add", a, 100);
+        pathUtils.evalPath("add", a, 100);
         assertEquals(100,a.sum);
     }
 

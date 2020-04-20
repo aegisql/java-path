@@ -18,7 +18,7 @@ public class Demo3 {
     public void test() {
         A a = new A();
         JavaPath pathUtils = new JavaPath(A.class);
-        pathUtils.applyValueToPath("setName", a, "John");
+        pathUtils.evalPath("setName", a, "John");
         assertEquals("John",a.name);
     }
 

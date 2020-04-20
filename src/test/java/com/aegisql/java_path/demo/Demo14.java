@@ -33,7 +33,7 @@ public class Demo14 {
 
         A a = new A();
         JavaPath pathUtils = new JavaPath(A.class,cr);
-        pathUtils.applyValuesToPath("(HashMap map).computeIfAbsent($0,key->new HashMap).put($1,$2)", a, FATHER, Field.FIRST_NAME,"John");
+        pathUtils.evalPath("(HashMap map).computeIfAbsent($0,key->new HashMap).put($1,$2)", a, FATHER, Field.FIRST_NAME,"John");
         assertEquals("John",a.map.get(FATHER).get(Field.FIRST_NAME));
     }
 
@@ -41,7 +41,7 @@ public class Demo14 {
     public void testWithCollection() {
         A a = new A();
         JavaPath pathUtils = new JavaPath(A.class);
-        pathUtils.applyValuesToPath("(HashMap map).computeIfAbsent($0,key->new HashMap).put($1,$2)", a, Arrays.asList(FATHER, Field.FIRST_NAME,"John"));
+        pathUtils.evalPath("(HashMap map).computeIfAbsent($0,key->new HashMap).put($1,$2)", a, Arrays.asList(FATHER, Field.FIRST_NAME,"John").toArray());
         assertEquals("John",a.map.get(FATHER).get(Field.FIRST_NAME));
     }
 
@@ -50,12 +50,12 @@ public class Demo14 {
         A a = new A();
         JavaPath pathUtils = new JavaPath(A.class);
         Function<Relation,Map<Relation,String>> lambda = k->new HashMap<>();
-        pathUtils.applyValuesToPath("(HashMap map).computeIfAbsent($0,$1).put($2,$3)", a, FATHER, lambda, Field.FIRST_NAME, "John");
-        pathUtils.applyValuesToPath("map.get($0).put($1,$2)", a, FATHER,  LAST_NAME, "Smith");
-        pathUtils.applyValuesToPath("map.get($0).put($1,$2)", a, FATHER,  AGE, 35);
-        pathUtils.applyValuesToPath("(HashMap map).computeIfAbsent($0,$1).put($2,$3)", a, MOTHER, lambda, Field.FIRST_NAME, "Ann");
-        pathUtils.applyValuesToPath("map.get($0).put($1,$2)", a, MOTHER, LAST_NAME, "Smith");
-        pathUtils.applyValuesToPath("map.get($0).put($1,$2)", a, MOTHER, AGE, null);
+        pathUtils.evalPath("(HashMap map).computeIfAbsent($0,$1).put($2,$3)", a, FATHER, lambda, Field.FIRST_NAME, "John");
+        pathUtils.evalPath("map.get($0).put($1,$2)", a, FATHER,  LAST_NAME, "Smith");
+        pathUtils.evalPath("map.get($0).put($1,$2)", a, FATHER,  AGE, 35);
+        pathUtils.evalPath("(HashMap map).computeIfAbsent($0,$1).put($2,$3)", a, MOTHER, lambda, Field.FIRST_NAME, "Ann");
+        pathUtils.evalPath("map.get($0).put($1,$2)", a, MOTHER, LAST_NAME, "Smith");
+        pathUtils.evalPath("map.get($0).put($1,$2)", a, MOTHER, AGE, null);
         assertEquals("John",a.map.get(FATHER).get(Field.FIRST_NAME));
         assertEquals("Smith",a.map.get(FATHER).get(LAST_NAME));
         assertEquals(35,a.map.get(FATHER).get(AGE));

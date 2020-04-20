@@ -23,13 +23,13 @@ public class Demo15 {
     public void test() {
         JavaPath pathUtils = new JavaPath(HashMap.class);
         Function<Relation,Map<Relation,String>> lambda = k->new HashMap<>();
-        HashMap<Relation,Map<Field,Object>> map = pathUtils.initObjectFromPath("#.computeIfAbsent($0,$1).put($2,$3)", HashMap.class, FATHER, lambda, FIRST_NAME, "John");
+        HashMap<Relation,Map<Field,Object>> map = pathUtils.initPath("#.computeIfAbsent($0,$1).put($2,$3)", HashMap.class, FATHER, lambda, FIRST_NAME, "John");
         assertNotNull(map);
-        pathUtils.applyValuesToPath("#.get($0).put($1,$2)", map, FATHER,  LAST_NAME, "Smith");
-        pathUtils.applyValuesToPath("#.get($0).put($1,$2)", map, FATHER,  AGE, 35);
-        pathUtils.applyValuesToPath("#.computeIfAbsent($0,$1).put($2,$3)", map, MOTHER, lambda, Field.FIRST_NAME, "Ann");
-        pathUtils.applyValuesToPath("#.get($0).put($1,$2)", map, MOTHER, LAST_NAME, "Smith");
-        pathUtils.applyValuesToPath("#.get($0).put($1,$2)", map, MOTHER, AGE, null);
+        pathUtils.evalPath("#.get($0).put($1,$2)", map, FATHER,  LAST_NAME, "Smith");
+        pathUtils.evalPath("#.get($0).put($1,$2)", map, FATHER,  AGE, 35);
+        pathUtils.evalPath("#.computeIfAbsent($0,$1).put($2,$3)", map, MOTHER, lambda, Field.FIRST_NAME, "Ann");
+        pathUtils.evalPath("#.get($0).put($1,$2)", map, MOTHER, LAST_NAME, "Smith");
+        pathUtils.evalPath("#.get($0).put($1,$2)", map, MOTHER, AGE, null);
         assertEquals("John",map.get(FATHER).get(Field.FIRST_NAME));
         assertEquals("Smith",map.get(FATHER).get(LAST_NAME));
         assertEquals(35,map.get(FATHER).get(AGE));

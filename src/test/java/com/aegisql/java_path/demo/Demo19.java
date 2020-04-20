@@ -37,7 +37,7 @@ public class Demo19 {
     public void test() {
         B b = new B();
         JavaPath pathUtils = new JavaPath(B.class);
-        pathUtils.applyValueToPath("a.setDesc(#0.(I id),#0.(desc)).name", b, "John");
+        pathUtils.evalPath("a.setDesc(#0.(I id),#0.(desc)).name", b, "John");
         assertEquals("John",b.a.name);
         assertNull(b.a.id);
         assertEquals("fromB",b.a.desc);
@@ -47,7 +47,7 @@ public class Demo19 {
     public void testRev() {
         B b = new B();
         JavaPath pathUtils = new JavaPath(B.class);
-        pathUtils.applyValueToPath("a.setDescRev(#0.desc(),#0.(I id)).name", b, "John");
+        pathUtils.evalPath("a.setDescRev(#0.desc(),#0.(I id)).name", b, "John");
         assertEquals("John",b.a.name);
         assertNull(b.a.id);
         assertEquals("fromB",b.a.desc);

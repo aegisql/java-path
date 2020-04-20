@@ -19,7 +19,7 @@ public class Demo2 {
     public void test() {
         B b = new B();
         JavaPath pathUtils = new JavaPath(B.class);
-        pathUtils.applyValueToPath("a.name", b, "John");
+        pathUtils.evalPath("a.name", b, "John");
         assertEquals("John",b.a.name);
     }
 
@@ -29,11 +29,11 @@ public class Demo2 {
         pathUtils.setEnableCaching(true);
 
         B b1 = new B();
-        pathUtils.applyValueToPath("a.name", b1, "John");
+        pathUtils.evalPath("a.name", b1, "John");
         assertEquals("John",b1.a.name);
 
         B b2 = new B();
-        pathUtils.applyValueToPath("a.name", b2, "Mike");
+        pathUtils.evalPath("a.name", b2, "Mike");
         assertEquals("Mike",b2.a.name);
 
     }

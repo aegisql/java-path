@@ -20,7 +20,7 @@ public class Demo4 {
     public void test() {
         A a = new A();
         JavaPath pathUtils = new JavaPath(A.class);
-        pathUtils.applyValueToPath("first_name", a, "John");
+        pathUtils.evalPath("first_name", a, "John");
         assertEquals("John",a.name);
     }
 

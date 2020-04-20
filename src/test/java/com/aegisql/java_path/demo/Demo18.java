@@ -42,7 +42,7 @@ public class Demo18 {
     public void test() {
         B b = new B();
         JavaPath pathUtils = new JavaPath(B.class);
-        pathUtils.applyValueToPath("a.setDesc(#0.id,#0.desc.val).name", b, "John");
+        pathUtils.evalPath("a.setDesc(#0.id,#0.desc.val).name", b, "John");
         assertEquals("John",b.a.name);
         assertEquals(1000,b.a.id);
         assertEquals("fromB",b.a.desc);
@@ -52,7 +52,7 @@ public class Demo18 {
     public void testWithParam() {
         B b = new B();
         JavaPath pathUtils = new JavaPath(B.class);
-        pathUtils.applyValueToPath("a.setDesc(#0.id,#0.desc.setDesc(fromTest).val).name", b, "John");
+        pathUtils.evalPath("a.setDesc(#0.id,#0.desc.setDesc(fromTest).val).name", b, "John");
         assertEquals("John",b.a.name);
         assertEquals(1000,b.a.id);
         assertEquals("fromTest",b.a.desc);

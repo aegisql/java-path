@@ -33,7 +33,7 @@ public class Demo17 {
     public void test() {
         B b = new B();
         JavaPath pathUtils = new JavaPath(B.class);
-        pathUtils.applyValueToPath("getA().setName($)", b, "John");
+        pathUtils.evalPath("getA().setName($)", b, "John");
         assertEquals("John",b.a.name);
     }
 
@@ -41,7 +41,7 @@ public class Demo17 {
     public void testWithOptionalDollarSign() {
         B b = new B();
         JavaPath pathUtils = new JavaPath(B.class);
-        pathUtils.applyValueToPath("getA().setName()", b, "John");
+        pathUtils.evalPath("getA().setName()", b, "John");
         assertEquals("John",b.a.name);
     }
 
@@ -49,7 +49,7 @@ public class Demo17 {
     public void testWithOptionalDollarSignAndParenthesis() {
         B b = new B();
         JavaPath pathUtils = new JavaPath(B.class);
-        pathUtils.applyValueToPath("getA.setName", b, "John");
+        pathUtils.evalPath("getA.setName", b, "John");
         assertEquals("John",b.a.name);
     }
 
@@ -57,7 +57,7 @@ public class Demo17 {
     public void testWithAnnotatedNames() {
         B b = new B();
         JavaPath pathUtils = new JavaPath(B.class);
-        pathUtils.applyValueToPath("a.name", b, "John");
+        pathUtils.evalPath("a.name", b, "John");
         assertEquals("John",b.a.name);
     }
 

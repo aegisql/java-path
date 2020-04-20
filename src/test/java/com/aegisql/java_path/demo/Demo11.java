@@ -34,26 +34,26 @@ public class Demo11 {
 
         //init objects
         //pass value explicitly
-        pathUtils.applyValueToPath("(map phones).put(PhoneType WORK)", a, new HashSet<>());
+        pathUtils.evalPath("(map phones).put(PhoneType WORK)", a, new HashSet<>());
         //or let the Map method do the job
-        pathUtils.applyValueToPath("phones.computeIfAbsent(PhoneType HOME,key->new HashSet).@", a, null);
-        pathUtils.applyValueToPath("phones.computeIfAbsent(PhoneType CELL,key->new HashSet).@", a, null);
-        pathUtils.applyValueToPath("(map reversedPhones).@", a, null);
+        pathUtils.evalPath("phones.computeIfAbsent(PhoneType HOME,key->new HashSet).@", a);
+        pathUtils.evalPath("phones.computeIfAbsent(PhoneType CELL,key->new HashSet).@", a);
+        pathUtils.evalPath("(map reversedPhones).@", a);
 
-        pathUtils.applyValueToPath("firstName", a, "John");
-        pathUtils.applyValueToPath("lastName", a, "Smith");
+        pathUtils.evalPath("firstName", a, "John");
+        pathUtils.evalPath("lastName", a, "Smith");
 
-        pathUtils.applyValueToPath("phones.get(PhoneType CELL).add", a, "1-101-111-2233");
-        pathUtils.applyValueToPath("phones.get(PhoneType HOME).add", a, "1-101-111-7865");
-        pathUtils.applyValueToPath("phones.get(PhoneType WORK).add", a, "1-105-333-1100");
+        pathUtils.evalPath("phones.get(PhoneType CELL).add", a, "1-101-111-2233");
+        pathUtils.evalPath("phones.get(PhoneType HOME).add", a, "1-101-111-7865");
+        pathUtils.evalPath("phones.get(PhoneType WORK).add", a, "1-105-333-1100");
         // Dollar sign is not required if it is the last or the only parameter of the method
-        pathUtils.applyValueToPath("phones.get(PhoneType WORK).add($)", a, "1-105-333-1104");
+        pathUtils.evalPath("phones.get(PhoneType WORK).add($)", a, "1-105-333-1104");
 
         // Dollar sign is required because it is not the last of two required parameters
-        pathUtils.applyValueToPath("reversedPhones.put($,PhoneType CELL)", a, "1-101-111-2233");
-        pathUtils.applyValueToPath("reversedPhones.put($,PhoneType HOME)", a, "1-101-111-7865");
-        pathUtils.applyValueToPath("reversedPhones.put($,PhoneType WORK)", a, "1-105-333-1100");
-        pathUtils.applyValueToPath("reversedPhones.put($,PhoneType WORK)", a, "1-105-333-1104");
+        pathUtils.evalPath("reversedPhones.put($,PhoneType CELL)", a, "1-101-111-2233");
+        pathUtils.evalPath("reversedPhones.put($,PhoneType HOME)", a, "1-101-111-7865");
+        pathUtils.evalPath("reversedPhones.put($,PhoneType WORK)", a, "1-105-333-1100");
+        pathUtils.evalPath("reversedPhones.put($,PhoneType WORK)", a, "1-105-333-1104");
 
         assertEquals("John",a.firstName);
         assertEquals("Smith",a.lastName);

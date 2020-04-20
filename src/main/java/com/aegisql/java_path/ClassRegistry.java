@@ -33,88 +33,48 @@ public class ClassRegistry {
     }
 
     static {
-        CLASS_MAP.put("void",void.class);
-        CLASS_MAP.put("s",String.class);
-        CLASS_MAP.put("str",String.class);
-        CLASS_MAP.put("string",String.class);
-        CLASS_MAP.put("String",String.class);
+        registerGlobalClass(void.class,"void");
+        registerGlobalClass(String.class,String.class.getSimpleName(),"s","str","string");
+        registerGlobalClass(int.class,int.class.getSimpleName(),"i","int");
+        registerGlobalClass(Integer.class,Integer.class.getSimpleName(),"I","Int");
+        registerGlobalClass(long.class,long.class.getSimpleName(),"l");
+        registerGlobalClass(Long.class,Long.class.getSimpleName(),"L");
+        registerGlobalClass(byte.class,byte.class.getSimpleName(),"b");
+        registerGlobalClass(Byte.class,Byte.class.getSimpleName(),"B");
+        registerGlobalClass(boolean.class,boolean.class.getSimpleName(),"bool");
+        registerGlobalClass(Boolean.class,Boolean.class.getSimpleName(),"Bool");
+        registerGlobalClass(char.class,char.class.getSimpleName(),"c","ch");
+        registerGlobalClass(Character.class,Character.class.getSimpleName(),"C","Ch","Char");
+        registerGlobalClass(short.class,short.class.getSimpleName());
+        registerGlobalClass(Short.class,Short.class.getSimpleName());
+        registerGlobalClass(double.class,double.class.getSimpleName(),"d");
+        registerGlobalClass(Double.class,Double.class.getSimpleName(),"D");
+        registerGlobalClass(float.class,float.class.getSimpleName(),"f");
+        registerGlobalClass(Float.class,Float.class.getSimpleName(),"F");
 
-        CLASS_MAP.put("i",int.class);
-        CLASS_MAP.put("int",int.class);
-        CLASS_MAP.put("integer",int.class);
-        CLASS_MAP.put("I",Integer.class);
-        CLASS_MAP.put("Int",Integer.class);
-        CLASS_MAP.put("Integer",Integer.class);
+        registerGlobalClass(Function.class,"new","key->new");
+        registerGlobalClass(ArrayList.class,ArrayList.class.getSimpleName(),"list");
+        registerGlobalClass(HashMap.class,HashMap.class.getSimpleName(),"map");
+        registerGlobalClass(HashSet.class,HashSet.class.getSimpleName(),"set");
+        registerGlobalClass(TreeMap.class,TreeMap.class.getSimpleName(),"treemap");
+        registerGlobalClass(TreeSet.class,TreeSet.class.getSimpleName(),"treeset");
+        registerGlobalClass(JavaPath.Holder.class);
 
-        CLASS_MAP.put("l",long.class);
-        CLASS_MAP.put("long",long.class);
-        CLASS_MAP.put("L",Long.class);
-        CLASS_MAP.put("Long",Long.class);
-
-        CLASS_MAP.put("b",byte.class);
-        CLASS_MAP.put("byte",byte.class);
-        CLASS_MAP.put("B",Byte.class);
-        CLASS_MAP.put("Byte",Byte.class);
-
-        CLASS_MAP.put("bool",boolean.class);
-        CLASS_MAP.put("boolean",boolean.class);
-        CLASS_MAP.put("Bool",Boolean.class);
-        CLASS_MAP.put("Boolean",Boolean.class);
-
-        CLASS_MAP.put("c",char.class);
-        CLASS_MAP.put("ch",char.class);
-        CLASS_MAP.put("char",char.class);
-        CLASS_MAP.put("C",Character.class);
-        CLASS_MAP.put("Ch",Character.class);
-        CLASS_MAP.put("Char",Character.class);
-
-        CLASS_MAP.put("short",short.class);
-        CLASS_MAP.put("Short",Short.class);
-
-        CLASS_MAP.put("d",double.class);
-        CLASS_MAP.put("double",double.class);
-        CLASS_MAP.put("D",Double.class);
-        CLASS_MAP.put("Double",Double.class);
-
-        CLASS_MAP.put("f",float.class);
-        CLASS_MAP.put("float",float.class);
-        CLASS_MAP.put("F",Float.class);
-        CLASS_MAP.put("Float",Float.class);
-
-        CLASS_MAP.put("new",Function.class);
-        CLASS_MAP.put("key->new",Function.class);
-
-        CLASS_MAP.put("list", ArrayList.class);
-        CLASS_MAP.put("map", HashMap.class);
-        CLASS_MAP.put("set", HashSet.class);
-
-        CLASS_MAP.put("ArrayList", ArrayList.class);
-        CLASS_MAP.put("LinkedList", LinkedList.class);
-        CLASS_MAP.put("HashMap", HashMap.class);
-        CLASS_MAP.put("TreeMap", TreeMap.class);
-        CLASS_MAP.put("HashSet", HashSet.class);
-        CLASS_MAP.put("TreeSet", TreeSet.class);
-        CLASS_MAP.put(JavaPath.Holder.class.getName(), JavaPath.Holder.class);
-
-        CONVERSION_MAP.put(String.class.getName(), identity());
-        CONVERSION_MAP.put(Character.class.getName(), valueOf(Character.class));
-        CONVERSION_MAP.put(Integer.class.getName(),valueOf(Integer.class));
-        CONVERSION_MAP.put(Long.class.getName(), valueOf(Long.class));
-        CONVERSION_MAP.put(Short.class.getName(), valueOf(Short.class));
-        CONVERSION_MAP.put(Byte.class.getName(), valueOf(Byte.class));
-        CONVERSION_MAP.put(Double.class.getName(), valueOf(Double.class));
-        CONVERSION_MAP.put(Float.class.getName(), valueOf(Float.class));
-        CONVERSION_MAP.put(Boolean.class.getName(), valueOf(Boolean.class));
-
-        CONVERSION_MAP.put(char.class.getName(), valueOf(Character.class));
-        CONVERSION_MAP.put(int.class.getName(), valueOf(Integer.class));
-        CONVERSION_MAP.put(long.class.getName(), valueOf(Long.class));
-        CONVERSION_MAP.put(short.class.getName(), valueOf(Short.class));
-        CONVERSION_MAP.put(byte.class.getName(), valueOf(Byte.class));
-        CONVERSION_MAP.put(double.class.getName(), valueOf(Double.class));
-        CONVERSION_MAP.put(float.class.getName(), valueOf(Float.class));
-        CONVERSION_MAP.put(boolean.class.getName(), valueOf(Boolean.class));
-
+        registerGlobalStringConverter(identity(),String.class.getName(),String.class.getSimpleName(),"string","str","s");
+        registerGlobalStringConverter(valueOf(Integer.class),Integer.class.getName(),Integer.class.getSimpleName(),"Int","I","integer","int","i");
+        registerGlobalStringConverter(valueOf(Long.class),Long.class.getName(),Long.class.getSimpleName(),"L","long","l");
+        registerGlobalStringConverter(valueOf(Short.class),Short.class.getName(),Short.class.getSimpleName(),"short");
+        registerGlobalStringConverter(valueOf(Byte.class),Byte.class.getName(),Byte.class.getSimpleName(),"byte","B","b");
+        registerGlobalStringConverter(valueOf(Double.class),Double.class.getName(),Double.class.getSimpleName(),"D","d","double");
+        registerGlobalStringConverter(valueOf(Float.class),Float.class.getName(),Float.class.getSimpleName(),"F","f","float");
+        registerGlobalStringConverter(valueOf(Boolean.class),Boolean.class.getName(),Boolean.class.getSimpleName(),"Bool","bool","boolean");
+        registerGlobalStringConverter(str->{
+            Objects.requireNonNull(str);
+            if(str.length() > 1) {
+                throw new JavaPathRuntimeException("Cannot convert "+str+" to a single char");
+            }
+            return str.charAt(0);
+        },Character.class.getName(),Character.class.getSimpleName(),"Char","Ch","C","char","ch","c");
     }
 
     private static Object newInstance(String typeName) {
@@ -164,6 +124,19 @@ public class ClassRegistry {
         conversionMap.put("new",typeName->defaultSupplier.apply(typeName));
     }
 
+    public Optional<StringConverter> getConverter(String... names) {
+        if(names == null || names.length == 0) {
+            return Optional.empty();
+        } else {
+            for(String name: names){
+                if(conversionMap.containsKey(name)) {
+                    return Optional.of(conversionMap.get(name));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     public void registerClass(Class<?> aClass) {
 
     }
@@ -202,46 +175,40 @@ public class ClassRegistry {
         classMap.put(shortName,aClass);
     }
 
-    public static void registerGlobalClassShortName(Class<?> aClass, String shortName) {
-        Objects.requireNonNull(shortName,"registerClassShortName requires non empty name");
-        Objects.requireNonNull(aClass,"registerClassShortName requires non empty class");
-        if(CLASS_MAP.containsKey(shortName) && ! aClass.equals(CLASS_MAP.get(shortName))) {
-            throw new JavaPathRuntimeException("Short name "+shortName+" for class "+aClass.getSimpleName()+" already occupied by "+CLASS_MAP.get(shortName).getSimpleName());
-        }
-        CLASS_MAP.put(shortName,aClass);
-    }
-
     public void registerClassSimpleName(Class<?> aClass) {
         registerClassShortName(aClass,aClass.getSimpleName());
     }
 
-    public static void registerGlobalClassSimpleName(Class<?> aClass) {
-        registerGlobalClassShortName(aClass,aClass.getSimpleName());
+    public static void registerGlobalClass(Class<?> aClass, String... names) {
+        CLASS_MAP.put(aClass.getName(),aClass);
+        if(names != null || names.length > 0) {
+            Arrays.stream(names).forEach(name->CLASS_MAP.put(name,aClass));
+        }
     }
 
-    public <T> void registerStringConverter(Class<T> aClass, StringConverter<T> converter) {
+    public <T> StringConverter<T> registerStringConverter(Class<?> aClass, StringConverter<T> converter) {
         Objects.requireNonNull(aClass,"registerStringConverter requires non empty class");
         Objects.requireNonNull(converter,"registerStringConverter requires converter for class "+aClass.getSimpleName());
-        conversionMap.put(aClass.getName(),converter);
+        return (StringConverter<T>) conversionMap.computeIfAbsent(aClass.getName(), className->converter);
     }
 
-    public <T> void registerStringConverter(String alias, StringConverter<T> converter) {
-        Objects.requireNonNull(alias,"registerStringConverter requires non empty class alias");
-        Objects.requireNonNull(converter,"registerStringConverter requires converter for class "+alias);
-        conversionMap.put(alias,converter);
+    public <T> StringConverter<T> registerStringConverter(StringConverter<T> converter,String... names) {
+        Objects.requireNonNull(names,"registerStringConverter requires non empty class alias names");
+        Objects.requireNonNull(converter,"registerStringConverter requires converter for classes "+String.join(",",names));
+        Arrays.stream(names).filter(Objects::nonNull).forEach(name->conversionMap.computeIfAbsent(name,clsName->converter));
+        return converter;
     }
 
     public static <T> void registerGlobalStringConverter(Class<T> aClass, StringConverter<T> converter) {
-        registerGlobalStringConverter(aClass.getName(),converter);
+        registerGlobalStringConverter(converter,aClass.getName());
     }
 
-    public static <T> void registerGlobalStringConverter(String alias, StringConverter<T> converter) {
-        Objects.requireNonNull(alias,"registerStringConverter requires non empty class alias");
-        Objects.requireNonNull(converter,"registerStringConverter requires converter for class "+alias);
-        if(CONVERSION_MAP.containsKey(alias)) {
-            throw new JavaPathRuntimeException("Alias name "+alias+" for converter is already in use");
-        }
-        CONVERSION_MAP.put(alias,converter);
+    public static <T> void registerGlobalStringConverter(StringConverter<T> converter, String... names) {
+        Objects.requireNonNull(names,"registerStringConverter requires non empty class alias");
+        Objects.requireNonNull(converter,"registerStringConverter requires converter for class "+String.join(",",names));
+        Arrays.stream(names).filter(Objects::nonNull).forEach(alias->{
+            CONVERSION_MAP.computeIfAbsent(alias,name->converter);
+        });
     }
 
 }

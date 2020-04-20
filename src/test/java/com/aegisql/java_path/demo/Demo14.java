@@ -4,7 +4,6 @@ import com.aegisql.java_path.ClassRegistry;
 import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -34,14 +33,6 @@ public class Demo14 {
         A a = new A();
         JavaPath pathUtils = new JavaPath(A.class,cr);
         pathUtils.evalPath("(HashMap map).computeIfAbsent($0,key->new HashMap).put($1,$2)", a, FATHER, Field.FIRST_NAME,"John");
-        assertEquals("John",a.map.get(FATHER).get(Field.FIRST_NAME));
-    }
-
-    @Test
-    public void testWithCollection() {
-        A a = new A();
-        JavaPath pathUtils = new JavaPath(A.class);
-        pathUtils.evalPath("(HashMap map).computeIfAbsent($0,key->new HashMap).put($1,$2)", a, Arrays.asList(FATHER, Field.FIRST_NAME,"John").toArray());
         assertEquals("John",a.map.get(FATHER).get(Field.FIRST_NAME));
     }
 

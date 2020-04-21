@@ -7,7 +7,7 @@ import java.util.function.Function;
 /**
  * The interface String converter.
  * Converts String to any object that can be derived from it
- * Example: "10" -> int 10
+ * Example: "10" -- int 10
  *
  * @param <T> the type parameter
  */

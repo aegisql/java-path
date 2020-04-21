@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +20,7 @@ public class CallableNode {
 
     private final static Logger LOG = LoggerFactory.getLogger(CallableNode.class);
 
+    private final ClassRegistry classRegistry;
     private final Class<?> myClass;
     private Map<Class<?>, CallableNode> parameterMap = new HashMap<>();
     private final int pos;
@@ -33,9 +35,10 @@ public class CallableNode {
      * @param myClass the my class
      * @param pos     the pos
      */
-    public CallableNode(Class<?> myClass, int pos) {
+    public CallableNode(Class<?> myClass, int pos, ClassRegistry classRegistry) {
         this.myClass = myClass;
         this.pos = pos;
+        this.classRegistry = classRegistry;
     }
 
     /**
@@ -47,8 +50,15 @@ public class CallableNode {
     public void addNode(LinkedList<Class<?>> classes, Method method) {
         if(classes.size() == 0) {
             this.method = method;
+            if(Modifier.isStatic(method.getModifiers()) && method.getParameterCount() == 1 && method.getName().equals("valueOf")) {
+                Class<?> returnType = method.getReturnType();
+                Class<?> parameterType = method.getParameterTypes()[0];
+                if(returnType == myClass && parameterType == String.class) {
+                    classRegistry.registerStringConverter(myClass,StringConverter.factory(myClass,method.getName()));
+                }
+            }
         } else {
-            CallableNode callableNode = parameterMap.computeIfAbsent(classes.pollFirst(), k -> new CallableNode(k,pos+1));
+            CallableNode callableNode = parameterMap.computeIfAbsent(classes.pollFirst(), k -> new CallableNode(k,pos+1, classRegistry));
             callableNode.addNode(classes,method);
         }
     }
@@ -63,7 +73,7 @@ public class CallableNode {
         if(classes.size() == 0) {
             this.constructor = constructor;
         } else {
-            CallableNode callableNode = parameterMap.computeIfAbsent(classes.pollFirst(), k -> new CallableNode(k,pos+1));
+            CallableNode callableNode = parameterMap.computeIfAbsent(classes.pollFirst(), k -> new CallableNode(k,pos+1, classRegistry));
             callableNode.addNode(classes,constructor);
         }
     }

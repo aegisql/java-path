@@ -36,7 +36,6 @@ public interface StringConverter<T> extends Function<String,T> {
         try {
             valueOf = aClass.getMethod(methodName, String.class);
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
             return null;
         }
         return str->{

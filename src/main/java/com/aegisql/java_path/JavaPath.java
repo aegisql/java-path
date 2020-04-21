@@ -42,7 +42,7 @@ public class JavaPath {
     private JavaPath(Class<?> aClass, ClassRegistry registry, Map<String,List<TypedPathElement>> cache) {
         Objects.requireNonNull(aClass,"Builder class is null");
         this.aClass = aClass;
-        this.callTree = CallTree.forClass(aClass);
+        this.callTree = CallTree.forClass(aClass,registry);
         this.classRegistry = registry;
         this.cache = cache;
     }
@@ -56,7 +56,7 @@ public class JavaPath {
     public JavaPath(Class<?> aClass, ClassRegistry registry) {
         Objects.requireNonNull(aClass,"Builder class is null");
         this.aClass = aClass;
-        this.callTree = CallTree.forClass(aClass);
+        this.callTree = CallTree.forClass(aClass,registry);
         this.classRegistry = registry;
     }
 
@@ -582,13 +582,22 @@ public class JavaPath {
                     fieldType = field.getType();
                 }
                 Class<?>[] classesForGetter = pl.getClassesForGetter(backReferences);
-                Constructor<?> constructor = fieldType.getConstructor(classesForGetter);
                 Object[] propertiesForGetter = pl.getPropertiesForGetter(backReferences);
-                constructor.setAccessible(true);
-                Object newInstance = constructor.newInstance(propertiesForGetter);
-                field.setAccessible(true);
-                field.set(builder,newInstance);
-                return newInstance;
+                CallTree.forClass(fieldType,classRegistry);
+                StringConverter stringConverter = classRegistry.getConverter(fieldType.getName(),fieldType.getSimpleName(),labelProperty.getTypeAlias(),"valueOf").orElse(null);
+                if(classesForGetter.length == 1 && classesForGetter[0] == String.class && stringConverter != null) {
+                    Object newInstance = stringConverter.apply(propertiesForGetter[0]);
+                    field.setAccessible(true);
+                    field.set(builder, newInstance);
+                    return newInstance;
+                } else {
+                    Constructor<?> constructor = fieldType.getConstructor(classesForGetter);
+                    constructor.setAccessible(true);
+                    Object newInstance = constructor.newInstance(propertiesForGetter);
+                    field.setAccessible(true);
+                    field.set(builder, newInstance);
+                    return newInstance;
+                }
             }
             return o;
         } catch (Exception e) {

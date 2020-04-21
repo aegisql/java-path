@@ -15,28 +15,23 @@ public class CallTree {
 
     private final static Map<Class,CallTree> cache = new ConcurrentHashMap<>();
 
+    private final ClassRegistry classRegistry;
     private final Map<String,Map<Class<?>, CallableNode>> namesMap = new HashMap<>();
     private final Map<String,CallableNode> fieldsMap = new HashMap<>();
-
+    private final Class<?> aClass;
     private final Set<String> knownLabels = new HashSet<>();
 
     /**
      * Instantiates a new Call tree.
      */
     public CallTree() {
+        this.classRegistry = new ClassRegistry();
+        this.aClass = null;
     }
 
-    /**
-     * For class call tree.
-     *
-     * @param c the c
-     * @return the call tree
-     */
-    public static CallTree forClass(Class<?> c) {
-        return cache.computeIfAbsent(c,CallTree::new);
-    }
-
-    private CallTree(Class<?> c) {
+    private CallTree(Class<?> c, ClassRegistry classRegistry) {
+        this.classRegistry = classRegistry;
+        this.aClass = c;
         Arrays.stream(c.getDeclaredFields()).forEach(this::addField);
         Arrays.stream(c.getDeclaredMethods()).forEach(this::addMethod);
         if( ! Modifier.isAbstract(c.getModifiers())) {
@@ -44,7 +39,7 @@ public class CallTree {
         }
         Class sClass = c.getSuperclass();
         if(sClass != null && sClass != Object.class) {
-            CallTree inner = new CallTree(sClass);
+            CallTree inner = new CallTree(sClass,classRegistry);
             inner.knownLabels.forEach(l->{
                 if(knownLabels.contains(l)) {
                     throw new JavaPathRuntimeException("Found duplicate label "+l+" in "+c.getSimpleName()+" conflicting with "+sClass.getSimpleName());
@@ -57,17 +52,31 @@ public class CallTree {
         }
     }
 
+    /**
+     * For class call tree.
+     *
+     * @param c the c
+     * @return the call tree
+     */
+    public static CallTree forClass(Class<?> c) {
+        return cache.computeIfAbsent(c,cls-> new CallTree(c,new ClassRegistry()));
+    }
+
+    public static CallTree forClass(Class<?> c, ClassRegistry classRegistry) {
+        return cache.computeIfAbsent(c,cls-> new CallTree(c,classRegistry));
+    }
+
     private void addConstructor(Constructor constructor) {
         Map<Class<?>, CallableNode> parameterMap = namesMap.computeIfAbsent("new", n -> new HashMap<>());
         LinkedList<Class> args = new LinkedList<>();
         args.addAll(Arrays.asList(constructor.getParameterTypes()));
         CallableNode callableNode;
         if(constructor.getParameterCount() == 0) {
-            callableNode = parameterMap.computeIfAbsent(null, p -> new CallableNode(p,0));
+            callableNode = parameterMap.computeIfAbsent(null, p -> new CallableNode(aClass,0, classRegistry));
             callableNode.addNode(new LinkedList<>(),constructor);
         } else {
             Class<?> pClass = args.pollFirst();
-            callableNode = parameterMap.computeIfAbsent(pClass, p -> new CallableNode(p,0));
+            callableNode = parameterMap.computeIfAbsent(pClass, p -> new CallableNode(aClass,0, classRegistry));
             callableNode.addNode(args,constructor);
         }
 
@@ -87,7 +96,7 @@ public class CallTree {
             }
         }
 
-        CallableNode callableNode = fieldsMap.computeIfAbsent(name, p -> new CallableNode(f.getType(),0));
+        CallableNode callableNode = fieldsMap.computeIfAbsent(name, p -> new CallableNode(f.getType(),0, classRegistry));
         callableNode.addNode(f);
 
         if(pathElement != null) {
@@ -96,7 +105,7 @@ public class CallTree {
                     throw new JavaPathRuntimeException("Duplicated label " + l + " found for field "+f);
                 }
                 knownLabels.add(l);
-                CallableNode labeledNode = fieldsMap.computeIfAbsent(l, p -> new CallableNode(f.getType(),0));
+                CallableNode labeledNode = fieldsMap.computeIfAbsent(l, p -> new CallableNode(f.getType(),0, classRegistry));
                 labeledNode.addNode(f);
             });
         }
@@ -125,11 +134,11 @@ public class CallTree {
         args.addAll(Arrays.asList(method.getParameterTypes()));
         CallableNode callableNode;
         if(method.getParameterCount() == 0) {
-            callableNode = parameterMap.computeIfAbsent(null, p -> new CallableNode(p,0));
+            callableNode = parameterMap.computeIfAbsent(null, p -> new CallableNode(aClass,0, classRegistry));
             callableNode.addNode(new LinkedList<>(),method);
         } else {
             Class<?> pClass = args.pollFirst();
-            callableNode = parameterMap.computeIfAbsent(pClass, p -> new CallableNode(p,0));
+            callableNode = parameterMap.computeIfAbsent(pClass, p -> new CallableNode(aClass,0, classRegistry));
             callableNode.addNode(args,method);
         }
         if(pathElement != null) {

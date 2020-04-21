@@ -38,7 +38,7 @@ public class Demo20 {
         B johnSilver = new B();
         B billyBones = new B();
         ClassRegistry classRegistry = new ClassRegistry();
-        classRegistry.registerStringConverter(A.class,name->A.newA(name));
+        classRegistry.registerStringConverter(A.class,A::newA);
         JavaPath pathUtils = new JavaPath(B.class,classRegistry);
         pathUtils.evalPath("a(John).lastName", johnSilver, "Silver");
         pathUtils.evalPath("a(Billy).lastName", billyBones, "Bones");

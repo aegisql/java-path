@@ -3,6 +3,9 @@ package com.aegisql.java_path;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * The type Parametrized property.
+ */
 public class ParametrizedProperty {
 
     private final ClassRegistry classRegistry;
@@ -30,10 +33,23 @@ public class ParametrizedProperty {
         };
     };
 
+    /**
+     * Instantiates a new Parametrized property.
+     *
+     * @param classRegistry the class registry
+     * @param typedValue    the typed value
+     */
     public ParametrizedProperty(ClassRegistry classRegistry, TypedValue typedValue) {
         this(classRegistry, typedValue,false);
     }
 
+    /**
+     * Instantiates a new Parametrized property.
+     *
+     * @param classRegistry the class registry
+     * @param typedValue    the typed value
+     * @param forField      the for field
+     */
     ParametrizedProperty(ClassRegistry classRegistry, TypedValue typedValue, boolean forField) {
         this.classRegistry = classRegistry;
         this.value = typedValue.isDollarSign();
@@ -87,46 +103,101 @@ public class ParametrizedProperty {
         }
     }
 
+    /**
+     * Gets property str.
+     *
+     * @return the property str
+     */
     public String getPropertyStr() {
         return propertyStr;
     }
 
+    /**
+     * Gets property type.
+     *
+     * @return the property type
+     */
     public Class<?> getPropertyType() {
         return propertyType;
     }
 
+    /**
+     * Is builder boolean.
+     *
+     * @return the boolean
+     */
     public boolean isBuilder() {
         return builder;
     }
 
+    /**
+     * Is value boolean.
+     *
+     * @return the boolean
+     */
     public boolean isValue() {
         return value;
     }
 
+    /**
+     * Is back reference idx boolean.
+     *
+     * @return the boolean
+     */
     public boolean isBackReferenceIdx() {
         return backReferenceIdx >= 0;
     }
 
+    /**
+     * Is value idx boolean.
+     *
+     * @return the boolean
+     */
     public boolean isValueIdx() {
         return valueIdx >= 0;
     }
 
+    /**
+     * Gets back reference idx.
+     *
+     * @return the back reference idx
+     */
     public int getBackReferenceIdx() {
         return backReferenceIdx;
     }
 
+    /**
+     * Gets value idx.
+     *
+     * @return the value idx
+     */
     public int getValueIdx() {
         return valueIdx;
     }
 
+    /**
+     * Get pre evaluated value object.
+     *
+     * @return the object
+     */
     public Object getPreEvaluatedValue(){
         return preEvaluatedValue;
     }
 
+    /**
+     * Is pre evaluated value set boolean.
+     *
+     * @return the boolean
+     */
     public boolean isPreEvaluatedValueSet() {
         return preEvaluatedValueSet;
     }
 
+    /**
+     * Gets property.
+     *
+     * @return the property
+     */
     public Object getProperty() {
         if(propertyType == null){
             return null;
@@ -140,6 +211,11 @@ public class ParametrizedProperty {
         }
     }
 
+    /**
+     * Gets type alias.
+     *
+     * @return the type alias
+     */
     String getTypeAlias() {
         return typeAlias;
     }

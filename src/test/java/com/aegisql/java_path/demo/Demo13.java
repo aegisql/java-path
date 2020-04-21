@@ -35,7 +35,7 @@ public class Demo13 {
     public void test() {
         A a = new A();
         ClassRegistry classRegistry = new ClassRegistry();
-        classRegistry.registerClassSimpleName(A.class);
+        classRegistry.registerClass(A.class,A.class.getSimpleName());
 
         JavaPath pathUtils = new JavaPath(A.class,classRegistry);
         pathUtils.evalPath("@ignored.(A @new(Ann)).(A @new(John)).mother(#1).father(#2).name",a,"Nick");

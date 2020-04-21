@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * The type Typed value.
+ */
 public class TypedValue {
     private String value;
     private String type;
@@ -13,6 +16,11 @@ public class TypedValue {
     private Object preEvaluatedValue = null;
     private boolean preEvaluatedValueSet = false;
 
+    /**
+     * Gets value.
+     *
+     * @return the value
+     */
     public String getValue() {
         return value;
     }
@@ -38,70 +46,155 @@ public class TypedValue {
         return sb.toString();
     }
 
+    /**
+     * Sets value.
+     *
+     * @param value the value
+     */
     public void setValue(String value) {
         this.value = unEscape(value);
     }
 
+    /**
+     * Gets type.
+     *
+     * @return the type
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * Sets type.
+     *
+     * @param type the type
+     */
     public void setType(String type) {
         this.type = type;
     }
 
+    /**
+     * Parametrized boolean.
+     *
+     * @return the boolean
+     */
     public boolean parametrized() {
         return type != null && ! "".equals(type);
     }
 
+    /**
+     * Is hash sign boolean.
+     *
+     * @return the boolean
+     */
     public boolean isHashSign() {
         return value != null && value.startsWith("#");
     }
 
+    /**
+     * Is dollar sign boolean.
+     *
+     * @return the boolean
+     */
     public boolean isDollarSign() {
         return value != null && value.startsWith("$");
     }
 
+    /**
+     * Gets back ref idx.
+     *
+     * @return the back ref idx
+     */
     public int getBackRefIdx() {
         return backRefIdx;
     }
 
+    /**
+     * Sets back ref idx.
+     *
+     * @param backRefIdx the back ref idx
+     */
     public void setBackRefIdx(int backRefIdx) {
         this.backRefIdx = backRefIdx;
     }
 
+    /**
+     * Gets value idx.
+     *
+     * @return the value idx
+     */
     public int getValueIdx() {
         return valueIdx;
     }
 
+    /**
+     * Sets value idx.
+     *
+     * @param valueIdx the value idx
+     */
     public void setValueIdx(int valueIdx) {
         this.valueIdx = valueIdx;
     }
 
+    /**
+     * Sets typed path elements.
+     *
+     * @param typedPathElements the typed path elements
+     */
     public void setTypedPathElements(LinkedList<TypedPathElement> typedPathElements) {
         this.typedPathElements = typedPathElements;
     }
 
+    /**
+     * Gets typed path elements.
+     *
+     * @return the typed path elements
+     */
     public LinkedList<TypedPathElement> getTypedPathElements() {
         return typedPathElements;
     }
 
+    /**
+     * Has path boolean.
+     *
+     * @return the boolean
+     */
     public boolean hasPath() {
         return typedPathElements.size() > 0;
     }
 
+    /**
+     * Gets pre evaluated value.
+     *
+     * @return the pre evaluated value
+     */
     public Object getPreEvaluatedValue() {
         return preEvaluatedValue;
     }
 
+    /**
+     * Sets pre evaluated value.
+     *
+     * @param preEvaluatedValue the pre evaluated value
+     */
     public void setPreEvaluatedValue(Object preEvaluatedValue) {
         this.preEvaluatedValue = preEvaluatedValue;
     }
 
+    /**
+     * Is pre evaluated value set boolean.
+     *
+     * @return the boolean
+     */
     public boolean isPreEvaluatedValueSet() {
         return preEvaluatedValueSet;
     }
 
+    /**
+     * Sets pre evaluated value set.
+     *
+     * @param preEvaluatedValueSet the pre evaluated value set
+     */
     public void setPreEvaluatedValueSet(boolean preEvaluatedValueSet) {
         this.preEvaluatedValueSet = preEvaluatedValueSet;
     }

@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * The type Callable node.
+ */
 public class CallableNode {
 
     private final static Logger LOG = LoggerFactory.getLogger(CallableNode.class);
@@ -24,11 +27,23 @@ public class CallableNode {
     private Field field;
     private Constructor constructor;
 
+    /**
+     * Instantiates a new Callable node.
+     *
+     * @param myClass the my class
+     * @param pos     the pos
+     */
     public CallableNode(Class<?> myClass, int pos) {
         this.myClass = myClass;
         this.pos = pos;
     }
 
+    /**
+     * Add node.
+     *
+     * @param classes the classes
+     * @param method  the method
+     */
     public void addNode(LinkedList<Class<?>> classes, Method method) {
         if(classes.size() == 0) {
             this.method = method;
@@ -38,6 +53,12 @@ public class CallableNode {
         }
     }
 
+    /**
+     * Add node.
+     *
+     * @param classes     the classes
+     * @param constructor the constructor
+     */
     public void addNode(LinkedList<Class> classes, Constructor constructor) {
         if(classes.size() == 0) {
             this.constructor = constructor;
@@ -47,10 +68,21 @@ public class CallableNode {
         }
     }
 
+    /**
+     * Add node.
+     *
+     * @param f the f
+     */
     public void addNode(Field f) {
         this.field = f;
     }
 
+    /**
+     * Find method method.
+     *
+     * @param argList the arg list
+     * @return the method
+     */
     public Method findMethod(LinkedList<Class<?>> argList) {
         if(argList.size()==0) {
             return method;
@@ -72,6 +104,12 @@ public class CallableNode {
         }
     }
 
+    /**
+     * Find constructor constructor.
+     *
+     * @param argList the arg list
+     * @return the constructor
+     */
     public Constructor findConstructor(LinkedList<Class<?>> argList) {
         if(argList.size()==0) {
             return constructor;
@@ -106,18 +144,39 @@ public class CallableNode {
         return sb.toString();
     }
 
+    /**
+     * Gets method.
+     *
+     * @return the method
+     */
     public Method getMethod() {
         return method;
     }
 
+    /**
+     * Gets field.
+     *
+     * @return the field
+     */
     public Field getField() {
         return field;
     }
 
+    /**
+     * Gets constructor.
+     *
+     * @return the constructor
+     */
     public Constructor getConstructor() {
         return constructor;
     }
 
+    /**
+     * Find method candidates.
+     *
+     * @param argList    the arg list
+     * @param candidates the candidates
+     */
     public void findMethodCandidates(LinkedList<Class<?>> argList, List<Method> candidates) {
         if(argList.size()==0) {
             candidates.add(method);
@@ -145,6 +204,12 @@ public class CallableNode {
         }
     }
 
+    /**
+     * Find constructor candidates.
+     *
+     * @param argList    the arg list
+     * @param candidates the candidates
+     */
     public void findConstructorCandidates(LinkedList<Class<?>> argList, List<Constructor> candidates) {
         if(argList.size()==0) {
             candidates.add(constructor);

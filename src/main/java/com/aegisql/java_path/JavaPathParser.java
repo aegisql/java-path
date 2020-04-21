@@ -9,6 +9,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * The type Java path parser.
+ */
 public class JavaPathParser {
 
     private final static Logger LOG = LoggerFactory.getLogger(JavaPathParser.class);
@@ -20,6 +23,11 @@ public class JavaPathParser {
         private LinkedList<TypedPathElement> currentPath;
         private int maxBackRef = 0;
 
+        /**
+         * Instantiates a new Visitor.
+         *
+         * @param rootPath the root path
+         */
         public Visitor(LinkedList<TypedPathElement> rootPath) {
             this.rootPath = rootPath;
             this.currentPath = rootPath;
@@ -116,6 +124,12 @@ public class JavaPathParser {
     }
 
 
+    /**
+     * Parse list.
+     *
+     * @param path the path
+     * @return the list
+     */
     public static List<TypedPathElement> parse(String path) {
         LOG.debug("parsing {}",path);
         LinkedList<TypedPathElement> elements = new LinkedList<>();

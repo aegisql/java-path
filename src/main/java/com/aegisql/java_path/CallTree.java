@@ -8,6 +8,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * The type Call tree.
+ */
 public class CallTree {
 
     private final static Map<Class,CallTree> cache = new ConcurrentHashMap<>();
@@ -17,9 +20,18 @@ public class CallTree {
 
     private final Set<String> knownLabels = new HashSet<>();
 
+    /**
+     * Instantiates a new Call tree.
+     */
     public CallTree() {
     }
 
+    /**
+     * For class call tree.
+     *
+     * @param c the c
+     * @return the call tree
+     */
     public static CallTree forClass(Class<?> c) {
         return cache.computeIfAbsent(c,CallTree::new);
     }
@@ -90,6 +102,11 @@ public class CallTree {
         }
     }
 
+    /**
+     * Add method.
+     *
+     * @param method the method
+     */
     public void addMethod(Method method) {
         String name = method.getName();
         NoPathElement noPathElement = method.getAnnotation(NoPathElement.class);
@@ -128,6 +145,13 @@ public class CallTree {
         }
     }
 
+    /**
+     * Find method method.
+     *
+     * @param name the name
+     * @param args the args
+     * @return the method
+     */
     public Method findMethod(String name, Class<?> ... args) {
         LinkedList<Class<?>> argList = new LinkedList<>();
         if(args != null) {
@@ -157,6 +181,12 @@ public class CallTree {
         return null;
     }
 
+    /**
+     * Find constructor constructor.
+     *
+     * @param args the args
+     * @return the constructor
+     */
     public Constructor findConstructor(Class<?> ... args) {
         LinkedList<Class<?>> argList = new LinkedList<>();
         if(args != null) {
@@ -186,6 +216,12 @@ public class CallTree {
         return null;
     }
 
+    /**
+     * Find field field.
+     *
+     * @param name the name
+     * @return the field
+     */
     public Field findField(String name) {
         CallableNode callableNode = fieldsMap.get(name);
         if(callableNode == null) {
@@ -198,6 +234,13 @@ public class CallTree {
         return null;
     }
 
+    /**
+     * Find method candidates set.
+     *
+     * @param name the name
+     * @param args the args
+     * @return the set
+     */
     public Set<Method> findMethodCandidates(String name, Class<?> ... args) {
         List<Method> candidates = new LinkedList<>();
         LinkedList<Class<?>> argList = new LinkedList<>();
@@ -233,6 +276,12 @@ public class CallTree {
         return new HashSet<>(candidates);
     }
 
+    /**
+     * Find constructor candidates set.
+     *
+     * @param args the args
+     * @return the set
+     */
     public Set<Constructor> findConstructorCandidates(Class<?> ... args) {
         List<Constructor> candidates = new LinkedList<>();
         LinkedList<Class<?>> argList = new LinkedList<>();

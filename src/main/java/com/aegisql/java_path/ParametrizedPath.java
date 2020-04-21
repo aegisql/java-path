@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The type Parametrized path.
+ */
 public class ParametrizedPath {
 
     private final static Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[]{};
@@ -18,6 +21,12 @@ public class ParametrizedPath {
     private final List<ParametrizedProperty> labelProperties;
     private final ParametrizedProperty parametrizedProperty;
 
+    /**
+     * Instantiates a new Parametrized path.
+     *
+     * @param classRegistry the class registry
+     * @param javaPath      the java path
+     */
     public ParametrizedPath(ClassRegistry classRegistry, TypedPathElement javaPath) {
         this.classRegistry = classRegistry == null? new ClassRegistry():classRegistry;
         this.pathElement = javaPath;
@@ -36,10 +45,21 @@ public class ParametrizedPath {
         }
     }
 
+    /**
+     * Gets label.
+     *
+     * @return the label
+     */
     public String getLabel() {
         return label;
     }
 
+    /**
+     * Get properties for getter object [ ].
+     *
+     * @param backRefObjects the back ref objects
+     * @return the object [ ]
+     */
     public Object[] getPropertiesForGetter(ReferenceList backRefObjects) {
         List<Object> objects = new ArrayList<>();
         for(ParametrizedProperty lp:labelProperties) {
@@ -58,6 +78,12 @@ public class ParametrizedPath {
         return objects.toArray(EMPTY_OBJECT_ARRAY);
     }
 
+    /**
+     * Get properties for setter object [ ].
+     *
+     * @param backRefObjects the back ref objects
+     * @return the object [ ]
+     */
     public Object[] getPropertiesForSetter(ReferenceList backRefObjects) {
         boolean valueNotSet = true;
         List<Object> objects = new ArrayList<>();
@@ -84,6 +110,12 @@ public class ParametrizedPath {
         return objects.toArray(EMPTY_OBJECT_ARRAY);
     }
 
+    /**
+     * Get classes for getter class [ ].
+     *
+     * @param backReferences the back references
+     * @return the class [ ]
+     */
     public Class<?>[] getClassesForGetter(ReferenceList backReferences) {
         List<Class<?>> classes = new ArrayList<>();
         for(ParametrizedProperty lp:labelProperties) {
@@ -100,6 +132,12 @@ public class ParametrizedPath {
         return classes.toArray(EMPTY_CLASS_ARRAY);
     }
 
+    /**
+     * Get classes for setter class [ ].
+     *
+     * @param backReferences the back references
+     * @return the class [ ]
+     */
     public Class<?>[] getClassesForSetter(ReferenceList backReferences) {
         boolean valueNotSet = true;
         List<Class<?>> classes = new ArrayList<>();
@@ -121,6 +159,11 @@ public class ParametrizedPath {
         return classes.toArray(EMPTY_CLASS_ARRAY);
     }
 
+    /**
+     * Has value type boolean.
+     *
+     * @return the boolean
+     */
     public boolean hasValueType() {
         return hasValueType;
     }
@@ -133,10 +176,20 @@ public class ParametrizedPath {
         return sb.toString();
     }
 
+    /**
+     * Gets label properties.
+     *
+     * @return the label properties
+     */
     List<ParametrizedProperty> getLabelProperties() {
         return labelProperties;
     }
 
+    /**
+     * Gets parametrized property.
+     *
+     * @return the parametrized property
+     */
     ParametrizedProperty getParametrizedProperty() {
         return parametrizedProperty;
     }

@@ -10,11 +10,11 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD,ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PathElement {
-	
-	/**
-	 * Value. - collection of matching labels
-	 *
-	 * @return the string[]
-	 */
-	String[] value();
+
+    /**
+     * Value. - collection of matching labels
+     *
+     * @return the string[]
+     */
+    String[] value();
 }

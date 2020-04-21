@@ -28,7 +28,7 @@ public class Demo11 {
         A a = new A();
 
         ClassRegistry  classRegistry = new ClassRegistry();
-        classRegistry.registerClassSimpleName(PhoneType.class);
+        classRegistry.registerClass(PhoneType.class,PhoneType.class.getSimpleName());
 
         JavaPath pathUtils = new JavaPath(A.class,classRegistry);
 

@@ -9,6 +9,9 @@ import java.util.function.Function;
 import static com.aegisql.java_path.StringConverter.identity;
 import static com.aegisql.java_path.StringConverter.valueOf;
 
+/**
+ * The type Class registry.
+ */
 public class ClassRegistry {
 
     private final static Map<String, StringConverter<?>> CONVERSION_MAP = new HashMap<>();
@@ -35,7 +38,7 @@ public class ClassRegistry {
     static {
         registerGlobalClass(void.class,"void");
         registerGlobalClass(String.class,String.class.getSimpleName(),"s","str","string");
-        registerGlobalClass(int.class,int.class.getSimpleName(),"i","int");
+        registerGlobalClass(int.class,int.class.getSimpleName(),"i");
         registerGlobalClass(Integer.class,Integer.class.getSimpleName(),"I","Int");
         registerGlobalClass(long.class,long.class.getSimpleName(),"l");
         registerGlobalClass(Long.class,Long.class.getSimpleName(),"L");
@@ -96,8 +99,17 @@ public class ClassRegistry {
         }
     }
 
+    /**
+     * The Conversion map.
+     */
     final Map<String, StringConverter<?>> conversionMap = new HashMap<>();
+    /**
+     * The Class map.
+     */
     final Map<String,Class<?>> classMap = new HashMap<>();
+    /**
+     * The Default supplier.
+     */
     final StringConverter<Function<?,?>> defaultSupplier = alias->{
         return type-> {
             if (type instanceof Class) {
@@ -117,6 +129,9 @@ public class ClassRegistry {
         };
     };
 
+    /**
+     * Instantiates a new Class registry.
+     */
     public ClassRegistry() {
         this.classMap.putAll(CLASS_MAP);
         this.conversionMap.putAll(CONVERSION_MAP);
@@ -124,6 +139,12 @@ public class ClassRegistry {
         conversionMap.put("new",typeName->defaultSupplier.apply(typeName));
     }
 
+    /**
+     * Gets converter.
+     *
+     * @param names the names
+     * @return the converter
+     */
     public Optional<StringConverter> getConverter(String... names) {
         if(names == null || names.length == 0) {
             return Optional.empty();
@@ -137,61 +158,55 @@ public class ClassRegistry {
         return Optional.empty();
     }
 
-    public void registerClass(Class<?> aClass) {
-
-    }
-
-    public void registerClass(Class<?> aClass, String alias) {
-
-    }
-
-    public <T> void registerClass(Class<?> aClass, Function<String,T> converter) {
-
-    }
-
-    public <T> void registerClass(Class<?> aClass, String alias, StringConverter<T> converter) {
-        Objects.requireNonNull(aClass,"Class<?> aClass required");
-        if(alias != null && classMap.containsKey(alias) && ! aClass.equals(classMap.get(alias))) {
-            throw new JavaPathRuntimeException("Class name alias "+alias+" for class "+aClass.getName()+" is already used for "+classMap.get(alias).getName());
-        }
-        if(alias != null && converter != null && conversionMap.containsKey(alias) && ! converter.equals(conversionMap.get(alias))) {
-            throw new JavaPathRuntimeException("Conversion name alias "+alias+" for class "+aClass.getName()+" is already used for "+classMap.get(alias).getName());
-        }
-        String longName = aClass.getName();
-        classMap.put(longName,aClass);
-        classMap.put(longName,aClass);
-        if(alias != null) {
-            classMap.put(alias,aClass);
-            if (converter != null) {
-                conversionMap.put(longName, converter);
-            }
+    /**
+     * Register class.
+     *
+     * @param aClass the a class
+     * @param names  the names
+     */
+    public void registerClass(Class<?> aClass, String... names) {
+        Objects.requireNonNull(aClass,"Cannot register NULL as a class");
+        classMap.put(aClass.getName(),aClass);
+        if(names != null && names.length > 0) {
+            Arrays.stream(names).filter(Objects::nonNull).forEach(name->classMap.computeIfAbsent(name,nm->aClass));
         }
     }
 
-
-    public void registerClassShortName(Class<?> aClass, String shortName) {
-        Objects.requireNonNull(shortName,"registerClassShortName requires non empty name");
-        Objects.requireNonNull(aClass,"registerClassShortName requires non empty class");
-        classMap.put(shortName,aClass);
-    }
-
-    public void registerClassSimpleName(Class<?> aClass) {
-        registerClassShortName(aClass,aClass.getSimpleName());
-    }
-
+    /**
+     * Register global class.
+     *
+     * @param aClass the a class
+     * @param names  the names
+     */
     public static void registerGlobalClass(Class<?> aClass, String... names) {
         CLASS_MAP.put(aClass.getName(),aClass);
         if(names != null || names.length > 0) {
-            Arrays.stream(names).forEach(name->CLASS_MAP.put(name,aClass));
+            Arrays.stream(names).filter(Objects::nonNull).forEach(name->CLASS_MAP.computeIfAbsent(name,nm->aClass));
         }
     }
 
+    /**
+     * Register string converter string converter.
+     *
+     * @param <T>       the type parameter
+     * @param aClass    the a class
+     * @param converter the converter
+     * @return the string converter
+     */
     public <T> StringConverter<T> registerStringConverter(Class<?> aClass, StringConverter<T> converter) {
         Objects.requireNonNull(aClass,"registerStringConverter requires non empty class");
         Objects.requireNonNull(converter,"registerStringConverter requires converter for class "+aClass.getSimpleName());
-        return (StringConverter<T>) conversionMap.computeIfAbsent(aClass.getName(), className->converter);
+        return registerStringConverter(converter,aClass.getName());
     }
 
+    /**
+     * Register string converter string converter.
+     *
+     * @param <T>       the type parameter
+     * @param converter the converter
+     * @param names     the names
+     * @return the string converter
+     */
     public <T> StringConverter<T> registerStringConverter(StringConverter<T> converter,String... names) {
         Objects.requireNonNull(names,"registerStringConverter requires non empty class alias names");
         Objects.requireNonNull(converter,"registerStringConverter requires converter for classes "+String.join(",",names));
@@ -199,16 +214,28 @@ public class ClassRegistry {
         return converter;
     }
 
+    /**
+     * Register global string converter.
+     *
+     * @param <T>       the type parameter
+     * @param aClass    the a class
+     * @param converter the converter
+     */
     public static <T> void registerGlobalStringConverter(Class<T> aClass, StringConverter<T> converter) {
         registerGlobalStringConverter(converter,aClass.getName());
     }
 
+    /**
+     * Register global string converter.
+     *
+     * @param <T>       the type parameter
+     * @param converter the converter
+     * @param names     the names
+     */
     public static <T> void registerGlobalStringConverter(StringConverter<T> converter, String... names) {
         Objects.requireNonNull(names,"registerStringConverter requires non empty class alias");
         Objects.requireNonNull(converter,"registerStringConverter requires converter for class "+String.join(",",names));
-        Arrays.stream(names).filter(Objects::nonNull).forEach(alias->{
-            CONVERSION_MAP.computeIfAbsent(alias,name->converter);
-        });
+        Arrays.stream(names).filter(Objects::nonNull).forEach(alias->CONVERSION_MAP.computeIfAbsent(alias,name->converter));
     }
 
 }

@@ -57,6 +57,7 @@ public class ClassRegistry {
 
         registerGlobalClass(Function.class,"new","key->new");
         registerGlobalClass(ArrayList.class,ArrayList.class.getSimpleName(),"list");
+        registerGlobalClass(LinkedList.class,LinkedList.class.getSimpleName(),"linkedlist");
         registerGlobalClass(HashMap.class,HashMap.class.getSimpleName(),"map");
         registerGlobalClass(HashSet.class,HashSet.class.getSimpleName(),"set");
         registerGlobalClass(TreeMap.class,TreeMap.class.getSimpleName(),"treemap");

@@ -244,7 +244,7 @@ public class JavaPath {
      * @param path   the path
      * @param root   the root
      * @param values the values
-     * @return the object
+     * @return the value returned by the last path element call in the chain.
      */
     public Object evalPath(String path, Object root, Object... values) {
         List<TypedPathElement> parse = parse(path);

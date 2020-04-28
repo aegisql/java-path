@@ -229,7 +229,11 @@ String parameter() #void:
     (
         (t = <K_REF_ELEMENT> [<K_DOT> path() ])
         |
-        (t = <K_PATH_ELEMENT> | t = <K_QUOTED_STRING> | t = <K_SINGLE_QUOTED_STRING>)
+        t = <K_PATH_ELEMENT>
+        |
+        t = <K_QUOTED_STRING>
+        |
+        t = <K_SINGLE_QUOTED_STRING>
     )
     {
         return t.image;

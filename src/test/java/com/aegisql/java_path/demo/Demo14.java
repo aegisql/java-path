@@ -27,8 +27,6 @@ public class Demo14 {
     @Test
     public void test() {
         ClassRegistry cr = new ClassRegistry();
-        cr.registerClass(Relation.class,Relation.class.getSimpleName());
-        cr.registerClass(Field.class,Field.class.getSimpleName());
 
         A a = new A();
         JavaPath pathUtils = new JavaPath(A.class,cr);

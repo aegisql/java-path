@@ -13,6 +13,7 @@ public class TypedPathElement {
     private String type;
     private LinkedList<TypedValue> parameters = new LinkedList<>();
     private TypedValue typedValue = null;
+    private TypedPathElement optionalPathElement;
 
     /**
      * Gets name.
@@ -119,7 +120,17 @@ public class TypedPathElement {
         if(type != null) {
             sb.append(")");
         }
+        if(optionalPathElement!= null) {
+            sb.append("?").append(optionalPathElement.toString());
+        }
         return sb.toString();
     }
 
+    public void setOptionalPathElement(TypedPathElement optionalPathElement) {
+        this.optionalPathElement = optionalPathElement;
+    }
+
+    public TypedPathElement getOptionalPathElement() {
+        return optionalPathElement;
+    }
 }

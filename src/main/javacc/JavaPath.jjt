@@ -27,6 +27,7 @@ TOKEN :
   <K_LPARENTHESIS : "(">
 | <K_RPARENTHESIS : ")">
 | <K_DOT: ".">
+| <K_QUESTION: "?">
 | <K_COMMA: ",">
 | <K_SPACE: ([" ","\t","\n","\r"])+>
 | < #LETTER: ["a"-"z","A"-"Z"] >
@@ -35,7 +36,7 @@ TOKEN :
 | <K_BACK_REF_ELEMENT : "#"(<DIGIT> )*>
 | <K_REF_ELEMENT : "$"(<DIGIT> )*>
 | < K_TYPE_ELEMENT: ((<LETTER>|<DIGIT>|<SPECIAL> )+ ( <K_DOT> (<LETTER> | <DIGIT>|<SPECIAL> )+ )* <K_SPACE>) >
-| < K_PATH_ELEMENT: ( ~["'","\""," ","\t",".",",","(",")","\\"] )+ >
+| < K_PATH_ELEMENT: ( ~["'","\""," ","\t",".",",","(",")","\\","?"] )+ >
 | <K_QUOTED_STRING: "\"" ( (~["\"","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\""] ) ) )* "\"">
 | <K_SINGLE_QUOTED_STRING: "\'" ( (~["\'","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\'"] ) ) )* "\'">
 }
@@ -56,6 +57,17 @@ void rParenthesis() :
 {}
 {
     <K_RPARENTHESIS>
+}
+
+void option() :
+{
+    Token t = null;
+}
+{
+    ( <K_DOT> | t = <K_QUESTION> )
+    {
+        jjtThis.jjtSetValue(t != null);
+    }
 }
 
 /** Root production. */
@@ -89,7 +101,7 @@ SimpleNode parse() :
             }
         |
         fullPath()
-    ) [<K_DOT> fullPath() ]
+    ) [option() fullPath() ]
     <EOF>
     {
         jjtThis.jjtSetValue(typedPathElement);
@@ -108,7 +120,7 @@ void fullPath() :
         <K_LPARENTHESIS> [type = fullType()] parametrizedPathElement() <K_RPARENTHESIS>
         |
         parametrizedPathElement()
-    ) [<K_DOT> fullPath() ]
+    ) [option() fullPath() ]
     <EOF>
     {
         jjtThis.jjtSetValue(type);

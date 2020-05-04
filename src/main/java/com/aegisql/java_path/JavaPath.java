@@ -352,6 +352,20 @@ public class JavaPath {
                 }
             }
         }
+        if(rootPathElement.getOptionalPathElement() != null) {
+            TypedPathElement optionalPathElement = rootPathElement.getOptionalPathElement();
+            if(optionalPathElement.parametrized()) {
+                for(TypedValue tv:optionalPathElement.getParameters()) {
+                    if(tv.hasPath()) {
+                        if (tv.getBackRefIdx() >= 0) {
+                            applyBackReference(valuesRefsCollection, tv);
+                        } else if(tv.getValueIdx() >= 0) {
+                            applyValueReference(valuesRefsCollection, tv);
+                        }
+                    }
+                }
+            }
+        }
 
         LOG.trace("Processing path element: {}; root object: {}",rootPathElement,valuesRefsCollection.getRoot());
         if(rootPathElement.getName().startsWith("@")) {
@@ -410,6 +424,10 @@ public class JavaPath {
             valuesRefsCollection.addRoot(nextRoot);
             return nextUtils.evalPath(path.subList(1, path.size()), valuesRefsCollection);
         } else {
+            if(nextRoot == null && rootPathElement.getOptionalPathElement() != null) {
+                offerGetter(valuesRefsCollection, rootPathElement.getOptionalPathElement()).apply(valuesRefsCollection);
+                nextRoot =  getter.apply(valuesRefsCollection);
+            }
             Objects.requireNonNull(nextRoot, "Object for path element '" + rootPathElement + "' is not initialized!");
             JavaPath nextUtils = new JavaPath(nextRoot.getClass(), classRegistry, cache);
             nextUtils.setEnableCaching(enableCaching);

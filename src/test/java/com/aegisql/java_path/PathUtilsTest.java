@@ -3,6 +3,8 @@ package com.aegisql.java_path;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.function.Supplier;
+
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -179,6 +181,58 @@ public class PathUtilsTest {
 
 
         assertEquals(100,a.sum);
+    }
+
+    class C {
+        StringBuilder sb;
+        public void init(String str) {
+            sb = new StringBuilder(str);
+        }
+        public void init() {
+            sb = new StringBuilder();
+        }
+        public StringBuilder getSb() {
+            return sb;
+        }
+        public void setSb(StringBuilder sb) {
+            this.sb = sb;
+        }
+    }
+
+    @Test
+    public void testInitChoice() {
+        C c = new C();
+        JavaPath pathUtils = new JavaPath(C.class);
+        pathUtils.evalPath("getSb?init('Dear Mr. ').append(John).append", c, " Silver");
+        assertNotNull(c.sb);
+        assertEquals("Dear Mr. John Silver",c.sb.toString());
+    }
+
+    @Test
+    public void testInitChoice2() {
+        C c = new C();
+        JavaPath pathUtils = new JavaPath(C.class);
+        pathUtils.evalPath("getSb?setSb($1).append(John).append", c, " Silver",new StringBuilder("Dear Mr. "));
+        assertNotNull(c.sb);
+        assertEquals("Dear Mr. John Silver",c.sb.toString());
+    }
+
+    @Test
+    public void testInitChoice3() {
+        C c = new C();
+        JavaPath pathUtils = new JavaPath(C.class);
+        pathUtils.evalPath("getSb?init.append(John).append", c, " Silver");
+        assertNotNull(c.sb);
+        assertEquals("John Silver",c.sb.toString());
+    }
+
+    @Test
+    public void testInitChoice4() {
+        C c = new C();
+        JavaPath pathUtils = new JavaPath(C.class);
+        pathUtils.evalPath("getSb?setSb($1.get()).append(John).append", c, " Silver",(Supplier)()->new StringBuilder("Dear Mr. "));
+        assertNotNull(c.sb);
+        assertEquals("Dear Mr. John Silver",c.sb.toString());
     }
 
 }

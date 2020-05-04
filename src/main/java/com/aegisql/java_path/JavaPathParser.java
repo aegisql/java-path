@@ -22,6 +22,7 @@ public class JavaPathParser {
         private LinkedList<TypedPathElement> rootPath;
         private LinkedList<TypedPathElement> currentPath;
         private int maxBackRef = 0;
+        private boolean option;
 
         /**
          * Instantiates a new Visitor.
@@ -70,6 +71,13 @@ public class JavaPathParser {
         }
 
         @Override
+        public Object visit(ASToption node, Object data) {
+            option = (boolean) node.jjtGetValue();
+            LOG.trace("parse:? current: {} stack: {}",currentPath, stack);
+            return node.childrenAccept(this,data);
+        }
+
+        @Override
         public Object visit(ASTparse node, Object data) {
             TypedPathElement typedPathElement = (TypedPathElement) node.jjtGetValue();
             if(typedPathElement != null) {
@@ -84,20 +92,37 @@ public class JavaPathParser {
             currentPath = rootPath;
             stack.clear();
             TypedPathElement typedPathElement = new TypedPathElement();
-            currentPath.add(typedPathElement);
             typedPathElement.setType(toString(node.jjtGetValue()));
+            if(option) {
+                currentPath.getLast().setOptionalPathElement(typedPathElement);
+            } else {
+                currentPath.add(typedPathElement);
+            }
             LOG.trace("parse:fullPath type: '{}' {} current: {}",node.jjtGetValue(),typedPathElement, currentPath);
             return node.childrenAccept(this,data);
         }
 
         @Override
         public Object visit(ASTpathElement node, Object data) {
+            TypedPathElement typedPathElement = null;
             if(stack.size() > 0) {
-                TypedPathElement typedPathElement = new TypedPathElement();
-                typedPathElement.setType(rootPath.getLast().getParameters().getLast().getType());
+                typedPathElement = new TypedPathElement();
+                TypedPathElement last;
+                if(option) {
+                    last = rootPath.getLast().getOptionalPathElement();
+                } else {
+                    last = rootPath.getLast();
+                }
+                typedPathElement.setType(last.getParameters().getLast().getType());
                 currentPath.add(typedPathElement);
+            } else {
+                if (option) {
+                    typedPathElement = currentPath.getLast().getOptionalPathElement();
+                } else {
+                    typedPathElement = currentPath.getLast();
+                }
             }
-            currentPath.getLast().setName(toString(node.jjtGetValue()));
+            typedPathElement.setName(toString(node.jjtGetValue()));
             maxBackRef++;
             LOG.trace("parse:pathElement '{}' maxBackRef {} current: {} stack: {}",node.jjtGetValue(), maxBackRef, currentPath, stack);
             return node.childrenAccept(this,data);
@@ -106,7 +131,13 @@ public class JavaPathParser {
         @Override
         public Object visit(ASTparameters node, Object data) {
             TypedValue typedValue = (TypedValue) node.jjtGetValue();
-            currentPath.getLast().addParameter(typedValue);
+            TypedPathElement typedPathElement;
+            if(option) {
+                typedPathElement = currentPath.getLast().getOptionalPathElement();
+            } else {
+                typedPathElement = currentPath.getLast();
+            }
+            typedPathElement.addParameter(typedValue);
             if(typedValue.isHashSign()) {
                 if(typedValue.getBackRefIdx() >= maxBackRef) {
                     throw new JavaPathRuntimeException("Back reference #"+typedValue.getBackRefIdx()+" is not visible at position "+maxBackRef);
@@ -117,7 +148,7 @@ public class JavaPathParser {
                 stack.push(currentPath);
                 currentPath = typedValue.getTypedPathElements();
             }
-            LOG.trace("parse:parameters {} current: {} stack: {}",typedValue,currentPath,stack);
+            LOG.trace("parse:parameters '{}' current: {} stack: {}",typedValue,currentPath,stack);
             return node.childrenAccept(this,data);
         }
 

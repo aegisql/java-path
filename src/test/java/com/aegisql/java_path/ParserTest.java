@@ -549,6 +549,11 @@ public class ParserTest {
                 .test();
     }
 
+    @Test
+    public void choiceTest() {
+        testPattern("a?b(init).c");
+    }
+
     private void testPattern(String s) {
         pathList = JavaPathParser.parse(s);
         System.out.println(s+" -> "+pathList.stream().map(p->p.toString()).collect(Collectors.joining(".")));

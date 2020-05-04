@@ -212,9 +212,10 @@ public class PathUtilsTest {
     public void testInitChoice2() {
         C c = new C();
         JavaPath pathUtils = new JavaPath(C.class);
-        pathUtils.evalPath("getSb?setSb($1).append(John).append", c, " Silver",new StringBuilder("Dear Mr. "));
+        pathUtils.evalPath("getSb?setSb($0).append($1).append(' ').append($2)", c, new StringBuilder("Dear Mr. "),"John","Silver");
+        pathUtils.evalPath("getSb?setSb($0).append(', ').append($1)", c, new StringBuilder("Dear Mr. "),"the pirate");
         assertNotNull(c.sb);
-        assertEquals("Dear Mr. John Silver",c.sb.toString());
+        assertEquals("Dear Mr. John Silver, the pirate",c.sb.toString());
     }
 
     @Test
@@ -230,7 +231,7 @@ public class PathUtilsTest {
     public void testInitChoice4() {
         C c = new C();
         JavaPath pathUtils = new JavaPath(C.class);
-        pathUtils.evalPath("getSb?setSb($1.get()).append(John).append", c, " Silver",(Supplier)()->new StringBuilder("Dear Mr. "));
+        pathUtils.evalPath("getSb?setSb($1.get).append(John).append", c, " Silver",(Supplier)()->new StringBuilder("Dear Mr. "));
         assertNotNull(c.sb);
         assertEquals("Dear Mr. John Silver",c.sb.toString());
     }

@@ -32,8 +32,9 @@ public class CallableNode {
     /**
      * Instantiates a new Callable node.
      *
-     * @param myClass the my class
-     * @param pos     the pos
+     * @param myClass       the my class
+     * @param pos           the pos
+     * @param classRegistry the class registry
      */
     public CallableNode(Class<?> myClass, int pos, ClassRegistry classRegistry) {
         this.myClass = myClass;

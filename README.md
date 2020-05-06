@@ -6,7 +6,7 @@ conveyor-core
 <dependency>
   <groupId>com.aegisql</groupId>
   <artifactId>java-path</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.3</version>
 </dependency>
 ```
 

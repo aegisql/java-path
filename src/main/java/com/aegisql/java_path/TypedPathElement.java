@@ -127,18 +127,38 @@ public class TypedPathElement {
         return sb.toString();
     }
 
+    /**
+     * Sets optional path element.
+     *
+     * @param optionalPathElement the optional path element
+     */
     public void setOptionalPathElement(TypedPathElement optionalPathElement) {
         this.optionalPathElement = optionalPathElement;
     }
 
+    /**
+     * Gets optional path element.
+     *
+     * @return the optional path element
+     */
     public TypedPathElement getOptionalPathElement() {
         return optionalPathElement;
     }
 
+    /**
+     * Gets factory.
+     *
+     * @return the factory
+     */
     public String getFactory() {
         return factory;
     }
 
+    /**
+     * Sets factory.
+     *
+     * @param factory the factory
+     */
     public void setFactory(String factory) {
         this.factory = factory;
     }

@@ -62,6 +62,13 @@ public class CallTree {
         return cache.computeIfAbsent(c,cls-> new CallTree(c,new ClassRegistry()));
     }
 
+    /**
+     * For class call tree.
+     *
+     * @param c             the c
+     * @param classRegistry the class registry
+     * @return the call tree
+     */
     public static CallTree forClass(Class<?> c, ClassRegistry classRegistry) {
         return cache.computeIfAbsent(c,cls-> new CallTree(c,classRegistry));
     }

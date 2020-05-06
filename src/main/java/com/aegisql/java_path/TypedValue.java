@@ -200,10 +200,20 @@ public class TypedValue {
         this.preEvaluatedValueSet = preEvaluatedValueSet;
     }
 
+    /**
+     * Sets factory.
+     *
+     * @param factory the factory
+     */
     public void setFactory(String factory) {
         this.factory = factory;
     }
 
+    /**
+     * Gets factory.
+     *
+     * @return the factory
+     */
     public String getFactory() {
         return factory;
     }

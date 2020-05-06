@@ -194,6 +194,11 @@ public class ParametrizedPath {
         return parametrizedProperty;
     }
 
+    /**
+     * Gets path element.
+     *
+     * @return the path element
+     */
     public TypedPathElement getPathElement() {
         return pathElement;
     }

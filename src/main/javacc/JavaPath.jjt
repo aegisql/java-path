@@ -28,6 +28,7 @@ TOKEN :
 | <K_RPARENTHESIS : ")">
 | <K_DOT: ".">
 | <K_OR: "||">
+| <K_FACTORY_SEPARATOR: "::">
 | <K_COMMA: ",">
 | <K_SPACE: ([" ","\t","\n","\r"])+>
 | < #LETTER: ["a"-"z","A"-"Z"] >
@@ -35,7 +36,7 @@ TOKEN :
 | < #SPECIAL: ["_","<","-",">","$"] >
 | <K_BACK_REF_ELEMENT : "#"(<DIGIT> )*>
 | <K_REF_ELEMENT : "$"(<DIGIT> )*>
-| < K_TYPE_ELEMENT: ((<LETTER>|<DIGIT>|<SPECIAL> )+ ( <K_DOT> (<LETTER> | <DIGIT>|<SPECIAL> )+ )* <K_SPACE>) >
+| < K_TYPE_ELEMENT: ((<LETTER>|<DIGIT>|<SPECIAL> )+ ( <K_DOT> (<LETTER> | <DIGIT>|<SPECIAL> )+ )*( <K_FACTORY_SEPARATOR> (<LETTER> | <DIGIT>|<SPECIAL> )+ )? <K_SPACE>) >
 | < K_PATH_ELEMENT: ( ~["'","\""," ","\t",".",",","(",")","\\","|"] )+ >
 | <K_QUOTED_STRING: "\"" ( (~["\"","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\""] ) ) )* "\"">
 | <K_SINGLE_QUOTED_STRING: "\'" ( (~["\'","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\'"] ) ) )* "\'">

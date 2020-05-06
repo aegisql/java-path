@@ -92,13 +92,24 @@ public class JavaPathParser {
             currentPath = rootPath;
             stack.clear();
             TypedPathElement typedPathElement = new TypedPathElement();
-            typedPathElement.setType(toString(node.jjtGetValue()));
+            String fullType = toString(node.jjtGetValue());
+            String type = null;
+            String factory = null;
+            if(fullType != null) {
+                String[] pair = fullType.split("::",2);
+                type = pair[0];
+                if(pair.length == 2) {
+                    factory = pair[1];
+                }
+            }
+            typedPathElement.setType(type);
+            typedPathElement.setFactory(factory);
             if(option) {
                 currentPath.getLast().setOptionalPathElement(typedPathElement);
             } else {
                 currentPath.add(typedPathElement);
             }
-            LOG.trace("parse:fullPath type: '{}' {} current: {}",node.jjtGetValue(),typedPathElement, currentPath);
+            LOG.trace("parse:fullPath type: '{}' {} current: {}",fullType,typedPathElement, currentPath);
             return node.childrenAccept(this,data);
         }
 

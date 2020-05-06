@@ -22,6 +22,11 @@ public class Demo20 {
 
         static AtomicInteger idGen = new AtomicInteger();
 
+        public static A newA(int id, String name) {
+            A a = new A(name, id);
+            return a;
+        }
+
         public static A newA(String name) {
             A a = new A(name, idGen.incrementAndGet());
             return a;
@@ -72,6 +77,32 @@ public class Demo20 {
         assertEquals("anonymous",billyBones.a.firstName);
         assertEquals("Bones",billyBones.a.lastName);
         assertEquals(4,billyBones.a.id);
+    }
+
+    @Test
+    public void testFactory() {
+        B johnSilver = new B();
+        ClassRegistry classRegistry = new ClassRegistry();
+        classRegistry.registerClass(A.class,"A");
+        JavaPath pathUtils = new JavaPath(B.class,classRegistry);
+        pathUtils.evalPath("(A::newA a(int 1,John)).lastName", johnSilver, "Silver");
+        assertEquals("John",johnSilver.a.firstName);
+        assertEquals("Silver",johnSilver.a.lastName);
+        assertEquals(1,johnSilver.a.id);
+
+    }
+
+    @Test
+    public void testConstructor() {
+        B johnSilver = new B();
+        ClassRegistry classRegistry = new ClassRegistry();
+        classRegistry.registerClass(A.class,"A");
+        JavaPath pathUtils = new JavaPath(B.class,classRegistry);
+        pathUtils.evalPath("(A::new a(John,int 1)).lastName", johnSilver, "Silver");
+        assertEquals("John",johnSilver.a.firstName);
+        assertEquals("Silver",johnSilver.a.lastName);
+        assertEquals(1,johnSilver.a.id);
+
     }
 
 }

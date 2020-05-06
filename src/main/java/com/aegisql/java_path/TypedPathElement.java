@@ -11,6 +11,7 @@ public class TypedPathElement {
 
     private String name;
     private String type;
+    private String factory;
     private LinkedList<TypedValue> parameters = new LinkedList<>();
     private TypedValue typedValue = null;
     private TypedPathElement optionalPathElement;
@@ -132,5 +133,13 @@ public class TypedPathElement {
 
     public TypedPathElement getOptionalPathElement() {
         return optionalPathElement;
+    }
+
+    public String getFactory() {
+        return factory;
+    }
+
+    public void setFactory(String factory) {
+        this.factory = factory;
     }
 }

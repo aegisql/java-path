@@ -551,7 +551,27 @@ public class ParserTest {
 
     @Test
     public void choiceTest() {
-        testPattern("a?b(init).c");
+        testPattern("a||b(init).c");
+        TU.forPathElements(2,pathList)
+                .acceptPathElement(pe->{
+                    TU.assertName("a",pe);
+                })
+                .acceptPathElement(pe->{
+                    TU.assertName("c",pe);
+                })
+                .test();
+    }
+
+    @Test
+    public void factoryTest() {
+        testPattern("(T::new a).c");
+        TU.forPathElements(2,pathList)
+                .acceptPathElement(pe->{
+                    TU.assertType("T",pe);
+                    TU.assertName("a",pe);
+                    TU.assertFactoryName("new",pe);
+                })
+                .test();
     }
 
     private void testPattern(String s) {

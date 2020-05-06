@@ -193,4 +193,9 @@ public class ParametrizedPath {
     ParametrizedProperty getParametrizedProperty() {
         return parametrizedProperty;
     }
+
+    public TypedPathElement getPathElement() {
+        return pathElement;
+    }
+
 }

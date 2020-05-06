@@ -602,16 +602,27 @@ public class JavaPath {
                 Class<?>[] classesForGetter = pl.getClassesForGetter(backReferences);
                 Object[] propertiesForGetter = pl.getPropertiesForGetter(backReferences);
                 CallTree.forClass(fieldType,classRegistry);
-                StringConverter stringConverter = classRegistry.getConverter(fieldType.getName(),fieldType.getSimpleName(),labelProperty.getTypeAlias(),"valueOf").orElse(null);
-                if(classesForGetter.length == 1 && classesForGetter[0] == String.class && stringConverter != null) {
-                    Object newInstance = stringConverter.apply(propertiesForGetter[0]);
-                    field.setAccessible(true);
-                    field.set(builder, newInstance);
-                    return newInstance;
+                String factory = pl.getPathElement().getFactory();
+
+                if(factory == null || "new".equals(factory)) {
+                    StringConverter stringConverter = classRegistry.getConverter(fieldType.getName(), fieldType.getSimpleName(), labelProperty.getTypeAlias(), "valueOf").orElse(null);
+                    if (factory == null && classesForGetter.length == 1 && classesForGetter[0] == String.class && stringConverter != null) {
+                        Object newInstance = stringConverter.apply(propertiesForGetter[0]);
+                        field.setAccessible(true);
+                        field.set(builder, newInstance);
+                        return newInstance;
+                    } else {
+                        Constructor<?> constructor = fieldType.getConstructor(classesForGetter);
+                        constructor.setAccessible(true);
+                        Object newInstance = constructor.newInstance(propertiesForGetter);
+                        field.setAccessible(true);
+                        field.set(builder, newInstance);
+                        return newInstance;
+                    }
                 } else {
-                    Constructor<?> constructor = fieldType.getConstructor(classesForGetter);
-                    constructor.setAccessible(true);
-                    Object newInstance = constructor.newInstance(propertiesForGetter);
+                    Method method = fieldType.getMethod(factory, classesForGetter);
+                    method.setAccessible(true);
+                    Object newInstance = method.invoke(null, propertiesForGetter);
                     field.setAccessible(true);
                     field.set(builder, newInstance);
                     return newInstance;

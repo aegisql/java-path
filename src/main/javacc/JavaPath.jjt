@@ -101,7 +101,7 @@ SimpleNode parse() :
             }
         |
         fullPath()
-    ) [option() fullPath() ]
+    ) [<K_DOT> fullPath() ]
     <EOF>
     {
         jjtThis.jjtSetValue(typedPathElement);

@@ -45,7 +45,7 @@ TOKEN :
 void comma() :
 {}
 {
-    <K_COMMA>
+    <K_COMMA>[<K_SPACE> ]
 }
 
 void lParenthesis() :

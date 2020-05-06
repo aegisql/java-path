@@ -98,7 +98,7 @@ public class Demo20 {
         ClassRegistry classRegistry = new ClassRegistry();
         classRegistry.registerClass(A.class,"A");
         JavaPath pathUtils = new JavaPath(B.class,classRegistry);
-        pathUtils.evalPath("(A::new a(John,int 1)).lastName", johnSilver, "Silver");
+        pathUtils.evalPath("(A::new a(John, int 1)).lastName", johnSilver, "Silver");
         assertEquals("John",johnSilver.a.firstName);
         assertEquals("Silver",johnSilver.a.lastName);
         assertEquals(1,johnSilver.a.id);

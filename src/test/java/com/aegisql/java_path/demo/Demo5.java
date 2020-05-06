@@ -1,5 +1,6 @@
 package com.aegisql.java_path.demo;
 
+import com.aegisql.java_path.ClassRegistry;
 import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
@@ -20,6 +21,11 @@ public class Demo5 {
             sum += x;
             return this;
         }
+
+        public static int strToInt(String val) {
+            return Integer.valueOf(val).intValue();
+        }
+
     }
 
     @Test
@@ -35,8 +41,10 @@ public class Demo5 {
     @Test
     public void testFactory() {
         A a = new A();
-        JavaPath pathUtils = new JavaPath(A.class);
-        pathUtils.evalPath("add(Integer::valueOf 1000).add", a, 100);
+        ClassRegistry classRegistry = new ClassRegistry();
+        classRegistry.registerClass(A.class,"A");
+        JavaPath pathUtils = new JavaPath(A.class,classRegistry);
+        pathUtils.evalPath("add(A::strToInt 1000).add", a, 100);
         assertEquals(1100,a.sum);
     }
 

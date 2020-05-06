@@ -175,6 +175,7 @@ TypedValue backRef() #void:
 {
     Token t = null;
     String type = null;
+    String factory = null;
 }
 {
     t = <K_BACK_REF_ELEMENT> [<K_DOT> type = path() ]
@@ -186,7 +187,13 @@ TypedValue backRef() #void:
     } else {
         tv.setBackRefIdx(Integer.valueOf(numStr.substring(1)));
     }
+    if(type != null && type.contains("::")) {
+        String[] pair = type.split("::",2);
+        type = pair[0];
+        factory = pair[1];
+    }
     tv.setType(type);
+    tv.setFactory(factory);
     tv.setValue(numStr);
     return tv;
 }
@@ -196,6 +203,7 @@ TypedValue forwardRef() #void:
 {
     String type = null;
     String value = null;
+    String factory = null;
 }
 {
     (
@@ -205,7 +213,13 @@ TypedValue forwardRef() #void:
     )
     {
         TypedValue tv = new TypedValue();
+        if(type != null && type.contains("::")) {
+            String[] pair = type.split("::",2);
+            type = pair[0];
+            factory = pair[1];
+        }
         tv.setType(type);
+        tv.setFactory(factory);
         tv.setValue(value);
         tv.setBackRefIdx(-1);
         if(value.startsWith("$")) {

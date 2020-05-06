@@ -11,12 +11,14 @@ public class Demo5 {
         StringBuilder stringBuilder = new StringBuilder();
         int sum = 0;
 
-        public void add(String str) {
+        public A add(String str) {
             stringBuilder.append(str);
+            return this;
         }
 
-        public void add(int x) {
+        public A add(int x) {
             sum += x;
+            return this;
         }
     }
 
@@ -28,6 +30,14 @@ public class Demo5 {
         assertEquals("John",a.stringBuilder.toString());
         pathUtils.evalPath("add", a, 100);
         assertEquals(100,a.sum);
+    }
+
+    @Test
+    public void testFactory() {
+        A a = new A();
+        JavaPath pathUtils = new JavaPath(A.class);
+        pathUtils.evalPath("add(Integer::valueOf 1000).add", a, 100);
+        assertEquals(1100,a.sum);
     }
 
 }

@@ -15,6 +15,7 @@ public class TypedValue {
     private LinkedList<TypedPathElement> typedPathElements = new LinkedList<>();
     private Object preEvaluatedValue = null;
     private boolean preEvaluatedValueSet = false;
+    private String factory;
 
     /**
      * Gets value.
@@ -199,6 +200,14 @@ public class TypedValue {
         this.preEvaluatedValueSet = preEvaluatedValueSet;
     }
 
+    public void setFactory(String factory) {
+        this.factory = factory;
+    }
+
+    public String getFactory() {
+        return factory;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -234,4 +243,5 @@ public class TypedValue {
         }
         return sb.toString();
     }
+
 }

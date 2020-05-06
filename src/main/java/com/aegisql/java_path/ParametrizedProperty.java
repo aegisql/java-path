@@ -1,5 +1,6 @@
 package com.aegisql.java_path;
 
+import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -18,6 +19,7 @@ public class ParametrizedProperty {
     private final String typeAlias;
     private final Object preEvaluatedValue;
     private final boolean preEvaluatedValueSet;
+    private final Method factory;
 
     private static final Function<Class<?>,StringConverter<?>> defaultConverterBuilder = cls->{
         return strVal->{
@@ -57,42 +59,56 @@ public class ParametrizedProperty {
         this.valueIdx = typedValue.getValueIdx();
         this.preEvaluatedValue = typedValue.getPreEvaluatedValue();
         this.preEvaluatedValueSet = typedValue.isPreEvaluatedValueSet();
+        this.propertyStr = typedValue.getValue();
+
+        Class<?> type = null;
         Objects.requireNonNull(typedValue,"Requires property");
             if(typedValue.parametrized()) {
                 this.typeAlias = typedValue.getType();
                 if(classRegistry.classMap.containsKey(typedValue.getType())) {
-                    propertyType = classRegistry.classMap.get(typedValue.getType());
+                    type = classRegistry.classMap.get(typedValue.getType());
                     builder = false;
                 } else {
                     Class<?> aClass = toClass(typedValue.getType());
                     if(aClass == null) {
-                        propertyType = forField ? null : String.class;
+                        type = forField ? null : String.class;
                         builder = false;
                     } else {
-                        propertyType = classRegistry.classMap.computeIfAbsent(typedValue.getType(), typeName->aClass);
+                        type = classRegistry.classMap.computeIfAbsent(typedValue.getType(), typeName->aClass);
                         builder = false;
                     }
                 }
+                if(typedValue.getFactory() != null) {
+                    try {
+                        this.factory = type.getMethod(typedValue.getFactory(),String.class);
+                        type = this.factory.getReturnType();
+                    } catch (NoSuchMethodException e) {
+                        throw new JavaPathRuntimeException("failed to find factory "+typedValue.getFactory()+" for "+propertyStr,e);
+                    }
+                } else {
+                    this.factory = null;
+                }
             } else {
                 this.typeAlias = null;
+                this.factory = null;
                 if(typedValue.isHashSign()) {
-                    propertyType = null;
+                    type = null;
                     builder = true;
                 } else if(typedValue.isDollarSign()) {
                     builder = false;
                     if(classRegistry.classMap.containsKey(typedValue.getType())) {
-                        propertyType = classRegistry.classMap.get(typedValue.getType());
+                        type = classRegistry.classMap.get(typedValue.getType());
                     } else if(typedValue.getType() != null ){
-                        propertyType = toClass(typedValue.getType());
+                        type = toClass(typedValue.getType());
                     } else {
-                        propertyType = null;
+                        type = null;
                     }
                 } else {
-                    propertyType = forField ? null : String.class;
+                    type = forField ? null : String.class;
                     builder = false;
                 }
             }
-        this.propertyStr = typedValue.getValue();
+            this.propertyType = type;
     }
 
     private Class<?> toClass(String name) {
@@ -203,6 +219,12 @@ public class ParametrizedProperty {
             return null;
         } else if(value) {
             return null;
+        } else if(factory != null) {
+            try {
+                return factory.invoke(null,propertyStr);
+            } catch (Exception e) {
+                throw new JavaPathRuntimeException("Exception in "+this,e);
+            }
         } else {
             StringConverter<?> supplier = classRegistry
                     .getConverter(this.typeAlias,this.propertyType.getName())

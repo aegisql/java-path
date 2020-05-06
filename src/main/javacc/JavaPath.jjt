@@ -27,7 +27,7 @@ TOKEN :
   <K_LPARENTHESIS : "(">
 | <K_RPARENTHESIS : ")">
 | <K_DOT: ".">
-| <K_QUESTION: "?">
+| <K_OR: "||">
 | <K_COMMA: ",">
 | <K_SPACE: ([" ","\t","\n","\r"])+>
 | < #LETTER: ["a"-"z","A"-"Z"] >
@@ -36,7 +36,7 @@ TOKEN :
 | <K_BACK_REF_ELEMENT : "#"(<DIGIT> )*>
 | <K_REF_ELEMENT : "$"(<DIGIT> )*>
 | < K_TYPE_ELEMENT: ((<LETTER>|<DIGIT>|<SPECIAL> )+ ( <K_DOT> (<LETTER> | <DIGIT>|<SPECIAL> )+ )* <K_SPACE>) >
-| < K_PATH_ELEMENT: ( ~["'","\""," ","\t",".",",","(",")","\\","?"] )+ >
+| < K_PATH_ELEMENT: ( ~["'","\""," ","\t",".",",","(",")","\\","|"] )+ >
 | <K_QUOTED_STRING: "\"" ( (~["\"","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\""] ) ) )* "\"">
 | <K_SINGLE_QUOTED_STRING: "\'" ( (~["\'","\\"]) | ("\\" ( ["n","t","b","r","f","\\","\'"] ) ) )* "\'">
 }
@@ -64,7 +64,7 @@ void option() :
     Token t = null;
 }
 {
-    ( <K_DOT> | t = <K_QUESTION> )
+    ( <K_DOT> | t = <K_OR> )
     {
         jjtThis.jjtSetValue(t != null);
     }

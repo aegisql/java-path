@@ -25,8 +25,8 @@ public class Demo25 {
         pathUtils.evalPath("map.put(msg)", a, new StringBuilder());
 
         pathUtils.evalPath("map.get(msg).append('Dear ').append(#1.get(name)).append", a, "!");
-        pathUtils.evalPath("map.get(counter)?put(counter,$1.get).getAndAdd", a, 100,supplier);
-        pathUtils.evalPath("map.get(counter)?put(counter,$1.get).getAndAdd", a, 100,supplier);
+        pathUtils.evalPath("map.get(counter)||put(counter,$1.get).getAndAdd", a, 100,supplier);
+        pathUtils.evalPath("map.get(counter)||put(counter,$1.get).getAndAdd", a, 100,supplier);
 
         assertEquals("John",a.map.get("name"));
         assertEquals("Dear John!",a.map.get("msg").toString());

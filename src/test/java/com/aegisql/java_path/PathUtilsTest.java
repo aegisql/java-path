@@ -203,7 +203,7 @@ public class PathUtilsTest {
     public void testInitChoice() {
         C c = new C();
         JavaPath pathUtils = new JavaPath(C.class);
-        pathUtils.evalPath("getSb?init('Dear Mr. ').append(John).append", c, " Silver");
+        pathUtils.evalPath("getSb||init('Dear Mr. ').append(John).append", c, " Silver");
         assertNotNull(c.sb);
         assertEquals("Dear Mr. John Silver",c.sb.toString());
     }
@@ -212,8 +212,8 @@ public class PathUtilsTest {
     public void testInitChoice2() {
         C c = new C();
         JavaPath pathUtils = new JavaPath(C.class);
-        pathUtils.evalPath("getSb?setSb($0).append($1).append(' ').append($2)", c, new StringBuilder("Dear Mr. "),"John","Silver");
-        pathUtils.evalPath("getSb?setSb($0).append(', ').append($1)", c, new StringBuilder("Dear Mr. "),"the pirate");
+        pathUtils.evalPath("getSb||setSb($0).append($1).append(' ').append($2)", c, new StringBuilder("Dear Mr. "),"John","Silver");
+        pathUtils.evalPath("getSb||setSb($0).append(', ').append($1)", c, new StringBuilder("Dear Mr. "),"the pirate");
         assertNotNull(c.sb);
         assertEquals("Dear Mr. John Silver, the pirate",c.sb.toString());
     }
@@ -222,7 +222,7 @@ public class PathUtilsTest {
     public void testInitChoice3() {
         C c = new C();
         JavaPath pathUtils = new JavaPath(C.class);
-        pathUtils.evalPath("getSb?init.append(John).append", c, " Silver");
+        pathUtils.evalPath("getSb||init.append(John).append", c, " Silver");
         assertNotNull(c.sb);
         assertEquals("John Silver",c.sb.toString());
     }
@@ -231,7 +231,7 @@ public class PathUtilsTest {
     public void testInitChoice4() {
         C c = new C();
         JavaPath pathUtils = new JavaPath(C.class);
-        pathUtils.evalPath("getSb?setSb($1.get).append(John).append", c, " Silver",(Supplier)()->new StringBuilder("Dear Mr. "));
+        pathUtils.evalPath("getSb||setSb($1.get).append(John).append", c, " Silver",(Supplier)()->new StringBuilder("Dear Mr. "));
         assertNotNull(c.sb);
         assertEquals("Dear Mr. John Silver",c.sb.toString());
     }

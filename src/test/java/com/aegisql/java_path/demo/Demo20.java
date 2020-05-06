@@ -27,6 +27,11 @@ public class Demo20 {
             return a;
         }
 
+        public static A newDefaultA() {
+            A a = new A("anonymous", idGen.incrementAndGet());
+            return a;
+        }
+
     }
 
     public static class B {
@@ -49,7 +54,24 @@ public class Demo20 {
         assertEquals("Billy",billyBones.a.firstName);
         assertEquals("Bones",billyBones.a.lastName);
         assertEquals(2,billyBones.a.id);
+    }
 
+    @Test
+    public void testDefault() {
+        B johnSilver = new B();
+        B billyBones = new B();
+        ClassRegistry classRegistry = new ClassRegistry();
+        classRegistry.registerStringConverter(A.class,s->A.newDefaultA());
+        JavaPath pathUtils = new JavaPath(B.class,classRegistry);
+        pathUtils.evalPath("a(John).lastName", johnSilver, "Silver");
+        pathUtils.evalPath("a(Billy).lastName", billyBones, "Bones");
+        assertEquals("anonymous",johnSilver.a.firstName);
+        assertEquals("Silver",johnSilver.a.lastName);
+        assertEquals(3,johnSilver.a.id);
+
+        assertEquals("anonymous",billyBones.a.firstName);
+        assertEquals("Bones",billyBones.a.lastName);
+        assertEquals(4,billyBones.a.id);
     }
 
 }

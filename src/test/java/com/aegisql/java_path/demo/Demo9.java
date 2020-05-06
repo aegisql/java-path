@@ -23,4 +23,14 @@ public class Demo9 {
         assertEquals("Silver",a.map.get("lastName"));
     }
 
+    @Test
+    public void testWithParameters() {
+        A a = new A();
+        JavaPath pathUtils = new JavaPath(A.class);
+        pathUtils.evalPath("(HashMap map(int 100,float '0.8')).put(firstName)", a, "John");
+        pathUtils.evalPath("map.put(lastName)", a, "Silver");
+        assertEquals("John",a.map.get("firstName"));
+        assertEquals("Silver",a.map.get("lastName"));
+    }
+
 }

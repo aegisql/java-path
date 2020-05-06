@@ -103,6 +103,11 @@ public class TU {
         assertEquals(name,pathElement.getFactory());
     }
 
+    public static void assertFactoryName(String name, TypedValue typedValue) {
+        assertNotNull("typedValue is null",typedValue);
+        assertEquals(name,typedValue.getFactory());
+    }
+
     public static void assertValueEquals(Object val, TypedValue typedValue) {
         assertNotNull("typedValue is null",typedValue);
         if(typedValue.getValue() != null) {

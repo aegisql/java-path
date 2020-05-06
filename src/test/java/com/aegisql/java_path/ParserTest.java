@@ -574,6 +574,23 @@ public class ParserTest {
                 .test();
     }
 
+    @Test
+    public void paramFactoryTest() {
+        testPattern("a(t::x val)");
+        TU.forPathElements(1,pathList)
+                .acceptPathElement(pe->{
+                    TU.assertName("a",pe);
+                    TU.forTypedValues(1,pe.getParameters())
+                            .acceptTypedValue(tv->{
+                                TU.assertValueEquals("val",tv);
+                                TU.assertType("t",tv);
+                                TU.assertFactoryName("x",tv);
+                            })
+                            .test();
+                })
+                .test();
+    }
+
     private void testPattern(String s) {
         pathList = JavaPathParser.parse(s);
         System.out.println(s+" -> "+pathList.stream().map(p->p.toString()).collect(Collectors.joining(".")));

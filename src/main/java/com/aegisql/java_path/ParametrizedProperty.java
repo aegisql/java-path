@@ -250,6 +250,9 @@ public class ParametrizedProperty {
         sb.append(", typeAlias='").append(typeAlias).append('\'');
         sb.append(", builder=").append(builder);
         sb.append(", value=").append(value);
+        if(factory != null) {
+            sb.append(", factory=").append(factory.getName());
+        }
         sb.append(", backReferenceIdx=").append(backReferenceIdx);
         sb.append(", valueIdx=").append(valueIdx);
         sb.append('}');

@@ -241,7 +241,11 @@ public class TypedValue {
     public String toString() {
         final StringBuilder sb = new StringBuilder("");
         if(type != null) {
-            sb.append(type).append(" ");
+            sb.append(type);
+            if(factory != null) {
+                sb.append("::").append(factory);
+            }
+            sb.append(" ");
         }
         if(backRefIdx < 0) {
             sb.append(value);

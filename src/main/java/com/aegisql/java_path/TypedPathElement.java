@@ -112,7 +112,11 @@ public class TypedPathElement {
     public String toString() {
         final StringBuilder sb = new StringBuilder("");
         if(type != null){
-            sb.append("(").append(type).append(" ");
+            sb.append("(").append(type);
+            if(factory != null) {
+                sb.append("::").append(factory);
+            }
+            sb.append(" ");
         }
         sb.append(name == null ? "?" : name);
         if(parameters.size()>0) {

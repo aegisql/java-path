@@ -7,7 +7,7 @@ import java.lang.annotation.*;
  * Exclude method from label matching, if multiple choices available
  */
 @Documented
-@Target({ElementType.METHOD})
+@Target({ElementType.METHOD,ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NoPathElement {
 }

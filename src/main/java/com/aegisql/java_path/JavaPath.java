@@ -418,13 +418,14 @@ public class JavaPath {
         Function<ReferenceList, Object> getter = offerGetter(valuesRefsCollection, rootPathElement);
         Object nextRoot =  getter.apply(valuesRefsCollection);
         if(rootPathElement.getOwnTypedValue().isPreEvaluatedValueSet()) {
-            Class<?> nextClass = nextRoot == null ? classRegistry.classMap.get(rootPathElement.getOwnTypedValue().getType()) : nextRoot.getClass();
+            Class<?> nextClass = nextRoot == null ? classRegistry.classMap.get(rootPathElement.getType()) : nextRoot.getClass();
             JavaPath nextUtils = new JavaPath(nextClass, classRegistry, cache);
             nextUtils.setEnableCaching(enableCaching);
             valuesRefsCollection.addRoot(nextRoot);
             return nextUtils.evalPath(path.subList(1, path.size()), valuesRefsCollection);
         } else {
             if(nextRoot == null && rootPathElement.getOptionalPathElement() != null) {
+                LOG.debug("Pathe element {} return null. Trying optional init {}",rootPathElement,rootPathElement.getOptionalPathElement());
                 offerGetter(valuesRefsCollection, rootPathElement.getOptionalPathElement()).apply(valuesRefsCollection);
                 nextRoot =  getter.apply(valuesRefsCollection);
             }

@@ -22,9 +22,9 @@ public class Demo12 {
     public void test() {
         A a = new A(null);
         JavaPath pathUtils = new JavaPath(A.class);
-        pathUtils.evalPath("name",a,"PARENT");
-        pathUtils.evalPath("child(#0).name",a,"CHILD");
         pathUtils.evalPath("child(#0).child(#1).name",a,"GRAND-CHILD");
+        pathUtils.evalPath("child(#0).name",a,"CHILD");
+        pathUtils.evalPath("name",a,"PARENT");
         assertNull(a.parent);
         assertNotNull(a.child);
         assertNotNull(a.child.parent);

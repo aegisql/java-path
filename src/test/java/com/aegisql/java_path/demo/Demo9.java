@@ -7,12 +7,24 @@ import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 9.
+ */
 public class Demo9 {
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The Map.
+         */
         Map<String,String> map;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         A a = new A();
@@ -23,6 +35,9 @@ public class Demo9 {
         assertEquals("Silver",a.map.get("lastName"));
     }
 
+    /**
+     * Test with parameters.
+     */
     @Test
     public void testWithParameters() {
         A a = new A();

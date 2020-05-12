@@ -9,12 +9,24 @@ import java.util.function.Supplier;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 25.
+ */
 public class Demo25 {
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The Map.
+         */
         HashMap<String,Object> map;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         A a = new A();

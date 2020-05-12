@@ -5,21 +5,56 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 18.
+ */
 public class Demo18 {
 
+    /**
+     * The type Desc.
+     */
     public static class Desc {
+        /**
+         * The Val.
+         */
         public String val;
+
+        /**
+         * Sets desc.
+         *
+         * @param s the s
+         * @return the desc
+         */
         public Desc setDesc(String s) {
             val = s;
             return this;
         }
     }
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The Id.
+         */
         int id;
+        /**
+         * The Desc.
+         */
         String desc;
+        /**
+         * The Name.
+         */
         String name;
 
+        /**
+         * Sets desc.
+         *
+         * @param id   the id
+         * @param desc the desc
+         * @return the desc
+         */
         public A setDesc(int id,String desc) {
             this.id = id;
             this.desc = desc;
@@ -28,16 +63,32 @@ public class Demo18 {
 
     }
 
+    /**
+     * The type B.
+     */
     public static class B {
+        /**
+         * The Desc.
+         */
         Desc desc = new Desc();
 
         {
             desc.val = "fromB";
         }
+
+        /**
+         * The Id.
+         */
         int id = 1000;
+        /**
+         * The A.
+         */
         A a;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         B b = new B();
@@ -48,6 +99,9 @@ public class Demo18 {
         assertEquals("fromB",b.a.desc);
     }
 
+    /**
+     * Test with param.
+     */
     @Test
     public void testWithParam() {
         B b = new B();

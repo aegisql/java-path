@@ -15,15 +15,54 @@ import static com.aegisql.java_path.demo.Demo14.Relation.MOTHER;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNull;
 
+/**
+ * The type Demo 14.
+ */
 public class Demo14 {
 
-    enum Relation {FATHER,MOTHER}
-    enum Field{FIRST_NAME,LAST_NAME,AGE}
+    /**
+     * The enum Relation.
+     */
+    enum Relation {
+        /**
+         * Father relation.
+         */
+        FATHER,
+        /**
+         * Mother relation.
+         */
+        MOTHER}
 
+    /**
+     * The enum Field.
+     */
+    enum Field{
+        /**
+         * First name field.
+         */
+        FIRST_NAME,
+        /**
+         * Last name field.
+         */
+        LAST_NAME,
+        /**
+         * Age field.
+         */
+        AGE}
+
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The Map.
+         */
         Map<Relation,Map<Field,Object>> map;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         ClassRegistry cr = new ClassRegistry();
@@ -34,6 +73,9 @@ public class Demo14 {
         assertEquals("John",a.map.get(FATHER).get(Field.FIRST_NAME));
     }
 
+    /**
+     * Test with lambda.
+     */
     @Test
     public void testWithLambda() {
         A a = new A();

@@ -5,12 +5,24 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 8.
+ */
 public class Demo8 {
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The String builder.
+         */
         StringBuilder stringBuilder;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         A a = new A();
@@ -19,6 +31,9 @@ public class Demo8 {
         assertEquals("John Silver",a.stringBuilder.toString());
     }
 
+    /**
+     * Test with double and single quotes.
+     */
     @Test
     public void testWithDoubleAndSingleQuotes() {
         A a = new A();

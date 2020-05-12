@@ -6,13 +6,30 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 23.
+ */
 public class Demo23 {
 
+    /**
+     * The interface A.
+     */
     interface A {
+        /**
+         * Gets name.
+         *
+         * @return the name
+         */
         String getName();
     }
 
+    /**
+     * The type A.
+     */
     public static class AImpl implements A {
+        /**
+         * The Name.
+         */
         String name;
 
         @Override
@@ -21,10 +38,19 @@ public class Demo23 {
         }
     }
 
+    /**
+     * The type B.
+     */
     public static class B {
+        /**
+         * The A.
+         */
         A a;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         B b = new B();

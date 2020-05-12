@@ -14,11 +14,44 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+/**
+ * The type Demo 15.
+ */
 public class Demo15 {
 
-    enum Relation {FATHER,MOTHER}
-    enum Field{FIRST_NAME,LAST_NAME,AGE}
+    /**
+     * The enum Relation.
+     */
+    enum Relation {
+        /**
+         * Father relation.
+         */
+        FATHER,
+        /**
+         * Mother relation.
+         */
+        MOTHER}
 
+    /**
+     * The enum Field.
+     */
+    enum Field{
+        /**
+         * First name field.
+         */
+        FIRST_NAME,
+        /**
+         * Last name field.
+         */
+        LAST_NAME,
+        /**
+         * Age field.
+         */
+        AGE}
+
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         JavaPath pathUtils = new JavaPath(HashMap.class);

@@ -11,23 +11,50 @@ import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * The type Methafactory learning.
+ */
 public class MethafactoryLearning {
 
+    /**
+     * The Lookup.
+     */
     MethodHandles.Lookup lookup = MethodHandles.lookup();
 
+    /**
+     * The Field.
+     */
     String field = "FIELD";
 
+    /**
+     * The Str.
+     */
     String str;
 
+    /**
+     * Sets string.
+     *
+     * @param str the str
+     */
     public void setString(String str) {
         this.str = str;
     }
 
+    /**
+     * Gets string.
+     *
+     * @return the string
+     */
     public String getString() {
         return str;
     }
 
 
+    /**
+     * Basic getter test.
+     *
+     * @throws Throwable the throwable
+     */
     @Test
     public void basicGetterTest() throws Throwable {
         Function<MethafactoryLearning,String> getterFunction;
@@ -47,6 +74,12 @@ public class MethafactoryLearning {
 
 
     }
+
+    /**
+     * Basic setter test.
+     *
+     * @throws Throwable the throwable
+     */
 /*
 Assume the linkage arguments are as follows:
 
@@ -96,6 +129,11 @@ The return type Rt is void, or the return type Ra is not void and is adaptable t
 
     }
 
+    /**
+     * Test function with parameter.
+     *
+     * @throws Throwable the throwable
+     */
     @Test
     public void testFunctionWithParameter() throws Throwable {
         SimpleBean simpleBean = new SimpleBean();
@@ -122,6 +160,11 @@ The return type Rt is void, or the return type Ra is not void and is adaptable t
 
     }
 
+    /**
+     * Test unreflect.
+     *
+     * @throws Throwable the throwable
+     */
     @Test
     public void testUnreflect() throws Throwable {
         SimpleBean simpleBean = new SimpleBean();
@@ -153,11 +196,22 @@ The return type Rt is void, or the return type Ra is not void and is adaptable t
 
 
     private class SimpleBean {
+        /**
+         * Simple function string.
+         *
+         * @param in the in
+         * @return the string
+         */
         public String simpleFunction(String in) {
             return "The parameter was " + in;
         }
     }
 
+    /**
+     * Field getter test.
+     *
+     * @throws Throwable the throwable
+     */
     @Test
     public void fieldGetterTest() throws Throwable{
         field = "FIELD";
@@ -178,6 +232,11 @@ The return type Rt is void, or the return type Ra is not void and is adaptable t
         assertEquals("FIELD",fullFunction.apply(this));
     }
 
+    /**
+     * Field setter test.
+     *
+     * @throws Throwable the throwable
+     */
     @Test
     public void fieldSetterTest() throws Throwable{
         field = "";

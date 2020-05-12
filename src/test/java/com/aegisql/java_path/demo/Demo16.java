@@ -5,15 +5,31 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 16.
+ */
 public class Demo16 {
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The Name.
+         */
         String name;
+
+        /**
+         * To upper.
+         */
         public void toUpper() {
             name = name.toUpperCase();
         }
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         A a = new A();
@@ -23,6 +39,9 @@ public class Demo16 {
         assertEquals("JOHN",a.name);
     }
 
+    /**
+     * Test omitted parenthesis.
+     */
     @Test
     public void testOmittedParenthesis () {
         A a = new A();

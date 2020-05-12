@@ -9,23 +9,38 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+/**
+ * The type Path utils test.
+ */
 public class PathUtilsTest {
 
     private String a;
     private String b;
 
+    /**
+     * Sets upper a.
+     *
+     * @param s the s
+     * @return the upper a
+     */
     @PathElement("upper")
     String setUpperA( String s) {
         a = s;
         return a.toUpperCase();
     }
 
+    /**
+     * Init.
+     */
     @Before
     public void init() {
         a = null;
         b = null;
     }
 
+    /**
+     * Sets a test.
+     */
     @Test
     public void setATest() {
         JavaPath pu = new JavaPath(PathUtilsTest.class);
@@ -33,6 +48,9 @@ public class PathUtilsTest {
         assertEquals("test",a);
     }
 
+    /**
+     * Sets upper a test.
+     */
     @Test
     public void setUpperATest() {
         JavaPath pu = new JavaPath(PathUtilsTest.class);
@@ -41,6 +59,9 @@ public class PathUtilsTest {
         assertEquals("TEST",o);
     }
 
+    /**
+     * Gets root with a test.
+     */
     @Test
     public void getRootWithATest() {
         JavaPath pu = new JavaPath(PathUtilsTest.class);
@@ -50,6 +71,9 @@ public class PathUtilsTest {
         assertEquals("test",put.a);
     }
 
+    /**
+     * Gets root with class test.
+     */
     @Test
     public void getRootWithClassTest() {
         JavaPath pu = new JavaPath(PathUtilsTest.class);
@@ -58,6 +82,9 @@ public class PathUtilsTest {
         assertEquals("test",test.a);
     }
 
+    /**
+     * Gets root with class and at test.
+     */
     @Test
     public void getRootWithClassAndAtTest() {
         JavaPath pu = new JavaPath(PathUtilsTest.class);
@@ -66,6 +93,9 @@ public class PathUtilsTest {
         assertEquals("test",test.a);
     }
 
+    /**
+     * Gets root with class should fail test.
+     */
     @Test(expected = JavaPathRuntimeException.class)
     public void getRootWithClassShouldFailTest() {
         JavaPath pu = new JavaPath(PathUtilsTest.class);
@@ -73,6 +103,9 @@ public class PathUtilsTest {
         PathUtilsTest test = pu.initPath("#1.a",PathUtilsTest.class, "test");
     }
 
+    /**
+     * String builder append test.
+     */
     @Test
     public void stringBuilderAppendTest() {
         StringBuilder sb = new StringBuilder();
@@ -82,6 +115,9 @@ public class PathUtilsTest {
         assertEquals("abc100",sb.toString());
     }
 
+    /**
+     * Back ref test.
+     */
     @Test
     public void backRefTest() {
         StringBuilder sb = new StringBuilder();
@@ -90,6 +126,9 @@ public class PathUtilsTest {
         assertEquals("abTESTING100",sb.toString());
     }
 
+    /**
+     * Back ref factory test.
+     */
     @Test
     public void backRefFactoryTest() {
         StringBuilder sb = new StringBuilder();
@@ -98,6 +137,9 @@ public class PathUtilsTest {
         assertEquals("ab100100",sb.toString());
     }
 
+    /**
+     * Init with multiple parameters test.
+     */
     @Test
     public void initWithMultipleParametersTest() {
         JavaPath pu = new JavaPath(StringBuilder.class);
@@ -105,6 +147,9 @@ public class PathUtilsTest {
         assertEquals("abcddcba",sb.toString());
     }
 
+    /**
+     * Init with multiple parameters no class test.
+     */
     @Test
     public void initWithMultipleParametersNoClassTest() {
         JavaPath pu = new JavaPath(StringBuilder.class);
@@ -112,6 +157,9 @@ public class PathUtilsTest {
         assertEquals("abcddcba",sb.toString());
     }
 
+    /**
+     * Init with multiple parameters and fields no class test.
+     */
     @Test
     public void initWithMultipleParametersAndFieldsNoClassTest() {
         JavaPath pu = new JavaPath(StringBuilder.class);
@@ -119,18 +167,35 @@ public class PathUtilsTest {
         assertEquals("abcddcba",sb.toString());
     }
 
+    /**
+     * The type As.
+     */
     public static class AS {
         private String val;
 
+        /**
+         * Gets val.
+         *
+         * @return the val
+         */
         public String getVal() {
             return val;
         }
 
+        /**
+         * Sets val.
+         *
+         * @param b   the b
+         * @param val the val
+         */
         public static void setVal(AS b, String val) {
             b.val = val;
         }
     }
 
+    /**
+     * Test as.
+     */
     @Test
     public void testAS() {
         AS a = new AS();
@@ -139,15 +204,36 @@ public class PathUtilsTest {
         assertEquals("test",a.val);
     }
 
+    /**
+     * The type Pc.
+     */
     public static class PC {
+        /**
+         * The Parent.
+         */
         PC parent;
+        /**
+         * The Child.
+         */
         PC child;
+        /**
+         * The A.
+         */
         String a;
+
+        /**
+         * Instantiates a new Pc.
+         *
+         * @param parent the parent
+         */
         public PC(PC parent) {
             this.parent = parent;
         }
     }
 
+    /**
+     * Parent child test.
+     */
     @Test
     public void parentChildTest() {
         JavaPath pu = new JavaPath(PC.class);
@@ -167,13 +253,28 @@ public class PathUtilsTest {
         assertEquals("PARENT",root.child.child.parent.parent.a);
     }
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The Sum.
+         */
         int sum = 0;
+
+        /**
+         * Add.
+         *
+         * @param x the x
+         */
         public void add(int x) {
             sum += x;
         }
     }
 
+    /**
+     * Test primitive type casting.
+     */
     @Test
     public void testPrimitiveTypeCasting() {
 
@@ -185,22 +286,53 @@ public class PathUtilsTest {
         assertEquals(100,a.sum);
     }
 
+    /**
+     * The type C.
+     */
     class C {
+        /**
+         * The Sb.
+         */
         StringBuilder sb;
+
+        /**
+         * Init.
+         *
+         * @param str the str
+         */
         public void init(String str) {
             sb = new StringBuilder(str);
         }
+
+        /**
+         * Init.
+         */
         public void init() {
             sb = new StringBuilder();
         }
+
+        /**
+         * Gets sb.
+         *
+         * @return the sb
+         */
         public StringBuilder getSb() {
             return sb;
         }
+
+        /**
+         * Sets sb.
+         *
+         * @param sb the sb
+         */
         public void setSb(StringBuilder sb) {
             this.sb = sb;
         }
     }
 
+    /**
+     * Test init choice.
+     */
     @Test
     public void testInitChoice() {
         C c = new C();
@@ -210,6 +342,9 @@ public class PathUtilsTest {
         assertEquals("Dear Mr. John Silver",c.sb.toString());
     }
 
+    /**
+     * Test init choice 2.
+     */
     @Test
     public void testInitChoice2() {
         C c = new C();
@@ -220,6 +355,9 @@ public class PathUtilsTest {
         assertEquals("Dear Mr. John Silver, the pirate",c.sb.toString());
     }
 
+    /**
+     * Test init choice 3.
+     */
     @Test
     public void testInitChoice3() {
         C c = new C();
@@ -229,6 +367,9 @@ public class PathUtilsTest {
         assertEquals("John Silver",c.sb.toString());
     }
 
+    /**
+     * Test init choice 4.
+     */
     @Test
     public void testInitChoice4() {
         C c = new C();
@@ -238,6 +379,9 @@ public class PathUtilsTest {
         assertEquals("Dear Mr. John Silver",c.sb.toString());
     }
 
+    /**
+     * Ab test with params.
+     */
     @Test
     public void abTestWithParams() {
         JavaPath javaPath = new JavaPath(this.getClass());
@@ -246,6 +390,9 @@ public class PathUtilsTest {
         assertEquals("B",b);
     }
 
+    /**
+     * Ab test.
+     */
     @Test
     public void abTest() {
         JavaPath javaPath = new JavaPath(this.getClass());
@@ -253,6 +400,10 @@ public class PathUtilsTest {
         assertEquals("A",a);
         assertEquals("B",b);
     }
+
+    /**
+     * Ab new line test.
+     */
     @Test
     public void abNewLineTest() {
         JavaPath javaPath = new JavaPath(this.getClass());

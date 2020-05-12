@@ -7,11 +7,23 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * The type Parametrized path test.
+ */
 public class ParametrizedPathTest {
 
+    /**
+     * The S 1.
+     */
     String s1 = "test"; // non parametrized
+    /**
+     * The S 2.
+     */
     String s2 = "test(a)"; //parametrized with String 'a'
 
+    /**
+     * The Class registry.
+     */
     ClassRegistry classRegistry = new ClassRegistry();
 
     private ParametrizedPath p(String str) {
@@ -20,6 +32,9 @@ public class ParametrizedPathTest {
         return new ParametrizedPath(classRegistry,parse.get(0));
     }
 
+    /**
+     * Basic getter test.
+     */
     @Test
     public void basicGetterTest() {
         ParametrizedPath pl1 = p("test");
@@ -34,6 +49,9 @@ public class ParametrizedPathTest {
         assertEquals(String.class,pl2.getClassesForGetter(new ReferenceList("builder",Integer.valueOf(1)))[0]);
     }
 
+    /**
+     * Basic setter test.
+     */
     @Test
     public void basicSetterTest() {
         ParametrizedPath pl1 = p("test");

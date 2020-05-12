@@ -5,16 +5,34 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 2.
+ */
 public class Demo2 {
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The Name.
+         */
         String name;
     }
 
+    /**
+     * The type B.
+     */
     public static class B {
+        /**
+         * The A.
+         */
         A a;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         B b = new B();
@@ -23,6 +41,9 @@ public class Demo2 {
         assertEquals("John",b.a.name);
     }
 
+    /**
+     * Test with enabled caching.
+     */
     @Test
     public void testWithEnabledCaching() {
         JavaPath pathUtils = new JavaPath(B.class);

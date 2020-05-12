@@ -8,12 +8,24 @@ import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 10.
+ */
 public class Demo10 {
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The Map.
+         */
         Map<String,String> map;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         A a = new A();
@@ -24,6 +36,9 @@ public class Demo10 {
         assertEquals("lastName",a.map.get("Silver"));
     }
 
+    /**
+     * Test multi path.
+     */
     @Test
     public void testMultiPath() {
         A a = new A();

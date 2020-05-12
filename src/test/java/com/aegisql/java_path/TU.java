@@ -6,6 +6,9 @@ import java.util.function.Consumer;
 
 import static junit.framework.TestCase.*;
 
+/**
+ * The type Tu.
+ */
 public class TU {
 
     private List<TypedValue> typedValues;
@@ -15,6 +18,13 @@ public class TU {
     private int nextValueConsumer = 0;
 
 
+    /**
+     * For path elements tu.
+     *
+     * @param i            the
+     * @param pathElements the path elements
+     * @return the tu
+     */
     public static TU forPathElements(int i, List<TypedPathElement> pathElements) {
         TU tu = new TU();
         assertNotNull("pathElements list is null",pathElements);
@@ -23,16 +33,37 @@ public class TU {
         return tu;
     }
 
+    /**
+     * For path elements tu.
+     *
+     * @param i          the
+     * @param typedValue the typed value
+     * @return the tu
+     */
     public static TU forPathElements(int i,TypedValue typedValue) {
         TU tu = new TU();
         assertNotNull("typedValue is null",typedValue);
         return forPathElements(i,typedValue.getTypedPathElements());
     }
 
+    /**
+     * For typed values tu.
+     *
+     * @param i                the
+     * @param typedPathElement the typed path element
+     * @return the tu
+     */
     public static TU forTypedValues(int i, TypedPathElement typedPathElement) {
         return TU.forTypedValues(i,typedPathElement.getParameters());
     }
 
+    /**
+     * For typed values tu.
+     *
+     * @param i           the
+     * @param typedValues the typed values
+     * @return the tu
+     */
     public static TU forTypedValues(int i, List<TypedValue> typedValues) {
         TU tu = new TU();
         assertNotNull("typedValue list is null",typedValues);
@@ -41,11 +72,23 @@ public class TU {
         return tu;
     }
 
+    /**
+     * Accept path element tu.
+     *
+     * @param pathElementConsumer the path element consumer
+     * @return the tu
+     */
     public TU acceptPathElement(Consumer<TypedPathElement> pathElementConsumer) {
         acceptElement(nextElementConsumer++,pathElementConsumer);
         return this;
     }
 
+    /**
+     * Accept typed value tu.
+     *
+     * @param pathElementConsumer the path element consumer
+     * @return the tu
+     */
     public TU acceptTypedValue(Consumer<TypedValue> pathElementConsumer) {
         acceptValue(nextValueConsumer++,pathElementConsumer);
         return this;
@@ -61,10 +104,19 @@ public class TU {
         return this;
     }
 
+    /**
+     * Test.
+     */
     public void test() {
         consumers.forEach(Runnable::run);
     }
 
+    /**
+     * Assert type.
+     *
+     * @param cls        the cls
+     * @param typedValue the typed value
+     */
     public static void assertType(String cls, TypedValue typedValue) {
         assertNotNull("typedValue is null",typedValue);
         if(typedValue.getType() != null) {
@@ -78,6 +130,12 @@ public class TU {
         }
     }
 
+    /**
+     * Assert type.
+     *
+     * @param cls         the cls
+     * @param pathElement the path element
+     */
     public static void assertType(String cls, TypedPathElement pathElement) {
         assertNotNull("pathElement is null",pathElement);
         if(pathElement.getType() != null) {
@@ -91,23 +149,47 @@ public class TU {
         }
     }
 
+    /**
+     * Assert name.
+     *
+     * @param name        the name
+     * @param pathElement the path element
+     */
     public static void assertName(String name, TypedPathElement pathElement) {
         assertNotNull("pathElement is null",pathElement);
         assertNotNull("pathElement name is null",pathElement.getName());
         assertEquals(name,pathElement.getName());
     }
 
+    /**
+     * Assert factory name.
+     *
+     * @param name        the name
+     * @param pathElement the path element
+     */
     public static void assertFactoryName(String name, TypedPathElement pathElement) {
         assertNotNull("pathElement is null",pathElement);
         assertNotNull("pathElement name is null",pathElement.getName());
         assertEquals(name,pathElement.getFactory());
     }
 
+    /**
+     * Assert factory name.
+     *
+     * @param name       the name
+     * @param typedValue the typed value
+     */
     public static void assertFactoryName(String name, TypedValue typedValue) {
         assertNotNull("typedValue is null",typedValue);
         assertEquals(name,typedValue.getFactory());
     }
 
+    /**
+     * Assert value equals.
+     *
+     * @param val        the val
+     * @param typedValue the typed value
+     */
     public static void assertValueEquals(Object val, TypedValue typedValue) {
         assertNotNull("typedValue is null",typedValue);
         if(typedValue.getValue() != null) {
@@ -117,12 +199,24 @@ public class TU {
         }
     }
 
+    /**
+     * Assert value reference.
+     *
+     * @param i          the
+     * @param typedValue the typed value
+     */
     public static void assertValueReference(int i, TypedValue typedValue) {
         assertNotNull("typedValue is null",typedValue);
         assertTrue(typedValue.isDollarSign());
         assertEquals(i,typedValue.getValueIdx());
     }
 
+    /**
+     * Assert back reference.
+     *
+     * @param i          the
+     * @param typedValue the typed value
+     */
     public static void assertBackReference(int i, TypedValue typedValue) {
         assertNotNull("typedValue is null",typedValue);
         assertTrue(typedValue.isHashSign());

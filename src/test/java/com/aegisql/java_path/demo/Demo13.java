@@ -6,24 +6,59 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 13.
+ */
 public class Demo13 {
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The Mother.
+         */
         A mother;
+        /**
+         * The Father.
+         */
         A father;
+        /**
+         * The Name.
+         */
         String name;
 
+        /**
+         * Instantiates a new A.
+         */
         public A() {}
 
+        /**
+         * Instantiates a new A.
+         *
+         * @param name the name
+         */
         public A(String name) {
             this.name = name;
         }
 
+        /**
+         * Mother a.
+         *
+         * @param mother the mother
+         * @return the a
+         */
         public A mother(A mother) {
             this.mother = mother;
             return this;
         }
 
+        /**
+         * Father a.
+         *
+         * @param father the father
+         * @return the a
+         */
         public A father(A father) {
             this.father = father;
             return this;
@@ -31,6 +66,9 @@ public class Demo13 {
 
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         A a = new A();

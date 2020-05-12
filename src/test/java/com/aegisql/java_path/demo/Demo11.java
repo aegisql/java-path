@@ -12,17 +12,53 @@ import static com.aegisql.java_path.demo.Demo11.PhoneType.*;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
+/**
+ * The type Demo 11.
+ */
 public class Demo11 {
 
-    enum PhoneType{HOME,CELL,WORK}
+    /**
+     * The enum Phone type.
+     */
+    enum PhoneType{
+        /**
+         * Home phone type.
+         */
+        HOME,
+        /**
+         * Cell phone type.
+         */
+        CELL,
+        /**
+         * Work phone type.
+         */
+        WORK}
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The First name.
+         */
         String firstName;
+        /**
+         * The Last name.
+         */
         String lastName;
+        /**
+         * The Phones.
+         */
         Map<PhoneType, Set<String>> phones;
+        /**
+         * The Reversed phones.
+         */
         Map<String, PhoneType> reversedPhones;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         A a = new A();

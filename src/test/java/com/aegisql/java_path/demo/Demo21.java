@@ -8,20 +8,50 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 21.
+ */
 public class Demo21 {
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The Id.
+         */
         final int id;
+        /**
+         * The First name.
+         */
         String firstName;
+        /**
+         * The Last name.
+         */
         String lastName;
 
+        /**
+         * Instantiates a new A.
+         *
+         * @param name the name
+         * @param id   the id
+         */
         public A(String name,int id) {
             this.id = id;
             this.firstName = name;
         }
 
+        /**
+         * The Id gen.
+         */
         static AtomicInteger idGen = new AtomicInteger();
 
+        /**
+         * Value of a.
+         *
+         * @param name the name
+         * @return the a
+         */
         public static A valueOf(String name) {
             A a = new A(name, idGen.incrementAndGet());
             return a;
@@ -29,10 +59,19 @@ public class Demo21 {
 
     }
 
+    /**
+     * The type B.
+     */
     public static class B {
+        /**
+         * The A.
+         */
         A a;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         B johnSilver = new B();

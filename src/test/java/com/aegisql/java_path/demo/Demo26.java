@@ -5,14 +5,32 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 26.
+ */
 public class Demo26 {
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The First name.
+         */
         String firstName;
+        /**
+         * The Last name.
+         */
         String lastName;
+        /**
+         * The Age.
+         */
         int age;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         A a = new A();

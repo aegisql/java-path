@@ -10,20 +10,39 @@ import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertNull;
 
+/**
+ * The type Parser test.
+ */
 public class ParserTest {
 
+    /**
+     * The Path list.
+     */
     List<TypedPathElement> pathList;
 
+    /**
+     * Init.
+     */
     @Before
     public void init() {
         pathList = new LinkedList<>();
     }
 
+    /**
+     * Parse void test should fail.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test(expected = JavaPathRuntimeException.class)
     public void parseVoidTestShouldFail() throws ParseException {
         testPattern("");
     }
 
+    /**
+     * Parse single label test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseSingleLabelTest() throws ParseException {
         testPattern("a");
@@ -35,6 +54,11 @@ public class ParserTest {
         .test();
     }
 
+    /**
+     * Parse single label in parenth test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseSingleLabelInParenthTest() throws ParseException {
         testPattern("(a)");
@@ -46,6 +70,11 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Parse single label in parenth with type test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseSingleLabelInParenthWithTypeTest() throws ParseException {
         testPattern("(x.y a)");
@@ -57,16 +86,31 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Parse single label no parenth with type test should fail.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test(expected = JavaPathRuntimeException.class)
     public void parseSingleLabelNoParenthWithTypeTestShouldFail() throws ParseException {
         testPattern("x.y a");
     }
 
+    /**
+     * Parse single label with param test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseSingleLabelWithParamTest() throws ParseException {
         testPattern("a(b)");
     }
 
+    /**
+     * Parse single label with unicode param test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseSingleLabelWithUnicodeParamTest() throws ParseException {
         testPattern("a('ПРОВЕРКА');");
@@ -84,6 +128,11 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Parse single label with unicode and no quote param test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseSingleLabelWithUnicodeAndNoQuoteParamTest() throws ParseException {
         testPattern("a(ПРОВЕРКА)\n");
@@ -101,6 +150,11 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Parse single label with single quoted param test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseSingleLabelWithSingleQuotedParamTest() throws ParseException {
         //quoted can have dots, braces, spaces and esc chars in the value
@@ -119,6 +173,11 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Parse single label with double quoted param test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseSingleLabelWithDoubleQuotedParamTest() throws ParseException {
         //quoted can have dots and esc chars in the value
@@ -137,6 +196,11 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Parse single label with two param test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseSingleLabelWithTwoParamTest() throws ParseException {
         testPattern("a(b,c)");
@@ -158,6 +222,11 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Parse single label with typed param test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseSingleLabelWithTypedParamTest() throws ParseException {
         testPattern("a(x b)");
@@ -175,6 +244,11 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Parse single label with three typed param test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseSingleLabelWithThreeTypedParamTest() throws ParseException {
         testPattern("a(x b,d.d1 e,f)");
@@ -200,6 +274,11 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Parse multi label test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseMultiLabelTest() throws ParseException {
         testPattern("a.b.c");
@@ -219,6 +298,11 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Parse multi label in parenth test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void parseMultiLabelInParenthTest() throws ParseException {
         testPattern("(a).(b).(c)");
@@ -238,6 +322,11 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Initialize path parser.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void initializePathParser() throws ParseException {
         testPattern("(com.test label1(i 100)).(best label2(#,java.lang.String A)).(label3($,X)).label4.@");
@@ -297,6 +386,11 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * At path parser test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test
     public void atPathParserTest() throws ParseException {
         testPattern("a.@b(TEST).c(#2)");
@@ -329,11 +423,19 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * At path parser failing test.
+     *
+     * @throws ParseException the parse exception
+     */
     @Test(expected = JavaPathRuntimeException.class)
     public void atPathParserFailingTest() throws ParseException {
         testPattern("a.@b(TEST).c(#3)");
     }
 
+    /**
+     * Back ref basic test.
+     */
     @Test
     public void backRefBasicTest() {
         testPattern("a.b.c(#2,STRING,#1.y.z(#2.w(W_STRING))).d.e(E_STRING)"); //#2.w(W_STRING) causes problem; 4 push 3 pop
@@ -402,6 +504,9 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Back ref test 2.
+     */
     @Test
     public void backRefTest2() {
         testPattern("a.setDesc(#0.id,#0.desc.setDesc(fromTest).val).name");
@@ -449,6 +554,9 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Back ref test 3.
+     */
     @Test
     public void backRefTest3() {
         testPattern( "("+StringBuilder.class.getName()+" #).append($0.substring(int 1)).append($1).append($2).append($3.substring(int 1,int 3))");
@@ -521,7 +629,9 @@ public class ParserTest {
     }
 
 
-
+    /**
+     * Empty string test.
+     */
     @Test
     public void emptyStringTest() {
         testPattern("a('')");
@@ -539,6 +649,9 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * No parameter test.
+     */
     @Test
     public void noParameterTest() {
         testPattern("a()");
@@ -551,6 +664,9 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Choice test.
+     */
     @Test
     public void choiceTest() {
         testPattern("a||b(init).c");
@@ -564,6 +680,9 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Factory test.
+     */
     @Test
     public void factoryTest() {
         testPattern("(T::new a).c");
@@ -576,6 +695,9 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Param factory test.
+     */
     @Test
     public void paramFactoryTest() {
         testPattern("a(t::x val)");
@@ -593,6 +715,9 @@ public class ParserTest {
                 .test();
     }
 
+    /**
+     * Two paths test.
+     */
     @Test
     public void twoPathsTest() {
         testPattern("a; b\n c");

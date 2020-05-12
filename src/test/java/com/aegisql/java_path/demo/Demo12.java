@@ -7,17 +7,41 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+/**
+ * The type Demo 12.
+ */
 public class Demo12 {
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The Parent.
+         */
         A parent;
+        /**
+         * The Child.
+         */
         A child;
+        /**
+         * The Name.
+         */
         String name;
+
+        /**
+         * Instantiates a new A.
+         *
+         * @param parent the parent
+         */
         public A(A parent) {
             this.parent = parent;
         }
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         A a = new A(null);

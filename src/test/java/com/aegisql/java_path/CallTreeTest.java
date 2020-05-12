@@ -7,26 +7,89 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
+/**
+ * The type Call tree test.
+ */
 public class CallTreeTest {
 
+    /**
+     * The type X.
+     */
     class X{
+        /**
+         * X.
+         */
         @PathElement("a")
         @NoPathElement
         void x(){}
     }
+
+    /**
+     * The A.
+     */
     String a = "test";
+
+    /**
+     * A.
+     */
     void a(){}
+
+    /**
+     * A.
+     *
+     * @param x the x
+     */
     void a(String x){}
+
+    /**
+     * A.
+     *
+     * @param x the x
+     * @param y the y
+     */
     void a(String x, String y){}
+
+    /**
+     * B.
+     *
+     * @param x the x
+     */
     @PathElement({"bee","bi"})
     void b(String x){}
+
+    /**
+     * O.
+     *
+     * @param x the x
+     */
     void o(CharSequence x){}
+
+    /**
+     * O.
+     *
+     * @param x the x
+     * @param y the y
+     */
     void o(CharSequence x,CharSequence y){}
+
+    /**
+     * O.
+     *
+     * @param x the x
+     * @param y the y
+     * @param z the z
+     */
     void o(CharSequence x,CharSequence y,CharSequence z){}
 
+    /**
+     * No label.
+     */
     @NoPathElement
     void noLabel(){};
 
+    /**
+     * Basic test.
+     */
     @Test
     public void basicTest() {
         CallTree mt = new CallTree();
@@ -94,6 +157,9 @@ public class CallTreeTest {
         System.out.println(mt);
     }
 
+    /**
+     * Find method candidates.
+     */
     @Test
     public void findMethodCandidates() {
         CallTree mt = CallTree.forClass(StringBuilder.class);
@@ -102,6 +168,9 @@ public class CallTreeTest {
         assertEquals(12,candidates.size());
     }
 
+    /**
+     * Test class lookup.
+     */
     @Test
     public void testClassLookup() {
         CallTree mt = CallTree.forClass(this.getClass());
@@ -162,6 +231,9 @@ public class CallTreeTest {
 
     }
 
+    /**
+     * O candidates test.
+     */
     @Test
     public void oCandidatesTest() {
         CallTree mt = new CallTree();
@@ -173,6 +245,9 @@ public class CallTreeTest {
 
     }
 
+    /**
+     * Find candidates for void.
+     */
     @Test
     public void findCandidatesForVoid() {
         CallTree mt = CallTree.forClass(this.getClass());
@@ -184,6 +259,9 @@ public class CallTreeTest {
         assertEquals(0,next.getParameterCount());
     }
 
+    /**
+     * Oo candidates test.
+     */
     @Test
     public void ooCandidatesTest() {
         CallTree mt = new CallTree();
@@ -194,6 +272,9 @@ public class CallTreeTest {
         assertEquals("o",oSSn.iterator().next().getName());
     }
 
+    /**
+     * O candidates test fail.
+     */
     @Test
     public void oCandidatesTestFail() {
         CallTree mt = new CallTree();
@@ -202,6 +283,9 @@ public class CallTreeTest {
         assertEquals(0,oSSn.size());
     }
 
+    /**
+     * Oo candidates test fail.
+     */
     @Test(expected = JavaPathRuntimeException.class)
     public void ooCandidatesTestFail() {
         CallTree mt = new CallTree();
@@ -209,17 +293,26 @@ public class CallTreeTest {
         Set<Method> oSSn = mt.findMethodCandidates("o",new Class[]{String.class,Integer.class,null});
     }
 
+    /**
+     * Class lookup should fail on x.
+     */
     @Test(expected = JavaPathRuntimeException.class)
     public void classLookupShouldFailOnX(){
         CallTree mt = CallTree.forClass(X.class);
     }
 
+    /**
+     * Class lookup should fail on assignable type.
+     */
     @Test(expected = JavaPathRuntimeException.class)
     public void classLookupShouldFailOnAssignableType(){
         CallTree mt = CallTree.forClass(X.class);
         Method oI = mt.findMethod("o",new Class[]{Integer.class});
     }
 
+    /**
+     * Class lookup should fail on assignable type 2.
+     */
     @Test(expected = JavaPathRuntimeException.class)
     public void classLookupShouldFailOnAssignableType2(){
         CallTree mt = CallTree.forClass(X.class);
@@ -227,7 +320,13 @@ public class CallTreeTest {
     }
 
 
-
+    /**
+     * Gets method.
+     *
+     * @param name the name
+     * @param args the args
+     * @return the method
+     */
     Method getMethod(String name, Class<?>... args) {
         try {
             return this.getClass().getDeclaredMethod(name,args);

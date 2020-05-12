@@ -91,6 +91,11 @@ public class ReferenceList {
         return root.getClass();
     }
 
+    /**
+     * Gets first path root class.
+     *
+     * @return the first path root class
+     */
     public Class<?> getFirstPathRootClass() {
         return firstPathRoot.getClass();
     }
@@ -166,6 +171,11 @@ public class ReferenceList {
         return values;
     }
 
+    /**
+     * Start next path reference list.
+     *
+     * @return the reference list
+     */
     public ReferenceList startNextPath(){
         ReferenceList nextList = new ReferenceList(firstPathRoot);
         nextList.values.addAll(this.values);

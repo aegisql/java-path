@@ -6,8 +6,14 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+/**
+ * The type Parametrized property test.
+ */
 public class ParametrizedPropertyTest {
 
+    /**
+     * The Class registry.
+     */
     ClassRegistry classRegistry = new ClassRegistry();
 
     private ParametrizedProperty p(String str) {
@@ -16,6 +22,9 @@ public class ParametrizedPropertyTest {
         return new ParametrizedProperty(classRegistry,parse.get(0).getParameters().get(0),false);
     }
 
+    /**
+     * Basic test.
+     */
     @Test
     public void basicTest() {
         ParametrizedProperty lp1 = p("a");
@@ -27,6 +36,9 @@ public class ParametrizedPropertyTest {
     }
 
 
+    /**
+     * Basic quoted test.
+     */
     @Test
     public void basicQuotedTest() {
         ParametrizedProperty lp1 = p("'a b'");
@@ -37,6 +49,9 @@ public class ParametrizedPropertyTest {
         assertFalse(lp1.isValue());
     }
 
+    /**
+     * Basic test with quote.
+     */
     @Test
     public void basicTestWithQuote() {
         ParametrizedProperty lp1 = p("'a b'");
@@ -47,6 +62,9 @@ public class ParametrizedPropertyTest {
         assertFalse(lp1.isValue());
     }
 
+    /**
+     * Basic test with str type.
+     */
     @Test
     public void basicTestWithStrType() {
         ParametrizedProperty lp1 = p("str 'a b'");
@@ -57,6 +75,9 @@ public class ParametrizedPropertyTest {
         assertFalse(lp1.isValue());
     }
 
+    /**
+     * Basic test with str type and quotes.
+     */
     @Test
     public void basicTestWithStrTypeAndQuotes() {
         ParametrizedProperty lp1 = p("str 'a b'");
@@ -67,6 +88,9 @@ public class ParametrizedPropertyTest {
         assertFalse(lp1.isValue());
     }
 
+    /**
+     * Basic test with int type.
+     */
     @Test
     public void basicTestWithIntType() {
         ParametrizedProperty lp1 = p("i 0");
@@ -77,6 +101,9 @@ public class ParametrizedPropertyTest {
         assertFalse(lp1.isValue());
     }
 
+    /**
+     * Quotes work test.
+     */
     @Test
     public void quotesWorkTest() {
         ParametrizedProperty lp1 = p("'int 0'");
@@ -87,8 +114,22 @@ public class ParametrizedPropertyTest {
         assertFalse(lp1.isValue());
     }
 
-    enum X {A,B}
+    /**
+     * The enum X.
+     */
+    enum X {
+        /**
+         * A x.
+         */
+        A,
+        /**
+         * B x.
+         */
+        B}
 
+    /**
+     * Basic test with enum type.
+     */
     @Test
     public void basicTestWithEnumType() {
         ParametrizedProperty lp1 = p(X.class.getName()+" A");
@@ -99,6 +140,9 @@ public class ParametrizedPropertyTest {
         assertFalse(lp1.isValue());
     }
 
+    /**
+     * Builder test.
+     */
     @Test
     public void builderTest() {
         ParametrizedProperty lp1 = p("#");
@@ -109,6 +153,9 @@ public class ParametrizedPropertyTest {
         assertFalse(lp1.isValue());
     }
 
+    /**
+     * Value test.
+     */
     @Test
     public void valueTest() {
         ParametrizedProperty lp1 = p("$");
@@ -119,6 +166,9 @@ public class ParametrizedPropertyTest {
         assertTrue(lp1.isValue());
     }
 
+    /**
+     * Value with type test.
+     */
     @Test
     public void valueWithTypeTest() {
         ParametrizedProperty lp1 = p("int $");
@@ -129,6 +179,9 @@ public class ParametrizedPropertyTest {
         assertTrue(lp1.isValue());
     }
 
+    /**
+     * Value with full type test.
+     */
     @Test
     public void valueWithFullTypeTest() {
         ParametrizedProperty lp1 = p("java.lang.Integer $");

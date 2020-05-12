@@ -5,12 +5,24 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * The type Demo 24.
+ */
 public class Demo24 {
 
+    /**
+     * The type A.
+     */
     public static class A {
+        /**
+         * The String builder.
+         */
         StringBuilder stringBuilder;
     }
 
+    /**
+     * Test.
+     */
     @Test
     public void test() {
         A a = new A();

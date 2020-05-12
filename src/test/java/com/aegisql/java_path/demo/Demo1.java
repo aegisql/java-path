@@ -31,4 +31,12 @@ public class Demo1 {
         assertEquals("John",a.name);
     }
 
+    @Test
+    public void testWithInlineValue() {
+        A a = new A();
+        JavaPath pathUtils = new JavaPath(A.class);
+        pathUtils.evalPath("name(John)", a);
+        assertEquals("John",a.name);
+    }
+
 }

@@ -577,11 +577,21 @@ public class JavaPath {
             }
         } else {
             if(LOG.isTraceEnabled()) {
-                String msg = Arrays.stream(classesForSetter).map(cls -> cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
+                String msg = Arrays.stream(classesForSetter).map(cls -> cls==null?"NULL":cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
                 LOG.trace("Setter method not found for name '{}' and classes {}. Trying field", pl.getLabel(),msg);
             }
             int pos = pl.getLabelProperties().size() == 0 ? pathNumber : pl.getLabelProperties().get(0).getValueIdx();
-            return b-> (T) fieldSetter(pl).apply(b,b.getValue(pos));
+            Object value = null;
+            if(pos >= 0) {
+                value = backReferences.getValue(pos);
+            } else {
+                Object[] propertiesForSetter = pl.getPropertiesForSetter(backReferences);
+                if(propertiesForSetter.length != 0) {
+                    value = propertiesForSetter[0];
+                }
+            }
+            Object finalValue = value;
+            return b-> (T) fieldSetter(pl).apply(b, finalValue);
         }
     }
 

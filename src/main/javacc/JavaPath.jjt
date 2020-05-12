@@ -138,7 +138,7 @@ SimpleNode parse() :
     TypedPathElement typedPathElement = null;
 }
 {
-    typedPathElement = javaPath() [pathSeparator() [javaPath()] ]
+    typedPathElement = javaPath() [pathSeparator() [parse() ] ]
     {
         jjtThis.jjtSetValue(typedPathElement);
         return jjtThis;

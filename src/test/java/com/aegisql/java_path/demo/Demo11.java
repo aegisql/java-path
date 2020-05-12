@@ -79,17 +79,11 @@ public class Demo11 {
         pathUtils.evalPath("firstName", a, "John");
         pathUtils.evalPath("lastName", a, "Smith");
 
-        pathUtils.evalPath("phones.get(PhoneType CELL).add", a, "1-101-111-2233");
-        pathUtils.evalPath("phones.get(PhoneType HOME).add", a, "1-101-111-7865");
-        pathUtils.evalPath("phones.get(PhoneType WORK).add", a, "1-105-333-1100");
+        pathUtils.evalPath("phones.get(PhoneType CELL).add($); reversedPhones.put($,PhoneType CELL)", a, "1-101-111-2233");
+        pathUtils.evalPath("phones.get(PhoneType HOME).add($); reversedPhones.put($,PhoneType HOME)", a, "1-101-111-7865");
+        pathUtils.evalPath("phones.get(PhoneType WORK).add($); reversedPhones.put($,PhoneType WORK)", a, "1-105-333-1100");
         // Dollar sign is not required if it is the last or the only parameter of the method
-        pathUtils.evalPath("phones.get(PhoneType WORK).add($)", a, "1-105-333-1104");
-
-        // Dollar sign is required because it is not the last of two required parameters
-        pathUtils.evalPath("reversedPhones.put($,PhoneType CELL)", a, "1-101-111-2233");
-        pathUtils.evalPath("reversedPhones.put($,PhoneType HOME)", a, "1-101-111-7865");
-        pathUtils.evalPath("reversedPhones.put($,PhoneType WORK)", a, "1-105-333-1100");
-        pathUtils.evalPath("reversedPhones.put($,PhoneType WORK)", a, "1-105-333-1104");
+        pathUtils.evalPath("phones.get(PhoneType WORK).add; reversedPhones.put($,PhoneType WORK)", a, "1-105-333-1104");
 
         assertEquals("John",a.firstName);
         assertEquals("Smith",a.lastName);

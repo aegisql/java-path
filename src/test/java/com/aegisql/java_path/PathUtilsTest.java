@@ -160,7 +160,7 @@ public class PathUtilsTest {
     @Test
     public void initWithMultipleParametersNoClassTest() {
         JavaPath pu = new JavaPath(StringBuilder.class);
-        StringBuilder sb = (StringBuilder) pu.initPath("("+StringBuilder.class.getName()+" #).append($0).append($1).append($2).append($3)", "ab","cd","dc","ba");
+        StringBuilder sb = (StringBuilder) pu.initPath("("+StringBuilder.class.getName()+" root).append($0).append($1).append($2).append($3)", "ab","cd","dc","ba");
         assertEquals("abcddcba",sb.toString());
     }
 

@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static junit.framework.TestCase.assertNull;
+
 public class ParserTest {
 
     List<TypedPathElement> pathList;
@@ -593,7 +595,24 @@ public class ParserTest {
 
     @Test
     public void twoPathsTest() {
-        testPattern("a;b;");
+        testPattern("a; b\n c");
+        TU.forPathElements(5,pathList)
+                .acceptPathElement(pe->{
+                    TU.assertName("a",pe);
+                })
+                .acceptPathElement(pe->{
+                    assertNull(pe);
+                })
+                .acceptPathElement(pe->{
+                    TU.assertName("b",pe);
+                })
+                .acceptPathElement(pe->{
+                    assertNull(pe);
+                })
+                .acceptPathElement(pe->{
+                    TU.assertName("c",pe);
+                })
+                .test();
     }
 
     private void testPattern(String s) {

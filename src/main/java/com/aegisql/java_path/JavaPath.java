@@ -255,10 +255,10 @@ public class JavaPath {
         if(values == null || values.length == 0) {
             backRefCollection.addValue(null);
         } else if(values.length == 1) {
-            LOG.debug("Applying value {} to path {}",backRefCollection,parse.stream().map(tpe->""+tpe).collect(Collectors.joining(".")));
+            LOG.debug("Applying value {} to path {}",backRefCollection,parse.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
             backRefCollection.addValue(values[0]);
         } else {
-            LOG.debug("Applying multi-values {} to path {}",backRefCollection,parse.stream().map(tpe->""+tpe).collect(Collectors.joining(".")));
+            LOG.debug("Applying multi-values {} to path {}",backRefCollection,parse.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
             Arrays.stream(values).forEach(backRefCollection::addValue);
         }
         return evalPath(parse,backRefCollection);
@@ -289,7 +289,7 @@ public class JavaPath {
         pu.setEnableCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root,value);
         pu.evalPath(path, backRefCollection);
-        LOG.debug("Init from value {} path {}",backRefCollection,path.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
+        LOG.debug("Init from value {} path {}",backRefCollection,path.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
         return (T) root._holder_;
     }
 
@@ -315,7 +315,7 @@ public class JavaPath {
         if(values != null) {
             values.stream().forEach(backRefCollection::addValue);
         }
-        LOG.debug("Init from multi-values {} path {}",backRefCollection,path.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
+        LOG.debug("Init from multi-values {} path {}",backRefCollection,path.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
         pu.evalPath(path, backRefCollection);
         return (T) root._holder_;
     }
@@ -516,7 +516,7 @@ public class JavaPath {
                 return invoke(finalConstructor, propertiesForGetter);
             };
         } else {
-            String msg = Arrays.stream(classesForGetter).map(cls -> cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
+            String msg = Arrays.stream(classesForGetter).map(cls -> cls==null?"NULL":cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
             LOG.trace("Constructor not found for classes {}.",msg);
             throw new JavaPathRuntimeException("Could not find constructor for "+javaPath);
         }
@@ -542,7 +542,7 @@ public class JavaPath {
         } else {
             String label = pl.getLabel();
             if(LOG.isTraceEnabled()) {
-                String msg = Arrays.stream(classesForGetter).map(cls -> cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
+                String msg = Arrays.stream(classesForGetter).map(cls -> cls==null?"NULL":cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
                 LOG.trace("Getter method not found for name '{}' and classes {}. Trying field", label, msg);
             }
             Field field = CallTree.forClass(aClass).findField(pl.getLabel());

@@ -29,9 +29,9 @@ TOKEN :
 | <K_DOT: ".">
 | <K_OR: "||">
 | <K_FACTORY_SEPARATOR: "::">
-| <K_PATH_SEPARATOR: (";"|"\n")+>
 | <K_COMMA: ",">
 | <K_SPACE: ([" ","\t"])+>
+| <K_PATH_SEPARATOR: ([";","\n"](<K_SPACE>)*)+>
 | < #LETTER: ["A"-"Z","_","a"-"z","\u00a2"-"\u00a5","\u00aa","\u00b5","\u00ba",
                "\u00c0"-"\u00d6","\u00d8"-"\u00f6","\u00f8"-"\u021f","\u0222"-"\u0233","\u0250"-"\u02ad",
                "\u02b0"-"\u02b8","\u02bb"-"\u02c1","\u02d0"-"\u02d1","\u02e0"-"\u02e4","\u02ee","\u037a",

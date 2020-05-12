@@ -23,6 +23,7 @@ public class JavaPathParser {
         private LinkedList<TypedPathElement> currentPath;
         private int maxBackRef = 0;
         private boolean option;
+        private int pathNumber = 0;
 
         /**
          * Instantiates a new Visitor.
@@ -74,6 +75,14 @@ public class JavaPathParser {
         public Object visit(ASToption node, Object data) {
             option = (boolean) node.jjtGetValue();
             LOG.trace("parse:? current: {} stack: {}",currentPath, stack);
+            return node.childrenAccept(this,data);
+        }
+
+        @Override
+        public Object visit(ASTpathSeparator node, Object data) {
+            LOG.trace("parse:; current: {} stack: {}",currentPath, stack);
+            pathNumber++;
+            rootPath.add(null);
             return node.childrenAccept(this,data);
         }
 
@@ -175,15 +184,16 @@ public class JavaPathParser {
     public static List<TypedPathElement> parse(String path) {
         LOG.debug("parsing {}",path);
         LinkedList<TypedPathElement> elements = new LinkedList<>();
+        Visitor visitor = new Visitor(elements);
         CCJavaPathParser parser = new CCJavaPathParser(r(path));
         SimpleNode sn = null;
         try {
             sn = parser.parse();
-            sn.jjtAccept(new Visitor(elements),elements);
+            sn.jjtAccept(visitor,elements);
         } catch (ParseException e) {
             throw new JavaPathRuntimeException("Failed parsing JavaPath '"+path+"'",e);
         }
-        LOG.debug("parsing of {} complete: {}",path,elements);
+        LOG.debug("parsing of {} complete: {} found paths: {}",path,elements,visitor.pathNumber+1);
         return Collections.unmodifiableList(elements);
     }
 

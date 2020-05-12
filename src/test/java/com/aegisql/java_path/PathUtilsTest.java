@@ -12,6 +12,7 @@ import static org.junit.Assert.assertNull;
 public class PathUtilsTest {
 
     private String a;
+    private String b;
 
     @PathElement("upper")
     String setUpperA( String s) {
@@ -22,6 +23,7 @@ public class PathUtilsTest {
     @Before
     public void init() {
         a = null;
+        b = null;
     }
 
     @Test
@@ -234,6 +236,29 @@ public class PathUtilsTest {
         pathUtils.evalPath("getSb||setSb($1.get).append(John).append", c, " Silver",(Supplier)()->new StringBuilder("Dear Mr. "));
         assertNotNull(c.sb);
         assertEquals("Dear Mr. John Silver",c.sb.toString());
+    }
+
+    @Test
+    public void abTestWithParams() {
+        JavaPath javaPath = new JavaPath(this.getClass());
+        javaPath.evalPath("a($0);b($1)",this,"A","B");
+        assertEquals("A",a);
+        assertEquals("B",b);
+    }
+
+    @Test
+    public void abTest() {
+        JavaPath javaPath = new JavaPath(this.getClass());
+        javaPath.evalPath("a;b",this,"A","B");
+        assertEquals("A",a);
+        assertEquals("B",b);
+    }
+    @Test
+    public void abNewLineTest() {
+        JavaPath javaPath = new JavaPath(this.getClass());
+        javaPath.evalPath("a\nb",this,"A","B");
+        assertEquals("A",a);
+        assertEquals("B",b);
     }
 
 }

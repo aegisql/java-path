@@ -67,8 +67,8 @@ public class ParserTest {
 
     @Test
     public void parseSingleLabelWithUnicodeParamTest() throws ParseException {
-        testPattern("a('ПРОВЕРКА')");
-        TU.forPathElements(1,pathList)
+        testPattern("a('ПРОВЕРКА');");
+        TU.forPathElements(2,pathList)
                 .acceptPathElement(pe->{
                     TU.assertType(null,pe);
                     TU.assertName("a",pe);
@@ -84,8 +84,8 @@ public class ParserTest {
 
     @Test
     public void parseSingleLabelWithUnicodeAndNoQuoteParamTest() throws ParseException {
-        testPattern("a(ПРОВЕРКА)");
-        TU.forPathElements(1,pathList)
+        testPattern("a(ПРОВЕРКА)\n");
+        TU.forPathElements(2,pathList)
                 .acceptPathElement(pe->{
                     TU.assertType(null,pe);
                     TU.assertName("a",pe);
@@ -591,9 +591,14 @@ public class ParserTest {
                 .test();
     }
 
+    @Test
+    public void twoPathsTest() {
+        testPattern("a;b;");
+    }
+
     private void testPattern(String s) {
         pathList = JavaPathParser.parse(s);
-        System.out.println(s+" -> "+pathList.stream().map(p->p.toString()).collect(Collectors.joining(".")));
+        System.out.println(s+" -> "+pathList.stream().map(p->""+p).collect(Collectors.joining(".")));
     }
 
 }

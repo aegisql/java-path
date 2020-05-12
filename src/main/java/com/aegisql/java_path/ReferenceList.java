@@ -11,6 +11,7 @@ public class ReferenceList {
     private final List<Object> references = new ArrayList<>();
     private final List<Object> values = new ArrayList<>();
     private Object root;
+    private final Object firstPathRoot;
 
     /**
      * Instantiates a new Reference list.
@@ -18,6 +19,7 @@ public class ReferenceList {
      * @param root the root
      */
     public ReferenceList(Object root) {
+        this.firstPathRoot = root;
         this.root = root;
         this.references.add(root);
     }
@@ -29,6 +31,7 @@ public class ReferenceList {
      * @param value the value
      */
     public ReferenceList(Object root, Object value) {
+        this.firstPathRoot = root;
         this.root = root;
         this.references.add(root);
         this.values.add(value);
@@ -86,6 +89,10 @@ public class ReferenceList {
      */
     public Class<?> getRootClass() {
         return root.getClass();
+    }
+
+    public Class<?> getFirstPathRootClass() {
+        return firstPathRoot.getClass();
     }
 
     /**
@@ -159,10 +166,19 @@ public class ReferenceList {
         return values;
     }
 
+    public ReferenceList startNextPath(){
+        ReferenceList nextList = new ReferenceList(firstPathRoot);
+        nextList.values.addAll(this.values);
+        return nextList;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ReferenceList{");
         sb.append("references=").append(references);
+        if(firstPathRoot != root) {
+            sb.append(", firstPathRoot=").append(firstPathRoot);
+        }
         sb.append(", root=").append(root);
         sb.append(", values=").append(values);
         sb.append('}');

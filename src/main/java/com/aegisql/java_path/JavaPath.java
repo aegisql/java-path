@@ -35,16 +35,18 @@ public class JavaPath {
     private final Class<?> aClass;
     private final CallTree callTree;
     private final ClassRegistry classRegistry;
+    private final int pathNumber;
     private boolean enableCaching = false;
 
 ///Constructors
 
-    private JavaPath(Class<?> aClass, ClassRegistry registry, Map<String,List<TypedPathElement>> cache) {
+    private JavaPath(Class<?> aClass, ClassRegistry registry, Map<String,List<TypedPathElement>> cache, int pathNumber) {
         Objects.requireNonNull(aClass,"Builder class is null");
         this.aClass = aClass;
         this.callTree = CallTree.forClass(aClass,registry);
         this.classRegistry = registry;
         this.cache = cache;
+        this.pathNumber = pathNumber;
     }
 
     /**
@@ -58,6 +60,7 @@ public class JavaPath {
         this.aClass = aClass;
         this.callTree = CallTree.forClass(aClass,registry);
         this.classRegistry = registry;
+        this.pathNumber = 0;
     }
 
     /**
@@ -252,10 +255,10 @@ public class JavaPath {
         if(values == null || values.length == 0) {
             backRefCollection.addValue(null);
         } else if(values.length == 1) {
-            LOG.debug("Applying value {} to path {}",backRefCollection,parse.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
+            LOG.debug("Applying value {} to path {}",backRefCollection,parse.stream().map(tpe->""+tpe).collect(Collectors.joining(".")));
             backRefCollection.addValue(values[0]);
         } else {
-            LOG.debug("Applying multi-values {} to path {}",backRefCollection,parse.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
+            LOG.debug("Applying multi-values {} to path {}",backRefCollection,parse.stream().map(tpe->""+tpe).collect(Collectors.joining(".")));
             Arrays.stream(values).forEach(backRefCollection::addValue);
         }
         return evalPath(parse,backRefCollection);
@@ -282,7 +285,7 @@ public class JavaPath {
 
     private <T> T applyInHolder(List<TypedPathElement> path, Object value) {
         Holder root = new Holder();
-        JavaPath pu = new JavaPath(Holder.class, classRegistry, cache);
+        JavaPath pu = new JavaPath(Holder.class, classRegistry, cache, pathNumber);
         pu.setEnableCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root,value);
         pu.evalPath(path, backRefCollection);
@@ -292,7 +295,7 @@ public class JavaPath {
 
     private <T> T applyInHolder(List<TypedPathElement> path, Object value, Object value2, Object... more) {
         Holder root = new Holder();
-        JavaPath pu = new JavaPath(Holder.class, classRegistry, cache);
+        JavaPath pu = new JavaPath(Holder.class, classRegistry, cache, pathNumber);
         pu.setEnableCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root,value);
         backRefCollection.addValue(value2);
@@ -306,7 +309,7 @@ public class JavaPath {
 
     private <T> T applyInHolder(List<TypedPathElement> path, Collection<Object> values) {
         Holder root = new Holder();
-        JavaPath pu = new JavaPath(Holder.class, classRegistry, cache);
+        JavaPath pu = new JavaPath(Holder.class, classRegistry, cache, pathNumber);
         pu.setEnableCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root);
         if(values != null) {
@@ -340,6 +343,20 @@ public class JavaPath {
             return (T) valuesRefsCollection.getRoot(); //last calculated getter
         }
         TypedPathElement rootPathElement = path.get(0);
+
+        if(rootPathElement == null) {
+            ReferenceList nextReferenceList = valuesRefsCollection.startNextPath();
+            JavaPath nextPath = new JavaPath(nextReferenceList.getRootClass(), classRegistry, cache, pathNumber+1);
+            nextPath.setEnableCaching(enableCaching);
+            return nextPath.evalPath(path.subList(1,path.size()),nextReferenceList);
+        }
+
+        boolean processAsSetter;
+        if(size == 1) {
+            processAsSetter = true;
+        } else {
+            processAsSetter = path.get(1) == null;
+        }
 
         if(rootPathElement.parametrized()) {
             for(TypedValue tv:rootPathElement.getParameters()) {
@@ -375,8 +392,13 @@ public class JavaPath {
                 return applyAtSign(path, valuesRefsCollection, rootPathElement);
             }
         } else {
-            if(size == 1) {
-                return (T) offerSetter(valuesRefsCollection, rootPathElement).apply(valuesRefsCollection);
+            if(processAsSetter) {
+                T res =  (T) offerSetter(valuesRefsCollection, rootPathElement).apply(valuesRefsCollection);
+                if(size == 1) {
+                    return res;
+                } else {
+                    return evalPath(path.subList(1,size),valuesRefsCollection);
+                }
             } else {
                 return offerGetter(path, valuesRefsCollection, rootPathElement);
             }
@@ -392,7 +414,7 @@ public class JavaPath {
                 throw new JavaPathRuntimeException("Cannot find class for " + rootPathElement, e);
             }
         }
-        JavaPath nextUtils = new JavaPath(refClass, classRegistry, cache);
+        JavaPath nextUtils = new JavaPath(refClass, classRegistry, cache, pathNumber);
         nextUtils.setEnableCaching(enableCaching);
         if (rootPathElement.getName().equalsIgnoreCase("@new")) {
             Function<ReferenceList, Object> constructor = nextUtils.offerConstructor(valuesRefsCollection, rootPathElement);
@@ -419,7 +441,7 @@ public class JavaPath {
         Object nextRoot =  getter.apply(valuesRefsCollection);
         if(rootPathElement.getOwnTypedValue().isPreEvaluatedValueSet()) {
             Class<?> nextClass = nextRoot == null ? classRegistry.classMap.get(rootPathElement.getType()) : nextRoot.getClass();
-            JavaPath nextUtils = new JavaPath(nextClass, classRegistry, cache);
+            JavaPath nextUtils = new JavaPath(nextClass, classRegistry, cache, pathNumber);
             nextUtils.setEnableCaching(enableCaching);
             valuesRefsCollection.addRoot(nextRoot);
             return nextUtils.evalPath(path.subList(1, path.size()), valuesRefsCollection);
@@ -430,7 +452,7 @@ public class JavaPath {
                 nextRoot =  getter.apply(valuesRefsCollection);
             }
             Objects.requireNonNull(nextRoot, "Object for path element '" + rootPathElement + "' is not initialized!");
-            JavaPath nextUtils = new JavaPath(nextRoot.getClass(), classRegistry, cache);
+            JavaPath nextUtils = new JavaPath(nextRoot.getClass(), classRegistry, cache, pathNumber);
             nextUtils.setEnableCaching(enableCaching);
             valuesRefsCollection.addRoot(nextRoot);
             return nextUtils.evalPath(path.subList(1, path.size()), valuesRefsCollection);
@@ -447,7 +469,7 @@ public class JavaPath {
         TypedPathElement term = new TypedPathElement();
         term.setName("@");
         typedPathElements.add(term);
-        JavaPath javaPath = new JavaPath(pathRootClass, classRegistry, cache);
+        JavaPath javaPath = new JavaPath(pathRootClass, classRegistry, cache, pathNumber);
         tv.setPreEvaluatedValueSet(true);
         Object res = javaPath.evalPath(typedPathElements, rl);
         LOG.trace("ValueRef Evaluation result: {}", res);
@@ -467,7 +489,7 @@ public class JavaPath {
         TypedPathElement term = new TypedPathElement();
         term.setName("@");
         typedPathElements.add(term);
-        JavaPath javaPath = new JavaPath(pathRootClass, classRegistry, cache);
+        JavaPath javaPath = new JavaPath(pathRootClass, classRegistry, cache, pathNumber);
         tv.setPreEvaluatedValueSet(true);
         Object res = javaPath.evalPath(typedPathElements, rl);
         LOG.trace("BackRef Evaluation result: {}", res);
@@ -558,7 +580,8 @@ public class JavaPath {
                 String msg = Arrays.stream(classesForSetter).map(cls -> cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
                 LOG.trace("Setter method not found for name '{}' and classes {}. Trying field", pl.getLabel(),msg);
             }
-            return b-> (T) fieldSetter(pl).apply(b,b.getValue(0));
+            int pos = pl.getLabelProperties().size() == 0 ? pathNumber : pl.getLabelProperties().get(0).getValueIdx();
+            return b-> (T) fieldSetter(pl).apply(b,b.getValue(pos));
         }
     }
 

@@ -302,7 +302,7 @@ public class JavaPath {
         if(more != null) {
             Arrays.stream(more).forEach(backRefCollection::addValue);
         }
-        LOG.debug("Init from multi-values {} path {}",backRefCollection,path.stream().map(TypedPathElement::toString).collect(Collectors.joining(".")));
+        LOG.debug("Init from multi-values {} path {}",backRefCollection,path.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
         pu.evalPath(path, backRefCollection);
         return (T) root._holder_;
     }

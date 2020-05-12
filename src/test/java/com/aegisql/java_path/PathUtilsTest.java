@@ -147,6 +147,13 @@ public class PathUtilsTest {
         assertEquals("abcddcba",sb.toString());
     }
 
+    @Test
+    public void initWithMultipleParametersAndPathsTest() {
+        JavaPath pu = new JavaPath(StringBuilder.class);
+        StringBuilder sb = pu.initPath("#.append($0);#.append($1);#.append($2);#.append($3)", StringBuilder.class, "ab","cd","dc","ba");
+        assertEquals("abcddcba",sb.toString());
+    }
+
     /**
      * Init with multiple parameters no class test.
      */

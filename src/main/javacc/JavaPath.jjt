@@ -18,7 +18,9 @@ import com.aegisql.java_path.TypedValue;
 import com.aegisql.java_path.TypedPathElement;
 import com.aegisql.java_path.JavaPathRuntimeException;
 
-public class CCJavaPathParser {}
+public class CCJavaPathParser {
+    int pathNumber = 0;
+}
 
 PARSER_END(CCJavaPathParser)
 
@@ -129,7 +131,7 @@ void pathSeparator() :
 {
 }
 {
-    <K_PATH_SEPARATOR>
+    <K_PATH_SEPARATOR>{pathNumber++;}
 }
 
 /** Root production. */
@@ -293,7 +295,7 @@ TypedValue forwardRef() #void:
         tv.setBackRefIdx(-1);
         if(value.startsWith("$")) {
             if("$".equals(value)) {
-                tv.setValueIdx(0);
+                tv.setValueIdx(pathNumber);
             } else {
                 tv.setValueIdx(Integer.valueOf(value.substring(1)));
             }

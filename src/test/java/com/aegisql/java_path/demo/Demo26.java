@@ -42,6 +42,26 @@ public class Demo26 {
     }
 
     @Test
+    public void testWithValues() {
+        A a = new A();
+        JavaPath pathUtils = new JavaPath(A.class);
+        pathUtils.evalPath("firstName($0); lastName($1); age($2)", a, "John","Smith",55);
+        assertEquals("John",a.firstName);
+        assertEquals("Smith",a.lastName);
+        assertEquals(55,a.age);
+    }
+
+    @Test
+    public void testWithDefaultValues() {
+        A a = new A();
+        JavaPath pathUtils = new JavaPath(A.class);
+        pathUtils.evalPath("firstName($); lastName($); age($)", a, "John","Smith",55);
+        assertEquals("John",a.firstName);
+        assertEquals("Smith",a.lastName);
+        assertEquals(55,a.age);
+    }
+
+    @Test
     public void testWithInlineValues() {
         A a = new A();
         JavaPath pathUtils = new JavaPath(A.class);

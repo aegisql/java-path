@@ -343,6 +343,9 @@ public class CallTree {
     }
 
     private boolean isAssignableFrom(Class<?> a, Class<?> b) {
+        if(a==null || b==null) {
+            return false;
+        }
         if(a.isPrimitive()) {
             if(b.isPrimitive()) {
                 return a==b;

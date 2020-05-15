@@ -15,7 +15,7 @@ public class Demo27 {
      */
     @Test
     public void testPrivateField() {
-        String str = "VALUE";
+        final String str = "VALUE";
         JavaPath javaPath = new JavaPath(String.class);
         assertEquals("VALUE",str);
         javaPath.evalPath("value",str,"THE HACK".getBytes());
@@ -24,7 +24,7 @@ public class Demo27 {
 
     @Test
     public void testPrivateFieldJoke() {
-        Integer val100 = new Integer(100);
+        final Integer val100 = new Integer(100);
         JavaPath javaPath = new JavaPath(Integer.class);
         assertEquals(Integer.valueOf(100),val100);
         javaPath.evalPath("value(int 1000)",val100);

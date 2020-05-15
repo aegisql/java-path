@@ -3,10 +3,7 @@ package com.aegisql.java_path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -597,8 +594,7 @@ public class JavaPath {
 
     private Object invoke(final Method method, Object builder, Object... params) {
         try {
-            method.setAccessible(true);
-            return method.invoke(builder, params);
+            return setAccessible(method).invoke(builder, params);
         } catch (IllegalAccessException e) {
             throw new JavaPathRuntimeException(e);
         } catch (InvocationTargetException e) {
@@ -608,8 +604,7 @@ public class JavaPath {
 
     private Object invoke(final Constructor constructor, Object... params) {
         try {
-            constructor.setAccessible(true);
-            return constructor.newInstance(params);
+            return setAccessible(constructor).newInstance(params);
         } catch (Exception e) {
             throw new JavaPathRuntimeException(e);
         }
@@ -617,14 +612,12 @@ public class JavaPath {
 
     private Object get(ReferenceList backReferences, ParametrizedPath pl, final Field field, Object builder) {
         try {
-            field.setAccessible(true);
-            Object o = field.get(builder);
+            Object o = setAccessible(field).get(builder);
             if(o==null) {
                 ParametrizedProperty labelProperty = pl.getParametrizedProperty();
                 if(labelProperty.isPreEvaluatedValueSet()) {
                     Object preEvaluatedValue = labelProperty.getPreEvaluatedValue();
-                    field.setAccessible(true);
-                    field.set(builder,preEvaluatedValue);
+                    setAccessible(field).set(builder,preEvaluatedValue);
                     return preEvaluatedValue;
                 }
                 Class<?> fieldType;
@@ -642,23 +635,18 @@ public class JavaPath {
                     StringConverter stringConverter = classRegistry.getConverter(fieldType.getName(), fieldType.getSimpleName(), labelProperty.getTypeAlias(), "valueOf").orElse(null);
                     if (factory == null && classesForGetter.length == 1 && classesForGetter[0] == String.class && stringConverter != null) {
                         Object newInstance = stringConverter.apply(propertiesForGetter[0]);
-                        field.setAccessible(true);
-                        field.set(builder, newInstance);
+                        setAccessible(field).set(builder, newInstance);
                         return newInstance;
                     } else {
                         Constructor<?> constructor = fieldType.getConstructor(classesForGetter);
-                        constructor.setAccessible(true);
-                        Object newInstance = constructor.newInstance(propertiesForGetter);
-                        field.setAccessible(true);
-                        field.set(builder, newInstance);
+                        Object newInstance = setAccessible(constructor).newInstance(propertiesForGetter);
+                        setAccessible(field).set(builder, newInstance);
                         return newInstance;
                     }
                 } else {
                     Method method = fieldType.getMethod(factory, classesForGetter);
-                    method.setAccessible(true);
-                    Object newInstance = method.invoke(null, propertiesForGetter);
-                    field.setAccessible(true);
-                    field.set(builder, newInstance);
+                    Object newInstance = setAccessible(method).invoke(null, propertiesForGetter);
+                    setAccessible(field).set(builder, newInstance);
                     return newInstance;
                 }
             }
@@ -670,8 +658,7 @@ public class JavaPath {
 
     private void set(final Field field, Object builder, Object val) {
         try {
-            field.setAccessible(true);
-            field.set(builder,val);
+            setAccessible(field).set(builder,val);
         } catch (IllegalAccessException e) {
             throw new JavaPathRuntimeException(e);
         }
@@ -689,6 +676,33 @@ public class JavaPath {
         }
         LOG.trace("Field for setter not found for name '{}'",label);
         return (b,v)->{throw new JavaPathRuntimeException("No setter found for "+label);};
+    }
+
+    public static Constructor setAccessible(Constructor constructor) {
+        int classModifiers  = constructor.getDeclaringClass().getModifiers();
+        int constructorModifiers = constructor.getModifiers();
+        if( ! Modifier.isPublic(constructorModifiers) || Modifier.isAbstract(classModifiers) || Modifier.isFinal(classModifiers)) {
+            constructor.setAccessible(true);
+        }
+        return constructor;
+    }
+
+    public static Method setAccessible(Method method) {
+        int classModifiers  = method.getDeclaringClass().getModifiers();
+        int methodModifiers = method.getModifiers();
+        if( ! Modifier.isPublic(methodModifiers) || Modifier.isAbstract(classModifiers) || Modifier.isFinal(classModifiers)) {
+            method.setAccessible(true);
+        }
+        return method;
+    }
+
+    public static Field setAccessible(Field field) {
+        int classModifiers = field.getDeclaringClass().getModifiers();
+        int fieldModifiers = field.getModifiers();
+        if( ! Modifier.isPublic(fieldModifiers) || Modifier.isFinal(fieldModifiers) || Modifier.isAbstract(classModifiers) || Modifier.isFinal(classModifiers)) {
+            field.setAccessible(true);
+        }
+        return field;
     }
 
 }

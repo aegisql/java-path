@@ -93,8 +93,7 @@ public class ClassRegistry {
     private static Object newInstance(Class<?> type) {
         try {
             Constructor<?> constructor = type.getConstructor(null);
-            constructor.setAccessible(true);
-            return constructor.newInstance(null);
+            return JavaPath.setAccessible(constructor).newInstance(null);
         } catch (Exception e) {
             throw new JavaPathRuntimeException(e);
         }

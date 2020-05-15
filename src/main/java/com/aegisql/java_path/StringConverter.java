@@ -40,8 +40,7 @@ public interface StringConverter<T> extends Function<String,T> {
         }
         return str->{
             try {
-                valueOf.setAccessible(true);
-                return (X)valueOf.invoke(null,str);
+                return (X) JavaPath.setAccessible(valueOf).invoke(null,str);
             } catch (Exception e) {
                 throw new JavaPathRuntimeException(e);
             }
@@ -76,8 +75,7 @@ public interface StringConverter<T> extends Function<String,T> {
         }
         return str->{
             try {
-                constructor.setAccessible(true);
-                return (X)constructor.newInstance(str);
+                return (X) JavaPath.setAccessible(constructor).newInstance(str);
             } catch (Exception e) {
                 throw new JavaPathRuntimeException(e);
             }

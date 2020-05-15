@@ -126,7 +126,7 @@ public class JavaPath {
      *
      * @param enableCaching the enable caching
      */
-    public void setEnableCaching(boolean enableCaching) {
+    public void setEnablePathCaching(boolean enableCaching) {
         this.enableCaching = enableCaching;
     }
 
@@ -143,7 +143,7 @@ public class JavaPath {
     private <T> T applyInHolder(List<TypedPathElement> path, Object... values) {
         Holder root = new Holder();
         JavaPath pu = new JavaPath(Holder.class, classRegistry, cache, pathNumber);
-        pu.setEnableCaching(enableCaching);
+        pu.setEnablePathCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root);
         if(values != null) {
             Arrays.stream(values).forEach(backRefCollection::addValue);
@@ -180,7 +180,7 @@ public class JavaPath {
         if(rootPathElement == null) {
             ReferenceList nextReferenceList = valuesRefsCollection.startNextPath();
             JavaPath nextPath = new JavaPath(nextReferenceList.getRootClass(), classRegistry, cache, pathNumber+1);
-            nextPath.setEnableCaching(enableCaching);
+            nextPath.setEnablePathCaching(enableCaching);
             return nextPath.evalPath(path.subList(1,path.size()),nextReferenceList);
         }
 
@@ -248,7 +248,7 @@ public class JavaPath {
             }
         }
         JavaPath nextUtils = new JavaPath(refClass, classRegistry, cache, pathNumber);
-        nextUtils.setEnableCaching(enableCaching);
+        nextUtils.setEnablePathCaching(enableCaching);
         if (rootPathElement.getName().equalsIgnoreCase("@new")) {
             Function<ReferenceList, Object> constructor = nextUtils.offerConstructor(valuesRefsCollection, rootPathElement);
             if (constructor != null) {
@@ -275,7 +275,7 @@ public class JavaPath {
         if(rootPathElement.getOwnTypedValue().isPreEvaluatedValueSet()) {
             Class<?> nextClass = nextRoot == null ? classRegistry.classMap.get(rootPathElement.getType()) : nextRoot.getClass();
             JavaPath nextUtils = new JavaPath(nextClass, classRegistry, cache, pathNumber);
-            nextUtils.setEnableCaching(enableCaching);
+            nextUtils.setEnablePathCaching(enableCaching);
             valuesRefsCollection.addRoot(nextRoot);
             return nextUtils.evalPath(path.subList(1, path.size()), valuesRefsCollection);
         } else {
@@ -286,7 +286,7 @@ public class JavaPath {
             }
             Objects.requireNonNull(nextRoot, "Object for path element '" + rootPathElement + "' is not initialized!");
             JavaPath nextUtils = new JavaPath(nextRoot.getClass(), classRegistry, cache, pathNumber);
-            nextUtils.setEnableCaching(enableCaching);
+            nextUtils.setEnablePathCaching(enableCaching);
             valuesRefsCollection.addRoot(nextRoot);
             return nextUtils.evalPath(path.subList(1, path.size()), valuesRefsCollection);
         }

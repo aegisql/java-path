@@ -47,7 +47,7 @@ public class Demo2 {
     @Test
     public void testWithEnabledCaching() {
         JavaPath pathUtils = new JavaPath(B.class);
-        pathUtils.setEnableCaching(true);
+        pathUtils.setEnablePathCaching(true);
 
         B b1 = new B();
         pathUtils.evalPath("a.name", b1, "John");

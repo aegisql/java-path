@@ -69,6 +69,8 @@ public class JavaPath {
         this(aClass,new ClassRegistry());
     }
 
+    ///PUBLIC API
+
     /**
      * Init path object.
      *
@@ -76,7 +78,6 @@ public class JavaPath {
      * @param values array of values
      * @return the object
      */
-///API
     public Object initPath(String path, Object... values) {
         List<TypedPathElement> parse = pack(parse(path));
         return applyInHolder(parse,values);
@@ -96,8 +97,6 @@ public class JavaPath {
         parse.get(1).setType(rootClass.getName());
         return applyInHolder(parse,values);
     }
-
-    /////////////////////
 
     /**
      * Eval path object.
@@ -122,8 +121,6 @@ public class JavaPath {
         return evalPath(parse,backRefCollection);
     }
 
-//////////////////////
-
     /**
      * Sets enable caching.
      *
@@ -132,6 +129,8 @@ public class JavaPath {
     public void setEnableCaching(boolean enableCaching) {
         this.enableCaching = enableCaching;
     }
+
+    //////////////////////
 
     private List<TypedPathElement> parse(String path) {
         if(enableCaching) {
@@ -514,6 +513,8 @@ public class JavaPath {
         LOG.trace("Field for setter not found for name '{}'",label);
         return (b,v)->{throw new JavaPathRuntimeException("No setter found for "+label);};
     }
+
+    //////////////////////
 
     /**
      * Sets accessible.

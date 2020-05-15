@@ -77,7 +77,7 @@ public class PathUtilsTest {
     @Test
     public void getRootWithClassTest() {
         JavaPath pu = new JavaPath(PathUtilsTest.class);
-        PathUtilsTest test = pu.initPath("#.a",PathUtilsTest.class, "test");
+        PathUtilsTest test = pu.initPath(PathUtilsTest.class, "#.a", "test");
         assertNotNull(test);
         assertEquals("test",test.a);
     }
@@ -88,7 +88,7 @@ public class PathUtilsTest {
     @Test
     public void getRootWithClassAndAtTest() {
         JavaPath pu = new JavaPath(PathUtilsTest.class);
-        PathUtilsTest test = pu.initPath("#.@this_is_a.a",PathUtilsTest.class, "test");
+        PathUtilsTest test = pu.initPath(PathUtilsTest.class, "#.@this_is_a.a","test");
         assertNotNull(test);
         assertEquals("test",test.a);
     }
@@ -100,7 +100,7 @@ public class PathUtilsTest {
     public void getRootWithClassShouldFailTest() {
         JavaPath pu = new JavaPath(PathUtilsTest.class);
         //cannot refer to #1
-        PathUtilsTest test = pu.initPath("#1.a",PathUtilsTest.class, "test");
+        PathUtilsTest test = pu.initPath(PathUtilsTest.class, "#1.a", "test");
     }
 
     /**
@@ -143,14 +143,14 @@ public class PathUtilsTest {
     @Test
     public void initWithMultipleParametersTest() {
         JavaPath pu = new JavaPath(StringBuilder.class);
-        StringBuilder sb = pu.initPath("#.append($0).append($1).append($2).append($3)", StringBuilder.class, "ab","cd","dc","ba");
+        StringBuilder sb = pu.initPath(StringBuilder.class, "#.append($0).append($1).append($2).append($3)", "ab","cd","dc","ba");
         assertEquals("abcddcba",sb.toString());
     }
 
     @Test
     public void initWithMultipleParametersAndPathsTest() {
         JavaPath pu = new JavaPath(StringBuilder.class);
-        StringBuilder sb = pu.initPath("#.append($0);#.append($1);#.append($2);#.append($3)", StringBuilder.class, "ab","cd","dc","ba");
+        StringBuilder sb = pu.initPath(StringBuilder.class, "#.append($0);#.append($1);#.append($2);#.append($3)",  "ab","cd","dc","ba");
         assertEquals("abcddcba",sb.toString());
     }
 

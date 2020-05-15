@@ -20,7 +20,7 @@ public class JavaPath {
     /**
      * The type Holder.
      */
-    static class Holder {
+    class Holder {
         /**
          * The Holder.
          */
@@ -72,171 +72,32 @@ public class JavaPath {
     /**
      * Init path object.
      *
-     * @param path  the path
-     * @param value the value
+     * @param path   the path
+     * @param values array of values
      * @return the object
      */
 ///API
-    public Object initPath(String path, Object value) {
-        List<TypedPathElement> parse = parse(path);
-        return initPath(parse,value);
-    }
-
-    /**
-     * Init path object.
-     *
-     * @param path   the path
-     * @param value  the value
-     * @param value2 the value 2
-     * @param more   the more
-     * @return the object
-     */
-    public Object initPath(String path, Object value, Object value2, Object... more) {
-        List<TypedPathElement> parse = parse(path);
-        return initPath(parse,value, value2, more);
-    }
-
-    /**
-     * Init path object.
-     *
-     * @param path   the path
-     * @param values the values
-     * @return the object
-     */
-    public Object initPath(String path, Collection<Object> values) {
-        List<TypedPathElement> parse = parse(path);
-        return initPath(parse,values);
+    public Object initPath(String path, Object... values) {
+        List<TypedPathElement> parse = pack(parse(path));
+        return applyInHolder(parse,values);
     }
 
     /**
      * Init path t.
      *
      * @param <T>       the type parameter
-     * @param path      the path
      * @param rootClass the root class
-     * @param value     the value
-     * @return the t
-     */
-    public <T> T initPath(String path, Class<T> rootClass, Object value) {
-        List<TypedPathElement> parse = parse(path);
-        return initPath(parse,rootClass,value);
-    }
-
-    /**
-     * Init path t.
-     *
-     * @param <T>       the type parameter
      * @param path      the path
-     * @param rootClass the root class
-     * @param value     the value
-     * @param value2    the value 2
-     * @param more      the more
-     * @return the t
-     */
-    public <T> T initPath(String path, Class<T> rootClass, Object value, Object value2, Object... more) {
-        List<TypedPathElement> parse = parse(path);
-        return initPath(parse,rootClass,value,value2,more);
-    }
-
-    /**
-     * Init path t.
-     *
-     * @param <T>       the type parameter
-     * @param path      the path
-     * @param rootClass the root class
      * @param values    the values
      * @return the t
      */
-    public <T> T initPath(String path, Class<T> rootClass, Collection<Object> values) {
-        List<TypedPathElement> parse = parse(path);
-        return initPath(parse,rootClass,values);
+    public <T> T initPath(Class<T> rootClass, String path, Object... values) {
+        List<TypedPathElement> parse = pack(parse(path));
+        parse.get(1).setType(rootClass.getName());
+        return applyInHolder(parse,values);
     }
 
-    /**
-     * Init path object.
-     *
-     * @param path  the path
-     * @param value the value
-     * @return the object
-     */
-////
-    public Object initPath(List<TypedPathElement> path, Object value) {
-        List<TypedPathElement> newPath = pack(path);
-        return applyInHolder(newPath,value);
-    }
-
-    /**
-     * Init path object.
-     *
-     * @param path   the path
-     * @param value  the value
-     * @param value2 the value 2
-     * @param more   the more
-     * @return the object
-     */
-    public Object initPath(List<TypedPathElement> path, Object value, Object value2, Object... more) {
-        List<TypedPathElement> newPath = pack(path);
-        return applyInHolder(newPath,value,value2,more);
-    }
-
-    /**
-     * Init path object.
-     *
-     * @param path   the path
-     * @param values the values
-     * @return the object
-     */
-    public Object initPath(List<TypedPathElement> path, Collection<Object> values) {
-        List<TypedPathElement> newPath = pack(path);
-        return applyInHolder(newPath,values);
-    }
-
-    /**
-     * Init path t.
-     *
-     * @param <T>       the type parameter
-     * @param path      the path
-     * @param rootClass the root class
-     * @param value     the value
-     * @return the t
-     */
-    public <T> T initPath(List<TypedPathElement> path, Class<T> rootClass, Object value) {
-        List<TypedPathElement> newPath = pack(path);
-        newPath.get(1).setType(rootClass.getName());
-        return applyInHolder(newPath,value);
-    }
-
-    /**
-     * Init path t.
-     *
-     * @param <T>       the type parameter
-     * @param path      the path
-     * @param rootClass the root class
-     * @param value     the value
-     * @param value2    the value 2
-     * @param more      the more
-     * @return the t
-     */
-    public <T> T initPath(List<TypedPathElement> path, Class<T> rootClass, Object value, Object value2, Object... more) {
-        List<TypedPathElement> newPath = pack(path);
-        newPath.get(1).setType(rootClass.getName());
-        return applyInHolder(newPath,value,value2,more);
-    }
-
-    /**
-     * Init path t.
-     *
-     * @param <T>       the type parameter
-     * @param path      the path
-     * @param rootClass the root class
-     * @param values    the values
-     * @return the t
-     */
-    public <T> T initPath(List<TypedPathElement> path, Class<T> rootClass, Collection<Object> values) {
-        List<TypedPathElement> newPath = pack(path);
-        newPath.get(1).setType(rootClass.getName());
-        return applyInHolder(newPath,values);
-    }
+    /////////////////////
 
     /**
      * Eval path object.
@@ -261,6 +122,8 @@ public class JavaPath {
         return evalPath(parse,backRefCollection);
     }
 
+//////////////////////
+
     /**
      * Sets enable caching.
      *
@@ -270,8 +133,6 @@ public class JavaPath {
         this.enableCaching = enableCaching;
     }
 
-//////////////////////
-
     private List<TypedPathElement> parse(String path) {
         if(enableCaching) {
             return cache.computeIfAbsent(path,p->JavaPathParser.parse(p));
@@ -280,39 +141,15 @@ public class JavaPath {
         }
     }
 
-    private <T> T applyInHolder(List<TypedPathElement> path, Object value) {
-        Holder root = new Holder();
-        JavaPath pu = new JavaPath(Holder.class, classRegistry, cache, pathNumber);
-        pu.setEnableCaching(enableCaching);
-        ReferenceList backRefCollection = new ReferenceList(root,value);
-        pu.evalPath(path, backRefCollection);
-        LOG.debug("Init from value {} path {}",backRefCollection,path.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
-        return (T) root._holder_;
-    }
-
-    private <T> T applyInHolder(List<TypedPathElement> path, Object value, Object value2, Object... more) {
-        Holder root = new Holder();
-        JavaPath pu = new JavaPath(Holder.class, classRegistry, cache, pathNumber);
-        pu.setEnableCaching(enableCaching);
-        ReferenceList backRefCollection = new ReferenceList(root,value);
-        backRefCollection.addValue(value2);
-        if(more != null) {
-            Arrays.stream(more).forEach(backRefCollection::addValue);
-        }
-        LOG.debug("Init from multi-values {} path {}",backRefCollection,path.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
-        pu.evalPath(path, backRefCollection);
-        return (T) root._holder_;
-    }
-
-    private <T> T applyInHolder(List<TypedPathElement> path, Collection<Object> values) {
+    private <T> T applyInHolder(List<TypedPathElement> path, Object... values) {
         Holder root = new Holder();
         JavaPath pu = new JavaPath(Holder.class, classRegistry, cache, pathNumber);
         pu.setEnableCaching(enableCaching);
         ReferenceList backRefCollection = new ReferenceList(root);
         if(values != null) {
-            values.stream().forEach(backRefCollection::addValue);
+            Arrays.stream(values).forEach(backRefCollection::addValue);
         }
-        LOG.debug("Init from multi-values {} path {}",backRefCollection,path.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
+        LOG.debug("Init from values {} path {}",backRefCollection,path.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
         pu.evalPath(path, backRefCollection);
         return (T) root._holder_;
     }
@@ -678,6 +515,12 @@ public class JavaPath {
         return (b,v)->{throw new JavaPathRuntimeException("No setter found for "+label);};
     }
 
+    /**
+     * Sets accessible.
+     *
+     * @param constructor the constructor
+     * @return the accessible
+     */
     public static Constructor setAccessible(Constructor constructor) {
         int classModifiers  = constructor.getDeclaringClass().getModifiers();
         int constructorModifiers = constructor.getModifiers();
@@ -687,6 +530,12 @@ public class JavaPath {
         return constructor;
     }
 
+    /**
+     * Sets accessible.
+     *
+     * @param method the method
+     * @return the accessible
+     */
     public static Method setAccessible(Method method) {
         int classModifiers  = method.getDeclaringClass().getModifiers();
         int methodModifiers = method.getModifiers();
@@ -696,6 +545,12 @@ public class JavaPath {
         return method;
     }
 
+    /**
+     * Sets accessible.
+     *
+     * @param field the field
+     * @return the accessible
+     */
     public static Field setAccessible(Field field) {
         int classModifiers = field.getDeclaringClass().getModifiers();
         int fieldModifiers = field.getModifiers();

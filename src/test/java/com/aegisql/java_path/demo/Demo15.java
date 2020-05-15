@@ -56,7 +56,7 @@ public class Demo15 {
     public void test() {
         JavaPath pathUtils = new JavaPath(HashMap.class);
         Function<Relation,Map<Relation,String>> lambda = k->new HashMap<>();
-        HashMap<Relation,Map<Field,Object>> map = pathUtils.initPath("#.computeIfAbsent($0,$1).put($2,$3)", HashMap.class, FATHER, lambda, FIRST_NAME, "John");
+        HashMap<Relation,Map<Field,Object>> map = pathUtils.initPath(HashMap.class,"#.computeIfAbsent($0,$1).put($2,$3)",  FATHER, lambda, FIRST_NAME, "John");
         assertNotNull(map);
         pathUtils.evalPath("#.get($0).put($1,$2)", map, FATHER,  LAST_NAME, "Smith");
         pathUtils.evalPath("#.get($0).put($1,$2)", map, FATHER,  AGE, 35);

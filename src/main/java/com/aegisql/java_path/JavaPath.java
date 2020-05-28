@@ -130,10 +130,16 @@ public class JavaPath {
         this.enableCaching = enableCaching;
     }
 
+    public void setPathAlias(final String path, final String alias) {
+        cache.computeIfAbsent(alias,al->JavaPathParser.parse(path));
+    }
+
     //////////////////////
 
     private List<TypedPathElement> parse(String path) {
-        if(enableCaching) {
+        if(cache.containsKey(path)) {
+            return cache.get(path);
+        } else if(enableCaching) {
             return cache.computeIfAbsent(path,p->JavaPathParser.parse(p));
         } else {
             return JavaPathParser.parse(path);

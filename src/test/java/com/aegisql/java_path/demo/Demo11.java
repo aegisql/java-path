@@ -98,4 +98,48 @@ public class Demo11 {
         assertTrue(a.phones.get(WORK).contains("1-105-333-1104"));
     }
 
+    @Test
+    public void setPathAliasTest() {
+        A a = new A();
+
+        ClassRegistry  classRegistry = new ClassRegistry();
+        classRegistry.registerClass(PhoneType.class,PhoneType.class.getSimpleName());
+
+        JavaPath pathUtils = new JavaPath(A.class,classRegistry);
+
+        pathUtils.setPathAlias("phones.get(PhoneType CELL).add($0); reversedPhones.put($0,PhoneType CELL)","setCellPhone");
+        pathUtils.setPathAlias("phones.get(PhoneType HOME).add($0); reversedPhones.put($0,PhoneType HOME)","setHomePhone");
+        pathUtils.setPathAlias("phones.get(PhoneType WORK).add($0); reversedPhones.put($0,PhoneType WORK)","setWorkPhone");
+
+        //init objects
+        //pass value explicitly
+        pathUtils.evalPath("(map phones).put(PhoneType WORK)", a, new HashSet<>());
+        //or let the Map method do the job
+        pathUtils.evalPath("phones.computeIfAbsent(PhoneType HOME,key->new HashSet).@", a);
+        pathUtils.evalPath("phones.computeIfAbsent(PhoneType CELL,key->new HashSet).@", a);
+        pathUtils.evalPath("(map reversedPhones).@", a);
+
+        pathUtils.evalPath("firstName", a, "John");
+        pathUtils.evalPath("lastName", a, "Smith");
+
+        pathUtils.evalPath("setCellPhone", a, "1-101-111-2233");
+        pathUtils.evalPath("setHomePhone", a, "1-101-111-7865");
+        pathUtils.evalPath("setWorkPhone", a, "1-105-333-1100");
+        // Dollar sign is not required if it is the last or the only parameter of the method
+        pathUtils.evalPath("setWorkPhone", a, "1-105-333-1104");
+
+        assertEquals("John",a.firstName);
+        assertEquals("Smith",a.lastName);
+        assertEquals(WORK,a.reversedPhones.get("1-105-333-1100"));
+        assertEquals(WORK,a.reversedPhones.get("1-105-333-1104"));
+        assertEquals(CELL,a.reversedPhones.get("1-101-111-2233"));
+        assertEquals(HOME,a.reversedPhones.get("1-101-111-7865"));
+
+        assertTrue(a.phones.get(HOME).contains("1-101-111-7865"));
+        assertTrue(a.phones.get(CELL).contains("1-101-111-2233"));
+        assertTrue(a.phones.get(WORK).contains("1-105-333-1100"));
+        assertTrue(a.phones.get(WORK).contains("1-105-333-1104"));
+
+    }
+
 }

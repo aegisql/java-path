@@ -112,7 +112,10 @@ public class JavaPath {
         if(values == null || values.length == 0) {
             backRefCollection.addValue(null);
         } else if(values.length == 1) {
-            LOG.debug("Applying value {} to path {}",backRefCollection,parse.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
+            if(LOG.isDebugEnabled()) {
+                String msg = parse.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining("."));
+                LOG.debug("Applying value {} to path {}",backRefCollection,msg);
+            }
             backRefCollection.addValue(values[0]);
         } else {
             LOG.debug("Applying multi-values {} to path {}",backRefCollection,parse.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
@@ -290,7 +293,7 @@ public class JavaPath {
                 offerGetter(valuesRefsCollection, rootPathElement.getOptionalPathElement()).apply(valuesRefsCollection);
                 nextRoot =  getter.apply(valuesRefsCollection);
             }
-            Objects.requireNonNull(nextRoot, "Object for path element '" + rootPathElement + "' is not initialized!");
+            Objects.requireNonNull(nextRoot, "Object for path element '" + rootPathElement.getName() + "' is not initialized!");
             JavaPath nextUtils = new JavaPath(nextRoot.getClass(), classRegistry, cache, pathNumber);
             nextUtils.setEnablePathCaching(enableCaching);
             valuesRefsCollection.addRoot(nextRoot);
@@ -384,7 +387,7 @@ public class JavaPath {
                 String msg = Arrays.stream(classesForGetter).map(cls -> cls==null?"NULL":cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
                 LOG.trace("Getter method not found for name '{}' and classes {}. Trying field", label, msg);
             }
-            Field field = CallTree.forClass(aClass).findField(pl.getLabel());
+            Field field = CallTree.forClass(aClass,classRegistry).findField(pl.getLabel());
             if(field == null) {
                 LOG.trace("Field also not found. Using root of {}.class as getter.",backReferences.getRootClass().getSimpleName());
                 return b->b.getRoot();
@@ -508,7 +511,7 @@ public class JavaPath {
 
     private <T> BiFunction<ReferenceList, Object,T> fieldSetter(ParametrizedPath pl) {
         String label = pl.getLabel();
-        Field field = CallTree.forClass(aClass).findField(pl.getLabel());
+        Field field = CallTree.forClass(aClass,classRegistry).findField(pl.getLabel());
         if(field != null) {
             LOG.trace("Field for setter found {}",field);
             return (b, v)->{

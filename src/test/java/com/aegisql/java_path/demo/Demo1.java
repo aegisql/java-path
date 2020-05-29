@@ -13,7 +13,7 @@ public class Demo1 {
     /**
      * The type A.
      */
-    public static class A {
+    static class A {
         /**
          * The Name.
          */

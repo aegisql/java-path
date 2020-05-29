@@ -2,7 +2,6 @@ package com.aegisql.java_path;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * The type Parametrized property.
@@ -21,28 +20,16 @@ public class ParametrizedProperty {
     private final boolean preEvaluatedValueSet;
     private final Method factory;
 
-    private static final Function<Class<?>,StringConverter<?>> defaultConverterBuilder = cls->{
-        return strVal->{
-            StringConverter<?> converter = StringConverter.constructor(cls);
-            if(converter != null) {
-                return converter.apply(strVal);
-            }
-            converter = StringConverter.valueOf(cls);
-            if(converter != null) {
-                return converter.apply(strVal);
-            }
-            throw new JavaPathRuntimeException("Failed to find conversion method for string value '" + strVal + "' type " + cls);
-        };
-    };
-
-    /**
-     * Instantiates a new Parametrized property.
-     *
-     * @param classRegistry the class registry
-     * @param typedValue    the typed value
-     */
-    public ParametrizedProperty(ClassRegistry classRegistry, TypedValue typedValue) {
-        this(classRegistry, typedValue,false);
+    private static StringConverter<?> defaultConverter(Class<?> cls) {
+        StringConverter<?> constructor = StringConverter.constructor(cls);
+        if(constructor != null) {
+            return strVal->constructor.apply(strVal);
+        }
+        StringConverter<?> converter = StringConverter.valueOf(cls);
+        if(converter != null) {
+            return strVal->converter.apply(strVal);
+        }
+        return strVal->{throw new JavaPathRuntimeException("Failed to find conversion method for string value '" + strVal + "' type " + cls);};
     }
 
     /**
@@ -228,7 +215,7 @@ public class ParametrizedProperty {
         } else {
             StringConverter<?> supplier = classRegistry
                     .getConverter(this.typeAlias,this.propertyType.getName())
-                    .orElse(classRegistry.registerStringConverter(defaultConverterBuilder.apply(getPropertyType()),typeAlias,propertyType.getName()));
+                    .orElseGet(()->classRegistry.registerStringConverter(defaultConverter(propertyType),typeAlias,propertyType.getName()));
             return supplier.apply(propertyStr);
         }
     }

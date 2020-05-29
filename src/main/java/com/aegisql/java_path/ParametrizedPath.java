@@ -3,7 +3,6 @@ package com.aegisql.java_path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The type Parametrized path.
@@ -15,7 +14,6 @@ public class ParametrizedPath {
 
     private final ClassRegistry classRegistry;
     private final TypedPathElement pathElement;
-    private final String wholeLabel;
     private final String label;
     private boolean hasValueType = false;
     private final List<ParametrizedProperty> labelProperties;
@@ -30,16 +28,18 @@ public class ParametrizedPath {
     public ParametrizedPath(ClassRegistry classRegistry, TypedPathElement javaPath) {
         this.classRegistry = classRegistry == null? new ClassRegistry():classRegistry;
         this.pathElement = javaPath;
-        this.wholeLabel = javaPath.toString();
         this.label = javaPath.getName();
         this.parametrizedProperty = new ParametrizedProperty(this.classRegistry,pathElement.getOwnTypedValue(),true);
 
         if(this.pathElement.parametrized()) {
-            this.labelProperties = pathElement.getParameters()
-                    .stream()
-                    .map(tv-> new ParametrizedProperty(this.classRegistry,tv,false))
-                    .peek(lp->{if(lp.isValue() && lp.getPropertyType() != null) hasValueType = true;})
-                    .collect(Collectors.toList());
+            this.labelProperties = new ArrayList<>();
+            for(TypedValue tv: pathElement.getParameters()) {
+                ParametrizedProperty parametrizedProperty = new ParametrizedProperty(this.classRegistry, tv, false);
+                if(parametrizedProperty.isValue() && parametrizedProperty.getPropertyType() != null) {
+                    hasValueType = true;
+                }
+                this.labelProperties.add(parametrizedProperty);
+            }
         } else {
             this.labelProperties = Collections.EMPTY_LIST;
         }
@@ -171,7 +171,7 @@ public class ParametrizedPath {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ParametrizedLabel{");
-        sb.append(wholeLabel);
+        sb.append(pathElement.toString());
         sb.append('}');
         return sb.toString();
     }

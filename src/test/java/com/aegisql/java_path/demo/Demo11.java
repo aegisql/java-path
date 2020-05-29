@@ -4,6 +4,7 @@ import com.aegisql.java_path.ClassRegistry;
 import com.aegisql.java_path.JavaPath;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -41,19 +42,19 @@ public class Demo11 {
         /**
          * The First name.
          */
-        String firstName;
+        public String firstName;
         /**
          * The Last name.
          */
-        String lastName;
+        public String lastName;
         /**
          * The Phones.
          */
-        Map<PhoneType, Set<String>> phones;
+        public Map<PhoneType, Set<String>> phones;
         /**
          * The Reversed phones.
          */
-        Map<String, PhoneType> reversedPhones;
+        public Map<String, PhoneType> reversedPhones;
     }
 
     /**
@@ -141,5 +142,92 @@ public class Demo11 {
         assertTrue(a.phones.get(WORK).contains("1-105-333-1104"));
 
     }
+
+    @Test
+    public void perfNoCachingTest() {
+        A a = new A();
+
+        ClassRegistry  classRegistry = new ClassRegistry();
+        classRegistry.registerClass(PhoneType.class,PhoneType.class.getSimpleName());
+        classRegistry.registerStringConverter(PhoneType.class,PhoneType::valueOf);
+
+        JavaPath pathUtils = new JavaPath(A.class,classRegistry);
+        pathUtils.setEnablePathCaching(false);
+        long start = System.nanoTime();
+        evalLoop("no cache",pathUtils);
+        long end = System.nanoTime();
+        System.out.println("Total time: "+(end-start)/1.0E9);
+    }
+
+    @Test
+    public void perfWithCachingTest() {
+        A a = new A();
+
+        ClassRegistry  classRegistry = new ClassRegistry();
+        classRegistry.registerClass(PhoneType.class,PhoneType.class.getSimpleName());
+
+        JavaPath pathUtils = new JavaPath(A.class,classRegistry);
+        pathUtils.setEnablePathCaching(true);
+
+        long start = System.nanoTime();
+        evalLoop("cache",pathUtils);
+        long end = System.nanoTime();
+        System.out.println("Total time: "+(end-start)/1.0E9);
+    }
+
+    private void evalLoop(String name, JavaPath pathUtils) {
+        A a;
+        long start = System.nanoTime();
+
+        for(int i = 1; i < 50001; i++) {
+            a = new A();
+            if(i % 10000 == 0) {
+                long end = System.nanoTime();
+                System.out.println(name+" "+i + " "+(end-start)/1.0E9);
+                start = end;
+            }
+            pathUtils.evalPath("(HashMap phones).computeIfAbsent(PhoneType WORK,key->new HashSet).@", a);
+            pathUtils.evalPath("phones.computeIfAbsent(PhoneType HOME,key->new HashSet).@", a);
+            pathUtils.evalPath("phones.computeIfAbsent(PhoneType CELL,key->new HashSet).@", a);
+            pathUtils.evalPath("(map reversedPhones).@", a);
+            pathUtils.evalPath("firstName", a, "John");
+            pathUtils.evalPath("lastName", a, "Smith");
+            pathUtils.evalPath("phones.get(PhoneType CELL).add($0); reversedPhones.put($0,PhoneType CELL)", a, "1-101-111-2233");
+            pathUtils.evalPath("phones.get(PhoneType HOME).add($0); reversedPhones.put($0,PhoneType HOME)", a, "1-101-111-7865");
+            pathUtils.evalPath("phones.get(PhoneType WORK).add($0); reversedPhones.put($0,PhoneType WORK)", a, "1-105-333-1100");
+            pathUtils.evalPath("phones.get(PhoneType WORK).add; reversedPhones.put($0,PhoneType WORK)", a, "1-105-333-1104");
+        }
+    }
+
+    @Test
+    public void evalDirectLoop() {
+        A a;
+        long start = System.nanoTime();
+        for(int i = 0; i < 30000; i++) {
+            a = new A();
+            //init objects
+            if(i % 10000 == 0) {
+                System.out.println("direct "+i);
+            }
+            a.phones = new HashMap<>();
+            a.phones.put(WORK,new HashSet<>());
+            a.phones.put(HOME,new HashSet<>());
+            a.phones.put(CELL,new HashSet<>());
+            a.reversedPhones = new HashMap<>();
+            a.firstName = "John";
+            a.lastName = "Smith";
+            a.phones.get(CELL).add("1-101-111-2233");
+            a.reversedPhones.put("1-101-111-2233",CELL);
+            a.phones.get(HOME).add("1-101-111-7865");
+            a.reversedPhones.put("1-101-111-7865",HOME);
+            a.phones.get(WORK).add("1-105-333-1100");
+            a.reversedPhones.put("1-105-333-1100",WORK);
+            a.phones.get(WORK).add("1-105-333-1104");
+            a.reversedPhones.put("1-105-333-1104",WORK);
+        }
+        long end = System.nanoTime();
+        System.out.println("Total time: "+(end-start)/1.0E9);
+    }
+
 
 }

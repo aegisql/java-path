@@ -55,7 +55,7 @@ public class CallableNode {
                 Class<?> returnType = method.getReturnType();
                 Class<?> parameterType = method.getParameterTypes()[0];
                 if(returnType == myClass && parameterType == String.class) {
-                    classRegistry.registerStringConverter(myClass,StringConverter.factory(myClass,method.getName()));
+                    classRegistry.getConverter(myClass.getName()).orElseGet(()->classRegistry.registerStringConverter(myClass,StringConverter.factory(myClass,method.getName())));
                 }
             }
         } else {

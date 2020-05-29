@@ -69,6 +69,7 @@ public interface StringConverter<T> extends Function<String,T> {
     static <X> StringConverter<X> constructor(Class<X> aClass) {
         final Constructor<?> constructor;
         try {
+            System.err.println("Constructor for "+aClass);
             constructor = aClass.getConstructor(String.class);
         } catch (NoSuchMethodException e) {
             return null;

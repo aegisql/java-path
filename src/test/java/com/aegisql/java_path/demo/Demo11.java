@@ -203,7 +203,7 @@ public class Demo11 {
     public void evalDirectLoop() {
         A a;
         long start = System.nanoTime();
-        for(int i = 0; i < 30000; i++) {
+        for(int i = 0; i < 50000; i++) {
             a = new A();
             //init objects
             if(i % 10000 == 0) {

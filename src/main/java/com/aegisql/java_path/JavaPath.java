@@ -112,13 +112,13 @@ public class JavaPath {
         if(values == null || values.length == 0) {
             backRefCollection.addValue(null);
         } else if(values.length == 1) {
-            if(LOG.isDebugEnabled()) {
-                String msg = parse.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining("."));
-                LOG.debug("Applying value {} to path {}",backRefCollection,msg);
-            }
+            //if(LOG.isDebugEnabled()) {
+            //    String msg = parse.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining("."));
+            //    LOG.debug("Applying value {} to path {}",backRefCollection,msg);
+            //}
             backRefCollection.addValue(values[0]);
         } else {
-            LOG.debug("Applying multi-values {} to path {}",backRefCollection,parse.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
+            //LOG.debug("Applying multi-values {} to path {}",backRefCollection,parse.stream().map(tpe->tpe==null?";":tpe.toString()).collect(Collectors.joining(".")));
             Arrays.stream(values).forEach(backRefCollection::addValue);
         }
         return evalPath(parse,backRefCollection);
@@ -226,7 +226,7 @@ public class JavaPath {
             }
         }
 
-        LOG.trace("Processing path element: {}; root object: {}",rootPathElement,valuesRefsCollection.getRoot());
+        //LOG.trace("Processing path element: {}; root object: {}",rootPathElement,valuesRefsCollection.getRoot());
         if(rootPathElement.getName().startsWith("@")) {
             if(rootPathElement.getType() == null) {
                 return evalPath(path.subList(1,path.size()),valuesRefsCollection);
@@ -289,7 +289,7 @@ public class JavaPath {
             return nextUtils.evalPath(path.subList(1, path.size()), valuesRefsCollection);
         } else {
             if(nextRoot == null && rootPathElement.getOptionalPathElement() != null) {
-                LOG.debug("Pathe element {} return null. Trying optional init {}",rootPathElement,rootPathElement.getOptionalPathElement());
+                //LOG.debug("Pathe element {} return null. Trying optional init {}",rootPathElement,rootPathElement.getOptionalPathElement());
                 offerGetter(valuesRefsCollection, rootPathElement.getOptionalPathElement()).apply(valuesRefsCollection);
                 nextRoot =  getter.apply(valuesRefsCollection);
             }
@@ -303,7 +303,7 @@ public class JavaPath {
 
     private void applyValueReference(ReferenceList valuesRefsCollection, TypedValue tv) {
         List<TypedPathElement> typedPathElements = new ArrayList<>(tv.getTypedPathElements());
-        LOG.debug("ValueRef Value {} has own path that will be evaluated: {}", tv.getValue(), typedPathElements);
+        //LOG.debug("ValueRef Value {} has own path that will be evaluated: {}", tv.getValue(), typedPathElements);
         Object pathRoot = valuesRefsCollection.getValue(tv.getValueIdx());
         Class<?> pathRootClass = pathRoot.getClass();
         ReferenceList rl = new ReferenceList(pathRoot);
@@ -314,7 +314,7 @@ public class JavaPath {
         JavaPath javaPath = new JavaPath(pathRootClass, classRegistry, cache, pathNumber);
         tv.setPreEvaluatedValueSet(true);
         Object res = javaPath.evalPath(typedPathElements, rl);
-        LOG.trace("ValueRef Evaluation result: {}", res);
+        //LOG.trace("ValueRef Evaluation result: {}", res);
         tv.setPreEvaluatedValue(res);
         tv.setType(res == null ? tv.getType() : res.getClass().getName());
         tv.setValueIdx(-1);
@@ -322,7 +322,7 @@ public class JavaPath {
 
     private void applyBackReference(ReferenceList valuesRefsCollection, TypedValue tv) {
         List<TypedPathElement> typedPathElements = new ArrayList<>(tv.getTypedPathElements());
-        LOG.debug("BackRef Value {} has own path that will be evaluated: {}", tv.getValue(), typedPathElements);
+        //LOG.debug("BackRef Value {} has own path that will be evaluated: {}", tv.getValue(), typedPathElements);
         Object pathRoot = valuesRefsCollection.getReference(tv.getBackRefIdx());
         Class<?> pathRootClass = pathRoot.getClass();
         ReferenceList rl = new ReferenceList(pathRoot);
@@ -334,7 +334,7 @@ public class JavaPath {
         JavaPath javaPath = new JavaPath(pathRootClass, classRegistry, cache, pathNumber);
         tv.setPreEvaluatedValueSet(true);
         Object res = javaPath.evalPath(typedPathElements, rl);
-        LOG.trace("BackRef Evaluation result: {}", res);
+        //LOG.trace("BackRef Evaluation result: {}", res);
         tv.setPreEvaluatedValue(res);
         tv.setType(res == null ? tv.getType() : res.getClass().getName());
         tv.setBackRefIdx(-1);
@@ -351,7 +351,7 @@ public class JavaPath {
                 constructor = constructors.iterator().next();
             }
         if(constructor != null) {
-            LOG.trace("Constructor found {}",constructor);
+            //LOG.trace("Constructor found {}",constructor);
             Constructor finalConstructor = constructor;
             return b->{
                 Object[] propertiesForGetter = pl.getPropertiesForGetter(b);
@@ -359,7 +359,7 @@ public class JavaPath {
             };
         } else {
             String msg = Arrays.stream(classesForGetter).map(cls -> cls==null?"NULL":cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
-            LOG.trace("Constructor not found for classes {}.",msg);
+            //LOG.trace("Constructor not found for classes {}.",msg);
             throw new JavaPathRuntimeException("Could not find constructor for "+javaPath);
         }
     }
@@ -375,7 +375,7 @@ public class JavaPath {
                 method = methods.iterator().next();
             }
         if(method != null) {
-            LOG.trace("Getter method found {}",method);
+            //LOG.trace("Getter method found {}",method);
             Method finalMethod = method;
             return b->{
                 Object[] propertiesForGetter = pl.getPropertiesForGetter(b);
@@ -383,16 +383,16 @@ public class JavaPath {
             };
         } else {
             String label = pl.getLabel();
-            if(LOG.isTraceEnabled()) {
-                String msg = Arrays.stream(classesForGetter).map(cls -> cls==null?"NULL":cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
-                LOG.trace("Getter method not found for name '{}' and classes {}. Trying field", label, msg);
-            }
+            //if(LOG.isTraceEnabled()) {
+            //    String msg = Arrays.stream(classesForGetter).map(cls -> cls==null?"NULL":cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
+            //    LOG.trace("Getter method not found for name '{}' and classes {}. Trying field", label, msg);
+            //}
             Field field = CallTree.forClass(aClass,classRegistry).findField(pl.getLabel());
             if(field == null) {
-                LOG.trace("Field also not found. Using root of {}.class as getter.",backReferences.getRootClass().getSimpleName());
+                //LOG.trace("Field also not found. Using root of {}.class as getter.",backReferences.getRootClass().getSimpleName());
                 return b->b.getRoot();
             } else {
-                LOG.trace("Field found {}",field);
+                //LOG.trace("Field found {}",field);
                 return b->get(backReferences, pl,field,b.getRoot());
             }
         }
@@ -410,7 +410,7 @@ public class JavaPath {
                 method = methods.iterator().next();
             }
         if(method != null) {
-            LOG.trace("Setter method found {}",method);
+            //LOG.trace("Setter method found {}",method);
             Method finalMethod = method;
             if(method.getParameterCount() == 0) {
                 return b-> (T) invoke(finalMethod,b.getRoot(),null);
@@ -418,10 +418,10 @@ public class JavaPath {
                 return b-> (T) invoke(finalMethod, b.getRoot(), pl.getPropertiesForSetter(b));
             }
         } else {
-            if(LOG.isTraceEnabled()) {
-                String msg = Arrays.stream(classesForSetter).map(cls -> cls==null?"NULL":cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
-                LOG.trace("Setter method not found for name '{}' and classes {}. Trying field", pl.getLabel(),msg);
-            }
+            //if(LOG.isTraceEnabled()) {
+            //    String msg = Arrays.stream(classesForSetter).map(cls -> cls==null?"NULL":cls.getSimpleName()).collect(Collectors.joining(",", "[", "]"));
+            //    LOG.trace("Setter method not found for name '{}' and classes {}. Trying field", pl.getLabel(),msg);
+            //}
             int pos = pl.getLabelProperties().size() == 0 ? pathNumber : pl.getLabelProperties().get(0).getValueIdx();
             Object value = null;
             if(pos >= 0) {
@@ -513,13 +513,13 @@ public class JavaPath {
         String label = pl.getLabel();
         Field field = CallTree.forClass(aClass,classRegistry).findField(pl.getLabel());
         if(field != null) {
-            LOG.trace("Field for setter found {}",field);
+            //LOG.trace("Field for setter found {}",field);
             return (b, v)->{
                 set(field, b.getRoot(), v);
                 return (T) v;
             };
         }
-        LOG.trace("Field for setter not found for name '{}'",label);
+        //LOG.trace("Field for setter not found for name '{}'",label);
         return (b,v)->{throw new JavaPathRuntimeException("No setter found for "+label);};
     }
 

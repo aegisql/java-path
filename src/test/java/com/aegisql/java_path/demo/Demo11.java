@@ -175,11 +175,13 @@ public class Demo11 {
         System.out.println("Total time: "+(end-start)/1.0E9);
     }
 
+    public static int LOOP_SIZE = 1000001;
+
     private void evalLoop(String name, JavaPath pathUtils) {
         A a;
         long start = System.nanoTime();
 
-        for(int i = 1; i < 50001; i++) {
+        for(int i = 1; i < LOOP_SIZE; i++) {
             a = new A();
             if(i % 10000 == 0) {
                 long end = System.nanoTime();
@@ -203,7 +205,7 @@ public class Demo11 {
     public void evalDirectLoop() {
         A a;
         long start = System.nanoTime();
-        for(int i = 0; i < 50000; i++) {
+        for(int i = 1; i < LOOP_SIZE; i++) {
             a = new A();
             //init objects
             if(i % 10000 == 0) {

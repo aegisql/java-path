@@ -198,6 +198,11 @@
             <version>2.13.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.aegisql</groupId>
+            <artifactId>java-path</artifactId>
+            <version>0.2.2</version>
+        </dependency>
 
     </dependencies>
 
